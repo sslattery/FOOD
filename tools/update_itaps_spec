@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# iBase
+wget https://redmine.scorec.rpi.edu/anonsvn/itaps/software/tags/1.3/interfaces/iBase/spec/iBase.h
+
+mv iBase.h ../itaps/iBase.h
+
+# iMesh
+wget https://redmine.scorec.rpi.edu/anonsvn/itaps/software/tags/1.3/interfaces/iMesh/spec/iMesh.h
+
+mv iMesh.h ../itaps/iMesh.h
+
+# iGeom
+wget https://redmine.scorec.rpi.edu/anonsvn/itaps/software/tags/1.3/interfaces/iGeom/spec/iGeom.h
+
+mv iGeom.h ../itaps/iGeom.h
+
+# iRel
+wget https://redmine.scorec.rpi.edu/anonsvn/itaps/software/tags/1.3/interfaces/iRel/spec/iRel.h
+
+mv iRel.h ../itaps/iRel.h
+
+# iField
+wget https://redmine.scorec.rpi.edu/anonsvn/itaps/software/tags/1.3/interfaces/iField/spec/iField.h
+
+mv iField.h ../itaps/iField.h
