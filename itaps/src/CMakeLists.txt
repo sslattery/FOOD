@@ -21,10 +21,7 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
   iBase.h
-  iField.h
-  iGeom.h
   iMesh.h
-  iRel.h
   )
 
 # Set sources
