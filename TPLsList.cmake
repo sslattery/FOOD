@@ -7,6 +7,8 @@
 #
 
 SET(FOOD_TPLS_FINDMODS_CLASSIFICATIONS
+  iBase      "cmake/TPLs/"      EX
+  iMesh      "cmake/TPLs/"      EX
   )
 
 # NOTE: Above, the paths to the FindTPL<TPLNAME> modules (with an implicit
