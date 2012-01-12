@@ -22,12 +22,14 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 APPEND_SET(HEADERS
   Types.hpp
   Domain.hpp
+  Quantity.hpp
   )
 
 # Set sources
 
 APPEND_SET(SOURCES
   Domain.cpp
+  Quantity.cpp
   )
 
 # Set addition headers and source based on package-specific
