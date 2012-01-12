@@ -7,6 +7,7 @@
 #
 
 SET(FOOD_TPLS_FINDMODS_CLASSIFICATIONS
+  HDF5       "cmake/TPLs/"      EX
   iMesh      "cmake/TPLs/"      EX
   )
 

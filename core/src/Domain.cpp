@@ -15,9 +15,9 @@ namespace FOOD
  * in the given mesh instance, and the entity set is a set of mesh entities
  * from that instance. The set may be the root set.  
  */
-Domain::Domain(iMesh_Instance mesh_instance, iBase_EntitySetHandle set_handle)
-    : d_mesh( Teuchos::rcp(mesh_instance) )
-    , d_mesh_set( Teuchos::rcp(set_handle) )
+Domain::Domain(Mesh mesh_instance, EntitySet set_handle)
+    : d_mesh( mesh_instance )
+    , d_mesh_set( set_handle )
 { /* ... */ }
 
 /*!
@@ -42,18 +42,19 @@ Domain::~Domain()
  * iMesh definition.
  * \return Iterator over specified entity type and topology.
  */
-Domain::EntityIterator Domain::initEntIter(const int entity_type, 
-					   const int entity_topology)
+Domain::ErrorCode Domain::initEntIter(const int entity_type, 
+				      const int entity_topology,
+				      EntityIterator iterator)
 {
-    ErrorCode return_code = 0;
-    EntityIterator return_iterator = 0;
-    iMesh_initEntIter(d_mesh->ptr(),
-		      d_mesh_set->ptr(),
+    ErrorCode return_code;
+    iMesh_initEntIter(d_mesh,
+		      d_mesh_set,
 		      entity_type,
 		      entity_topology,
-		      return_iterator,
-		      return_code);
-    return return_iterator;
+		      0,
+		      iterator,
+		      &return_code);
+    return return_code;
 }
 
 /*!
@@ -75,20 +76,21 @@ Domain::EntityIterator Domain::initEntIter(const int entity_type,
  * \param array_size Size of blocks for iterator to return.
  * \return Array iterator over specified entity type and topology.
  */
-Domain::EntityIterator Domain::initEntArrIter(const int entity_type,
-					      const int entity_topology,
-					      const int array_size)
+Domain::ErrorCode Domain::initEntArrIter(const int entity_type,
+					 const int entity_topology,
+					 const int array_size,
+					 EntityArrayIterator iterator)
 {
-    ErrorCode return_code = 0;
-    EntityIterator return_iterator = 0;
-    iMesh_initEntArrIter(d_mesh->ptr(),
-			 d_mesh_set->ptr(),
+    ErrorCode return_code;
+    iMesh_initEntArrIter(d_mesh,
+			 d_mesh_set,
 			 entity_type,
 			 entity_topology,
 			 array_size,
-			 return_iterator,
-			 return_code);
-    return return_iterator;
+			 0,
+			 iterator,
+			 &return_code);
+    return return_code;
 }
 
 }

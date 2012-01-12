@@ -51,23 +51,6 @@ enum StorageHint {
     StorageHint_MAX =  PER_ENTITY
 };
 
-// Tag types.
-enum TagValueType {
-    TagValueType_MIN = 0,
-    BYTES =  TagValueType_MIN,
-    /**< An opaque sequence of bytes, size always measured in bytes */
-    INTEGER,
-    /**< A value of type \c int */
-    DOUBLE,
-    /**< A value of type \c double */
-    ENTITY_HANDLE,
-    /**< A value of type \c  EntityHandle */
-    ENTITY_SET_HANDLE,
-    /**< A value of type \c  EntitySetHandle */
-    TagValueType_MAX =  ENTITY_SET_HANDLE
-};
-
-
 } // end namespace FOOD
 
 #endif // end FOOD_TYPES_HPP
