@@ -10,6 +10,7 @@
 #include <string>
 
 #include <Teuchos_Tuple.hpp>
+#include <Teuchos_ArrayView.hpp>
 
 namespace FOOD
 {
@@ -27,35 +28,36 @@ class Quantity
     // Name of this quantity.
     std::string d_name;
 
-    // Abbreviation for this quantity.
-    std::string d_abbr;
-
   public:
 
     // Constructor.
     Quantity( const Teuchos::Tuple<int,7> &numerator,
 	      const Teuchos::Tuple<int,7> &denominator,
-	      const std::string &name,
-	      const std::string &abbr = name);
+	      const std::string &name );
 
     // Destructor.
     ~Quantity();
 
     //! Get the numerator powers for this quantity.
-    Teuchos::Tuple<int,7> getQuantityNumerator() const
+    const Teuchos::Tuple<int,7>& getQuantityNumerator() const
     { return d_numerator; }
 
     //! Get the denominator powers for this quantity.
-    Teuchos::Tuple<int,7> getQuantityDenominator() const
+    const Teuchos::Tuple<int,7>& getQuantityDenominator() const
     { return d_denominator; }
 
     //! Get the name for this quantity.
     std::string getQuantityName() const
     { return d_name; }
 
-    //! Get the abbreviation for this quantity.
-    std::string getQuantityAbbr() const
-    { return d_abbr; }
+    // Assignment operator.
+    Quantity& operator=( const Quantity& quantity );
+
+    // Multiplication operator. Used for creating derived quantities.
+    Quantity operator*( const Quantity &quantity );
+
+    // Rename a quantity. Do this if derived.
+    void renameQuantity( const std::string &new_name );
 };
 
 } // end namespace FOOD
