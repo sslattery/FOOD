@@ -53,8 +53,8 @@ Quantity Quantity::operator*(const Quantity &quantity)
 
     for (int i = 0; i < 7; ++i)
     {
-	product = quantity.getQuantityNumerator()[i] * d_numerator[i] -
-		  quantity.getQuantityDenominator()[i] * d_denominator[i];
+	product = quantity.getQuantityNumerator()[i] + d_numerator[i] -
+		  quantity.getQuantityDenominator()[i] - d_denominator[i];
 
 	if ( product > 0 )
 	{

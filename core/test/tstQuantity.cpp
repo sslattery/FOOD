@@ -71,7 +71,7 @@ TEUCHOS_UNIT_TEST( Quantity, derived_quantity_test )
 	first_numerator[i] = i;
 	first_denominator[i] = 6 - i;
 	second_numerator[i] = i;
-	second_denominator[i] = i;
+	second_denominator[i] = 2*i+1;
     }
 
     FOOD::Quantity first_quantity(first_numerator, 
@@ -84,19 +84,19 @@ TEUCHOS_UNIT_TEST( Quantity, derived_quantity_test )
     FOOD::Quantity derived_quantity = first_quantity*second_quantity;
 
     TEST_ASSERT( derived_quantity.getQuantityNumerator()[0]   == 0 );
-    TEST_ASSERT( derived_quantity.getQuantityDenominator()[0] == 0 );
+    TEST_ASSERT( derived_quantity.getQuantityDenominator()[0] == 7 );
     TEST_ASSERT( derived_quantity.getQuantityNumerator()[1]   == 0 );
-    TEST_ASSERT( derived_quantity.getQuantityDenominator()[1] == 4 );
+    TEST_ASSERT( derived_quantity.getQuantityDenominator()[1] == 6 );
     TEST_ASSERT( derived_quantity.getQuantityNumerator()[2]   == 0 );
-    TEST_ASSERT( derived_quantity.getQuantityDenominator()[2] == 4 );
+    TEST_ASSERT( derived_quantity.getQuantityDenominator()[2] == 5 );
     TEST_ASSERT( derived_quantity.getQuantityNumerator()[3]   == 0 );
-    TEST_ASSERT( derived_quantity.getQuantityDenominator()[3] == 0 );
-    TEST_ASSERT( derived_quantity.getQuantityNumerator()[4]   == 8 );
-    TEST_ASSERT( derived_quantity.getQuantityDenominator()[4] == 0 );
-    TEST_ASSERT( derived_quantity.getQuantityNumerator()[5]   == 20 );
-    TEST_ASSERT( derived_quantity.getQuantityDenominator()[5] == 0 );
-    TEST_ASSERT( derived_quantity.getQuantityNumerator()[6]   == 36 );
-    TEST_ASSERT( derived_quantity.getQuantityDenominator()[6] == 0 );
+    TEST_ASSERT( derived_quantity.getQuantityDenominator()[3] == 4 );
+    TEST_ASSERT( derived_quantity.getQuantityNumerator()[4]   == 0 );
+    TEST_ASSERT( derived_quantity.getQuantityDenominator()[4] == 3 );
+    TEST_ASSERT( derived_quantity.getQuantityNumerator()[5]   == 0 );
+    TEST_ASSERT( derived_quantity.getQuantityDenominator()[5] == 2 );
+    TEST_ASSERT( derived_quantity.getQuantityNumerator()[6]   == 0 );
+    TEST_ASSERT( derived_quantity.getQuantityDenominator()[6] == 1 );
     TEST_ASSERT( derived_quantity.getQuantityName() == "DERIVED" );
 
     derived_quantity.renameQuantity("THIRD_QUANTITY");
