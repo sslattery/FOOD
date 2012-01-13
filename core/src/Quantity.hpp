@@ -50,9 +50,6 @@ class Quantity
     std::string getQuantityName() const
     { return d_name; }
 
-    // Assignment operator.
-    Quantity& operator=( const Quantity& quantity );
-
     // Multiplication operator. Used for creating derived quantities.
     Quantity operator*( const Quantity &quantity );
 
