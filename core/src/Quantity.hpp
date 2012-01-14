@@ -47,14 +47,14 @@ class Quantity
     { return d_denominator; }
 
     //! Get the name for this quantity.
-    std::string getQuantityName() const
+    const std::string& getQuantityName() const
     { return d_name; }
 
     // Multiplication operator. Used for creating derived quantities.
     Quantity operator*( const Quantity &quantity );
 
     // Rename a quantity. Do this if derived.
-    void renameQuantity( const std::string &new_name );
+    void setQuantityName( const std::string &new_name );
 };
 
 } // end namespace FOOD

@@ -23,6 +23,7 @@ APPEND_SET(HEADERS
   Types.hpp
   Domain.hpp
   Quantity.hpp
+  Unit.hpp
   )
 
 # Set sources
@@ -30,6 +31,7 @@ APPEND_SET(HEADERS
 APPEND_SET(SOURCES
   Domain.cpp
   Quantity.cpp
+  Unit.cpp
   )
 
 # Set addition headers and source based on package-specific

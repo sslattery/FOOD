@@ -99,7 +99,7 @@ TEUCHOS_UNIT_TEST( Quantity, derived_quantity_test )
     TEST_ASSERT( derived_quantity.getQuantityDenominator()[6] == 1 );
     TEST_ASSERT( derived_quantity.getQuantityName() == "DERIVED" );
 
-    derived_quantity.renameQuantity("THIRD_QUANTITY");
+    derived_quantity.setQuantityName("THIRD_QUANTITY");
     TEST_ASSERT( derived_quantity.getQuantityName() == "THIRD_QUANTITY" );
 }
 

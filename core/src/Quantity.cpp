@@ -82,7 +82,7 @@ Quantity Quantity::operator*(const Quantity &quantity)
 /*!
  * \brief Rename a quantity. Do this if derived.
  */
-void Quantity::renameQuantity( const std::string &new_name )
+void Quantity::setQuantityName( const std::string &new_name )
 {
     d_name = new_name;
 }
