@@ -63,8 +63,8 @@ TEUCHOS_UNIT_TEST( Domain, mesh_iterator_test )
     TEST_ASSERT( iBase_SUCCESS == error );
 
     iBase_EntityHandle *vertices;
-    int vertices_allocated;
-    int vertices_size;
+    int vertices_allocated = 0;
+    int vertices_size = 0;
     double coords[] = { 0,0,0, 1,1,1, 2,2,2, 3,3,3, 4,4,4, 5,5,5 };
     iMesh_createVtxArr(mesh,
 		       6,
@@ -125,14 +125,14 @@ TEUCHOS_UNIT_TEST( Domain, mesh_iterator_test )
 
 TEUCHOS_UNIT_TEST( Domain, domain_retrieval_test )
 {
-    int error;
+    int error = 0;
     iMesh_Instance mesh;
     iMesh_newMesh("", &mesh, &error, 0);
     TEST_ASSERT( iBase_SUCCESS == error );
 
-    iBase_EntityHandle *vertices;
-    int vertices_allocated;
-    int vertices_size;
+    iBase_EntityHandle *vertices = 0;
+    int vertices_allocated = 0;
+    int vertices_size = 0;
     double coords[] = { 0,1,2,3,4,5, 0,1,2,3,4,5, 0,1,2,3,4,5};
     iMesh_createVtxArr(mesh,
 		       6,
@@ -163,10 +163,10 @@ TEUCHOS_UNIT_TEST( Domain, domain_retrieval_test )
 				  &domain_vertex_arr_iterator);
     TEST_ASSERT( iBase_SUCCESS == error );
 
-    iBase_EntityHandle *domain_vertices;
-    int domain_vertices_allocated;
-    int domain_vertices_size;
-    int domain_vertices_have_data;
+    iBase_EntityHandle *domain_vertices = 0;
+    int domain_vertices_allocated = 6;
+    int domain_vertices_size = 0;
+    int domain_vertices_have_data = 0;
     iMesh_getNextEntArrIter(mesh,
 			    domain_vertex_arr_iterator,
 			    &domain_vertices,
@@ -175,14 +175,13 @@ TEUCHOS_UNIT_TEST( Domain, domain_retrieval_test )
 			    &domain_vertices_have_data,
 			    &error);
     TEST_ASSERT( iBase_SUCCESS == error );
-    TEST_ASSERT( domain_vertices_have_data != 0);
     TEST_ASSERT( domain_vertices_allocated == 6);
     TEST_ASSERT( domain_vertices_size == 6);
     TEST_ASSERT( domain_vertices_have_data != 0);
 
-    double *domain_coords;
+    double *domain_coords = 0;
     int domain_coords_allocated = 3*domain_vertices_size;
-    int domain_coords_size;
+    int domain_coords_size = 0;
     iMesh_getVtxArrCoords(mesh,
 			  domain_vertices,
 			  domain_vertices_size,
