@@ -24,6 +24,7 @@ APPEND_SET(HEADERS
   Domain.hpp
   Quantity.hpp
   Unit.hpp
+  TensorTemplate.hpp
   )
 
 # Set sources
@@ -32,6 +33,7 @@ APPEND_SET(SOURCES
   Domain.cpp
   Quantity.cpp
   Unit.cpp
+  TensorTemplate.cpp
   )
 
 # Set addition headers and source based on package-specific

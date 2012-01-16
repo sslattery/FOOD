@@ -13,7 +13,7 @@
 
 #include <Teuchos_RCP.hpp>
 
-namspace FOOD
+namespace FOOD
 {
 
 class Unit
@@ -69,14 +69,11 @@ class Unit
     const std::string& getUnitName() const
     { return d_name; }
 
-    // Multiplication operator.
-    Unit operator*( const Unit &unit );
-
     // Set the name of this unit.
     void setUnitName( const std::string &new_name );
 
     // Set the name of the quantity this unit is a measure of.
-    void setUnitQuantityName( const std::string &new_name )
+    void setUnitQuantityName( const std::string &new_name );
 };
 
 } // end namespace FOOD

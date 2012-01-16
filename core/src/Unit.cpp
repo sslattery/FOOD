@@ -29,14 +29,6 @@ Unit::~Unit()
 { /* ... */ }
 
 /*!
- * \brief Multiplication operator.
- */
-Unit Unit::operator*( const Unit &unit )
-{
-    
-}
-
-/*!
  * \brief Set the name of this unit.
  */
 void Unit::setUnitName( const std::string &new_name )
