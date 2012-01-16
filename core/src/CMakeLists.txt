@@ -25,6 +25,8 @@ APPEND_SET(HEADERS
   Quantity.hpp
   Unit.hpp
   TensorTemplate.hpp
+  TensorField.hpp
+  TensorField_Def.hpp
   )
 
 # Set sources
