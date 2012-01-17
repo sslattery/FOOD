@@ -2,6 +2,13 @@ INCLUDE(TribitsAddExecutableAndTest)
 INCLUDE(TribitsAddAdvancedTest)
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  iMesh_test
+  SOURCES tstiMesh.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
+  COMM serial mpi
+  STANDARD_PASS_OUTPUT
+  )
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
   Domain_test
   SOURCES tstDomain.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   COMM serial mpi
@@ -25,13 +32,6 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   TensorTemplate_test
   SOURCES tstTensorTemplate.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
-  COMM serial mpi
-  STANDARD_PASS_OUTPUT
-  )
-
-TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  TensorField_test
-  SOURCES tstTensorField.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
   )

@@ -33,6 +33,27 @@ template<class ScalarType>
 TensorField<ScalarType>::~TensorField()
 { /* ... */ }
 
+/*! 
+ * \brief Attach this field to tag data.
+ */
+template<class ScalarType>
+TensorField<ScalarType>::attachToTagData( iBase_TagHandle dof_tag,
+					  ScalarType untagged_values )
+{
+    
+
+    int tag_value_allocated = 0;
+    int tag_value_size = 0;
+    iMesh_getArrData( d_domain->getDomainMesh(),
+		      d_domain->getDomainMeshSet(),
+		      dof_tag,
+		      d_dofs,
+		      &tag_value_allocated,
+		      &tag_value_size,
+		      &error );
+    assert( iBase_SUCCESS == error );
+}
+
 }
 
 #endif // end FOOD_TENSORFIELD_DEF_HPP
