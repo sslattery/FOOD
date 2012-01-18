@@ -325,12 +325,14 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_vertex_tag_test )
     TEST_ASSERT( (int) field.getTensorFieldDFMap()->getGlobalNumElements()
 		 == num_vertices*mySize );
     TEST_ASSERT( (int) field.getTensorFieldDFView().size() == num_vertices );
+    TEST_ASSERT( (int) field.getTensorFieldDFConstView().size() == num_vertices );
 
     for (int i = 0; i < num_vertices; ++i)
     {
 	TEST_ASSERT( (int) field.getTensorFieldDFMap()->getNodeElementList()[i]
 		     == myRank*mySize + i );
 	TEST_ASSERT( field.getTensorFieldDFView()[i] == (double) i );
+	TEST_ASSERT( field.getTensorFieldDFConstView()[i] == (double) i );
     }
 }
 

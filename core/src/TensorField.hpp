@@ -54,7 +54,7 @@ class TensorField
     // The communicator this field is defined on.
     RCP_Communicator d_comm;
 
-    // The degrees of freedom represented by this field.
+    // The degrees of freedom represented by this field. Interleaved storage.
     Teuchos::ArrayRCP<ScalarType> d_dofs;
 
     // Tpetra map for the degrees of freedom represented by this field.
@@ -102,12 +102,20 @@ class TensorField
     // Attach this field to array data.
     ErrorCode attachToArrayData( Teuchos::ArrayView<ScalarType> dof_array );
 
-    //! Get all the degrees of freedom for this field.
+    //! Get a view of all the degrees of freedom for this field.
     Teuchos::ArrayView<ScalarType> getTensorFieldDFView()
     { return Teuchos::ArrayView<ScalarType>(d_dofs); }
 
-    //! Get a component of the degrees of freedom for this field.
+    //! Get a const view of all the degrees of freedom for this field.
+    const Teuchos::ArrayView<const ScalarType> getTensorFieldDFConstView() const
+    { return Teuchos::ArrayView<ScalarType>(d_dofs); }
+
+    //! Get a component view of the degrees of freedom for this field.
     Teuchos::ArrayView<ScalarType> getTensorFieldComponentView(int component);
+
+    //! Get a const component view of the degrees of freedom for this field.
+    const Teuchos::ArrayView<const ScalarType> 
+    getTensorFieldConstComponentView(int component) const;
 
     //! Get the Tpetra map for the degrees of freedom.
     RCP_Tpetra_Map getTensorFieldDFMap() const
