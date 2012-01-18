@@ -28,13 +28,13 @@ class TensorTemplate
   public:
 
     // Tensor order.
-    int d_order;
+    std::size_t d_order;
     
     // Number of tensor components.
-    int d_num_comp;
+    std::size_t d_num_comp;
 
     // Enumerated algebraic data type (real, complex, etc.).
-    int d_alg_type;    
+    std::size_t d_alg_type;    
 
     // Physical quantity this tensor represents.
     RCP_Quantity d_quantity;
@@ -42,22 +42,22 @@ class TensorTemplate
   public:
 
     // Constructor.
-    TensorTemplate( int order, int num_comp, 
-		    int alg_type, RCP_Quantity quantity );
+    TensorTemplate( std::size_t order, std::size_t num_comp, 
+		    std::size_t alg_type, RCP_Quantity quantity );
 
     // Destructor.
     ~TensorTemplate();
 
     // Get the order of this tensor template.
-    int getTensorTemplateOrder() const
+    std::size_t getTensorTemplateOrder() const
     { return d_order; }
 
     // Get the number of components in this tensor template.
-    int getTensorTemplateNumComponents() const
+    std::size_t getTensorTemplateNumComponents() const
     { return d_num_comp; }
 
     // Get the algebraic type of this tensor template.
-    int getTensorTemplateAlgType() const
+    std::size_t getTensorTemplateAlgType() const
     { return d_alg_type; }
 
     // Get the physical quantity this tensor template represents.

@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------//
 // \file TensorField.hpp
 // \author Stuart Slattery
-// \brief Tensor field definition.
+// \brief Tensor field declaration.
 //---------------------------------------------------------------------------//
 
 #ifndef FOOD_TENSORFIELD_HPP
@@ -54,7 +54,8 @@ class TensorField
     // The communicator this field is defined on.
     RCP_Communicator d_comm;
 
-    // The degrees of freedom represented by this field. Interleaved storage.
+    // The degrees of freedom represented by this field. Interleaved component
+    // storage.
     Teuchos::ArrayRCP<ScalarType> d_dofs;
 
     // Tpetra map for the degrees of freedom represented by this field.
@@ -64,13 +65,13 @@ class TensorField
     RCP_Domain d_domain;
 
     // The entity type this field is defined on.
-    int d_entity_type;
+    std::size_t d_entity_type;
 
     // The entity topology this field is defined on.
-    int d_entity_topology;
+    std::size_t d_entity_topology;
 
     // The coordinate system for physical field coordinates.
-    int d_coord_type;
+    std::size_t d_coord_type;
 
     // The tensor template for this field.
     RCP_TensorTemplate d_tensor_template;
@@ -107,14 +108,14 @@ class TensorField
     { return Teuchos::ArrayView<ScalarType>(d_dofs); }
 
     //! Get a const view of all the degrees of freedom for this field.
-    const Teuchos::ArrayView<const ScalarType> getTensorFieldDFConstView() const
+    Teuchos::ArrayView<const ScalarType> getTensorFieldDFConstView() const
     { return Teuchos::ArrayView<ScalarType>(d_dofs); }
 
     //! Get a component view of the degrees of freedom for this field.
     Teuchos::ArrayView<ScalarType> getTensorFieldComponentView(int component);
 
     //! Get a const component view of the degrees of freedom for this field.
-    const Teuchos::ArrayView<const ScalarType> 
+    Teuchos::ArrayView<const ScalarType> 
     getTensorFieldConstComponentView(int component) const;
 
     //! Get the Tpetra map for the degrees of freedom.

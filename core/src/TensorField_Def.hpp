@@ -7,6 +7,8 @@
 #ifndef FOOD_TENSORFIELD_DEF_HPP
 #define FOOD_TENSORFIELD_DEF_HPP
 
+#include <valarray>
+
 namespace FOOD
 {
 
