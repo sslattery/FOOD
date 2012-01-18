@@ -50,7 +50,7 @@ TensorField<ScalarType>::~TensorField()
  */
 template<class ScalarType>
 void TensorField<ScalarType>::attachToTagData( iBase_TagHandle dof_tag,
-					       ErrorCode &error)
+					       ErrorCode &error )
 {
     d_dof_tag = dof_tag;
 

@@ -104,29 +104,33 @@ class TensorField
 
     // Attach this field to tag data.
     void attachToTagData( iBase_TagHandle dof_tag,
-			  ErrorCode &error);
+			  ErrorCode &error );
 
     // Attach this field to array data and tag the mesh.
     void attachToArrayData( Teuchos::ArrayRCP<ScalarType> dof_array,
 			    int storage_order,
-			    ErrorCode &error);
+			    ErrorCode &error );
 
     // Evaluate the degrees of freedom of this field at a set of coordinates
     // in a particular entity.
-    Teuchos::ArrayRCP<ScalarType> evaluateDF( iBase_EntityHandle entity,
-					      Teuchos::Tuple<double,3> coords);
+    Teuchos::ArrayRCP<ScalarType>
+    evaluateDF( iBase_EntityHandle entity,
+		Teuchos::Tuple<double,3> coords,
+		int is_param );
 
     // Evaluate gradient of the degrees of freedom of this field at a set of
     // coordinates in a particular entity. 
     Teuchos::ArrayRCP<ScalarType> 
     evaluateGradDF( iBase_EntityHandle entity,
-		    Teuchos::Tuple<double,3> coords);
+		    Teuchos::Tuple<double,3> coords,
+		    int is_param );
 
     // Evaluate the Hessian of the degrees of freedom of this field at a set
     // of coordinates in a particular entity. 
     Teuchos::ArrayRCP<ScalarType> 
     evaluateHessianDF( iBase_EntityHandle entity,
-		       Teuchos::Tuple<double,3> coords);
+		       Teuchos::Tuple<double,3> coords,
+		       int is_param );
 
     //! Get a view of all the degrees of freedom for this field.
     View getTensorFieldDFView()
@@ -137,10 +141,10 @@ class TensorField
     { return View(d_dofs); }
 
     // Get a component view of the degrees of freedom for this field.
-    View getTensorFieldComponentView(int component);
+    View getTensorFieldComponentView( int component );
 
     // Get a const component view of the degrees of freedom for this field.
-    ConstView getTensorFieldConstComponentView(int component) const;
+    ConstView getTensorFieldConstComponentView( int component ) const;
 
     // Get const degrees of freedom for a particular entity in the domain.
     Teuchos::ArrayRCP<const ScalarType> 
