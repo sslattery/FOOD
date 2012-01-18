@@ -44,8 +44,8 @@ class TensorField
     typedef Teuchos::RCP<Domain>                     RCP_Domain;
     typedef Teuchos::RCP<TensorTemplate>             RCP_TensorTemplate;
     typedef Teuchos::RCP<Unit>                       RCP_Unit;
-    typedef Tpetra::Map<OrdinalType>                 Tpetra_Map_t;
-    typedef Teuchos::RCP<const Tpetra_Map_t>         RCP_Tpetra_Map;
+    typedef Tpetra::Map<OrdinalType>                 Map_t;
+    typedef Teuchos::RCP<const Map_t>                RCP_Map;
     typedef Teuchos::ArrayView<ScalarType>           View;
     typedef Teuchos::ArrayView<const ScalarType>     ConstView;
     typedef int                                      ErrorCode;
@@ -61,7 +61,7 @@ class TensorField
     Teuchos::ArrayRCP<ScalarType> d_dofs;
 
     // Tpetra map for the degrees of freedom represented by this field.
-    RCP_Tpetra_Map d_dof_map;
+    RCP_Map d_dof_map;
 
     // The domain this field is defined on.
     RCP_Domain d_domain;
@@ -159,7 +159,7 @@ class TensorField
 				 ErrorCode &error ) const;
 
     //! Get the Tpetra map for the degrees of freedom.
-    RCP_Tpetra_Map getTensorFieldDFMap() const
+    RCP_Map getTensorFieldDFMap() const
     { return d_dof_map; }
 
     //! Get the domain this field is defined on.
