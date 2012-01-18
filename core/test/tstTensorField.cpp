@@ -874,9 +874,19 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_region_array_test )
     TEST_ASSERT( iBase_SUCCESS == error );
     TEST_ASSERT( tag_values_allocated == tag_values_size );
 
+    Teuchos::ArrayRCP<const double> ent_arr_data 
+	= field.getTensorFieldConstEntArrDF( dof_entities, 
+					     entities_size,
+					     error );
+    TEST_ASSERT( iBase_SUCCESS == error );
+
     for (int i = 0; i < num_hex; ++i)
     {
 	TEST_ASSERT( field_tag_data[i] == dof_array[i] );
+	TEST_ASSERT( ent_arr_data[i] == dof_array[i] );
+	TEST_ASSERT( field.getTensorFieldConstEntDF( dof_entities[i], error)[0]
+		     == dof_array[i] );
+	TEST_ASSERT( iBase_SUCCESS == error );
     }
 }
 

@@ -190,19 +190,64 @@ void TensorField<ScalarType>::attachToArrayData(
  * \brief Get const degrees of freedom for a particular entity in the domain.
  */
 template<class ScalarType>
-typename TensorField<ScalarType>::ConstView 
+Teuchos::ArrayRCP<const ScalarType>
 TensorField<ScalarType>::getTensorFieldConstEntDF( iBase_EntityHandle entity,
 						   ErrorCode &error )
 {
     error = 0;
 
     Teuchos::ArrayRCP<ScalarType> 
-	entity_data( d_tensor_template->getTensorTemplateNumComponents() );
+	entity_dofs( d_tensor_template->getTensorTemplateNumComponents() );
 
-    int tag_value_allocated = entity_data.size() * sizeof(ScalarType);
-    int tag_value_size = 0;
+    int tag_values_allocated = entity_dofs.size()*sizeof(ScalarType);
+    int tag_values_size = 0;
+
+    iMesh_getArrData( d_domain->getDomainMesh(),
+		      &entity,
+		      1,
+		      d_dof_tag,
+		      &entity_dofs,
+		      &tag_values_allocated,
+		      &tag_values_size,
+		      &error );
+    assert( iBase_SUCCESS == error );
+    assert( tag_values_allocated == tag_values_size );
+    
+    return entity_dofs;
 }
 
+/*! 
+ * \brief Get const degrees of freedom for an array of entities in the
+ * domain. Returned implicitly interleaved.
+ */
+template<class ScalarType>
+Teuchos::ArrayRCP<const ScalarType>
+TensorField<ScalarType>::getTensorFieldConstEntArrDF( 
+    iBase_EntityHandle *entities, 
+    int num_entities,
+    ErrorCode &error )
+{
+    error = 0;
+
+    Teuchos::ArrayRCP<ScalarType> entities_dofs( 
+	num_entities*d_tensor_template->getTensorTemplateNumComponents() );
+
+    int tag_values_allocated = entities_dofs.size()*sizeof(ScalarType);
+    int tag_values_size = 0;
+
+    iMesh_getArrData( d_domain->getDomainMesh(),
+		      entities,
+		      num_entities,
+		      d_dof_tag,
+		      &entities_dofs,
+		      &tag_values_allocated,
+		      &tag_values_size,
+		      &error );
+    assert( iBase_SUCCESS == error );
+    assert( tag_values_allocated == tag_values_size );
+    
+    return entities_dofs;
+}
 
 /*!
  * \brief Map the degrees of freedom.
