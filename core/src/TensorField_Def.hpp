@@ -112,10 +112,56 @@ TensorField<ScalarType>::attachToTagData( iBase_TagHandle dof_tag )
 		      &error );
     assert( iBase_SUCCESS == error );
 
+    mapDF();
+
+    return error;
+}
+
+/*!
+ * \brief Attach this field to array data.
+ */
+template<class ScalarType>
+typename TensorField<ScalarType>::ErrorCode 
+TensorField<ScalarType>::attachToArrayData( 
+    Teuchos::ArrayRCP<ScalarType> dof_array, int storage_order )
+{
+    ErrorCode error = 0;
+
+    int num_domain_entity = 0;
+    iMesh_getNumOfTopo( d_domain->getDomainMesh(),
+			d_domain->getDomainMeshSet(),
+			d_entity_topology,
+			&num_domain_entity,
+			&error );
+    assert( iBase_SUCCESS == error );
+
+    int num_tensor_component = 
+	d_tensor_template->getTensorTemplateNumComponents();
+
+    int dof_size = num_tensor_component*num_domain_entity;
+    d_dofs.clear();
+    assert( (int) dof_array.size() == dof_size );
+
+    if ( iBase_INTERLEAVED == storage_order )
+    {
+	d_dofs = dof_array;
+    }
+
+    mapDF();
+
+    return error;
+}
+
+/*!
+ * \brief Map the degrees of freedom.
+ */
+template<class ScalarType>
+void TensorField<ScalarType>::mapDF()
+{
     int myRank = d_comm->getRank();
     int mySize = d_comm->getSize();
     int offset = 0;
-    std::vector<OrdinalType> dof_ordinals(dof_size);
+    std::vector<OrdinalType> dof_ordinals( d_dofs.size() );
     std::vector<OrdinalType>::iterator dof_ordinal_iterator;
     for ( dof_ordinal_iterator = dof_ordinals.begin();
 	  dof_ordinal_iterator != dof_ordinals.end();
@@ -126,8 +172,6 @@ TensorField<ScalarType>::attachToTagData( iBase_TagHandle dof_tag )
     Teuchos::ArrayView<const OrdinalType> dof_ordinals_view(dof_ordinals);
     d_dof_map = 
 	Tpetra::createNonContigMap<OrdinalType>( dof_ordinals_view, d_comm );
-
-    return error;
 }
 
 } // end namespace FOOD

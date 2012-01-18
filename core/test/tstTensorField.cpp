@@ -26,6 +26,7 @@
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_Tuple.hpp>
+#include <Teuchos_ArrayRCP.hpp>
 
 //---------------------------------------------------------------------------//
 // HELPER FUNCTIONS
@@ -748,6 +749,86 @@ TEUCHOS_UNIT_TEST( TensorField, dof_tet_mesh_region_tag_test )
 	TEST_ASSERT( field.getTensorFieldDFConstView()[i1] == (double) i );
 	TEST_ASSERT( field.getTensorFieldDFConstView()[i2] == (double) i );
 	TEST_ASSERT( field.getTensorFieldDFConstView()[i3] == (double) i );
+    }
+}
+
+TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_region_array_test )
+{
+    // Create a hex mesh.
+    int error;
+    iMesh_Instance mesh;
+    create_hex_mesh( mesh );
+
+    // Generate the domain for the field on the root set.
+    iBase_EntitySetHandle root_set;
+    iMesh_getRootSet(mesh, &root_set, &error);
+    TEST_ASSERT( iBase_SUCCESS == error );
+    
+    Teuchos::RCP<FOOD::Domain> domain = Teuchos::rcp(
+	new FOOD::Domain(mesh, root_set) );
+
+    // Create the quantity for this field.
+    Teuchos::Tuple<int,7> numerator;
+    Teuchos::Tuple<int,7> denominator;
+    for (int i = 0; i < 7; ++i)
+    {
+	numerator[i] = i;
+	denominator[i] = 6 - i;
+    }
+
+    Teuchos::RCP<FOOD::Quantity> quantity = Teuchos::rcp(
+	new FOOD::Quantity(numerator, denominator, "HEX_QUANTITY") );
+
+    // Create the units for this field.
+    Teuchos::RCP<FOOD::Unit> unit = Teuchos::rcp(
+	new FOOD::Unit(quantity, 1.4, 4.3, "HEX_UNIT") );
+
+    // Create the tensor template for this field. The hex vertices are tagged
+    // with a scalar field.
+    Teuchos::RCP<FOOD::TensorTemplate> tensor_template = Teuchos::rcp(
+	new FOOD::TensorTemplate(0, 1, FOOD::REAL, quantity) );
+
+    // Create the field.
+    FOOD::TensorField<double> field( getDefaultComm<int>(),
+				     domain,
+				     iBase_REGION,
+				     iMesh_HEXAHEDRON,
+				     FOOD::CARTESIAN, 
+				     tensor_template,
+				     unit,
+				     "HEX_FIELD" );
+
+    // Generate a degrees of freedom array to attach to the field.
+    Teuchos::ArrayRCP<double> dof_array(1000,0.0);
+    Teuchos::ArrayRCP<double>::iterator dof_iterator;
+    double data = 0.0;
+    for (dof_iterator = dof_array.begin(); 
+	 dof_iterator != dof_array.end(); 
+	 ++dof_iterator)
+    {
+	*dof_iterator = data;
+	data += 1.0;
+    }
+
+    // Attach the field to the array.
+    field.attachToArrayData( dof_array, iBase_INTERLEAVED );
+
+    // Test the array attachment.
+    int myRank = getDefaultComm<int>()->getRank();
+    int mySize = getDefaultComm<int>()->getSize();
+    int num_hex = 1000;
+
+    TEST_ASSERT( (int) field.getTensorFieldDFMap()->getGlobalNumElements()
+		 == num_hex*mySize );
+    TEST_ASSERT( (int) field.getTensorFieldDFView().size() == num_hex );
+    TEST_ASSERT( (int) field.getTensorFieldDFConstView().size() == num_hex );
+
+    for (int i = 0; i < num_hex; ++i)
+    {
+	TEST_ASSERT( (int) field.getTensorFieldDFMap()->getNodeElementList()[i]
+		     == myRank*mySize + i );
+	TEST_ASSERT( field.getTensorFieldDFView()[i] == (double) i );
+	TEST_ASSERT( field.getTensorFieldDFConstView()[i] == (double) i );
     }
 }
 

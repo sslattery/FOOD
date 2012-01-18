@@ -39,7 +39,7 @@ class TensorField
     //! Typedefs.
     typedef ScalarType_T                             ScalarType;
     typedef int                                      OrdinalType;
-    typedef Teuchos::Comm<OrdinalType>               Communicator_t;
+    typedef Teuchos::Comm<int>                       Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
     typedef Teuchos::RCP<Domain>                     RCP_Domain;
     typedef Teuchos::RCP<TensorTemplate>             RCP_TensorTemplate;
@@ -101,7 +101,8 @@ class TensorField
     ErrorCode attachToTagData( iBase_TagHandle dof_tag );
 
     // Attach this field to array data.
-    ErrorCode attachToArrayData( Teuchos::ArrayView<ScalarType> dof_array );
+    ErrorCode attachToArrayData( Teuchos::ArrayRCP<ScalarType> dof_array,
+				 int storage_order);
 
     //! Get a view of all the degrees of freedom for this field.
     Teuchos::ArrayView<ScalarType> getTensorFieldDFView()
@@ -149,6 +150,11 @@ class TensorField
     //! Get the name of this field.
     const std::string& getTensorFieldName() const
     { return d_name; }
+
+  private:
+
+    // Map the degrees of freedom.
+    void mapDF();
 }; 
 
 } // end namespace FOOD
