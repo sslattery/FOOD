@@ -52,13 +52,13 @@ void create_hex_mesh(iMesh_Instance &mesh)
     // Create a tag for the vertex elements.
     iBase_TagHandle vertex_tag;
     std::string vertex_tag_name = "vertex_tag";
-    iMesh_createTag(mesh,
-		    &vertex_tag_name[0],
-		    1,
-		    iBase_DOUBLE,
-		    &vertex_tag,
-		    &error,
-		    (int) vertex_tag_name.size());
+    iMesh_createTag( mesh,
+		     &vertex_tag_name[0],
+		     1,
+		     iBase_DOUBLE,
+		     &vertex_tag,
+		     &error,
+		     (int) vertex_tag_name.size());
     assert( iBase_SUCCESS == error );
 
     // Generate vertices.
@@ -87,15 +87,15 @@ void create_hex_mesh(iMesh_Instance &mesh)
     iBase_EntityHandle *vertices;
     int vertices_allocated = 0;
     int vertices_size = 0;
-    iMesh_createVtxArr(mesh,
-		       (int) coords.size() / 3,
-		       iBase_INTERLEAVED,
-		       &coords[0],
-		       (int) coords.size(),
-		       &vertices,
-		       &vertices_allocated,
-		       &vertices_size,
-		       &error);
+    iMesh_createVtxArr( mesh,
+			(int) coords.size() / 3,
+			iBase_INTERLEAVED,
+			&coords[0],
+			(int) coords.size(),
+			&vertices,
+			&vertices_allocated,
+			&vertices_size,
+			&error);
     assert( iBase_SUCCESS == error );
     assert( vertices_allocated == num_i*num_j*num_k );
     assert( vertices_size == num_i*num_j*num_k );
@@ -112,13 +112,13 @@ void create_hex_mesh(iMesh_Instance &mesh)
 	data += 1.0;
     }
 
-    iMesh_setDblArrData(mesh,
-			vertices,
-			vertices_size,
-			vertex_tag,
-			&vertex_tag_data[0],
-			(int) vertex_tag_data.size(),
-			&error);
+    iMesh_setDblArrData( mesh,
+			 vertices,
+			 vertices_size,
+			 vertex_tag,
+			 &vertex_tag_data[0],
+			 (int) vertex_tag_data.size(),
+			 &error);
     assert( iBase_SUCCESS == error );
 
     // Create a vertex set and add the vertex array.
@@ -137,13 +137,13 @@ void create_hex_mesh(iMesh_Instance &mesh)
     // Create a tag for the hex elements.
     iBase_TagHandle hex_tag;
     std::string hex_tag_name = "hex_tag";
-    iMesh_createTag(mesh,
-		    &hex_tag_name[0],
-		    1,
-		    iBase_DOUBLE,
-		    &hex_tag,
-		    &error,
-		    (int) hex_tag_name.size());
+    iMesh_createTag( mesh,
+		     &hex_tag_name[0],
+		     1,
+		     iBase_DOUBLE,
+		     &hex_tag,
+		     &error,
+		     (int) hex_tag_name.size());
     assert( iBase_SUCCESS == error );
 
     // Generate hexahedrons from vertices, tag them, and add them to the hex
@@ -168,21 +168,21 @@ void create_hex_mesh(iMesh_Instance &mesh)
 		connectivity[7] = vertices[ idx +     num_i + num_i*num_j ];
 
 		iBase_EntityHandle hexahedron;
-		iMesh_createEnt(mesh,
-				iMesh_HEXAHEDRON,
-				connectivity,
-				8,
-				&hexahedron,
-				&hex_creation_status,
-				&error);
+		iMesh_createEnt( mesh,
+				 iMesh_HEXAHEDRON,
+				 connectivity,
+				 8,
+				 &hexahedron,
+				 &hex_creation_status,
+				 &error);
 		assert( iBase_SUCCESS == error );
 		assert( iBase_NEW == hex_creation_status );
 
-		iMesh_setDblData(mesh,
-				 hexahedron,
-				 hex_tag,
-				 hex_data,
-				 &error);
+		iMesh_setDblData( mesh,
+				  hexahedron,
+				  hex_tag,
+				  hex_data,
+				  &error);
 		assert( iBase_SUCCESS == error );
 		
 		hex_data += 1.0;
@@ -207,13 +207,13 @@ void create_tet_mesh( iMesh_Instance &mesh )
     // Create a tag for the vertex elements.
     iBase_TagHandle vertex_tag;
     std::string vertex_tag_name = "vertex_tag";
-    iMesh_createTag(mesh,
-		    &vertex_tag_name[0],
-		    1,
-		    iBase_DOUBLE,
-		    &vertex_tag,
-		    &error,
-		    (int) vertex_tag_name.size());
+    iMesh_createTag( mesh,
+		     &vertex_tag_name[0],
+		     1,
+		     iBase_DOUBLE,
+		     &vertex_tag,
+		     &error,
+		     (int) vertex_tag_name.size());
     assert( iBase_SUCCESS == error );
 
     // Generate vertices.
@@ -242,15 +242,15 @@ void create_tet_mesh( iMesh_Instance &mesh )
     iBase_EntityHandle *vertices;
     int vertices_allocated = 0;
     int vertices_size = 0;
-    iMesh_createVtxArr(mesh,
-		       (int) coords.size() / 3,
-		       iBase_INTERLEAVED,
-		       &coords[0],
-		       (int) coords.size(),
-		       &vertices,
-		       &vertices_allocated,
-		       &vertices_size,
-		       &error);
+    iMesh_createVtxArr( mesh,
+			(int) coords.size() / 3,
+			iBase_INTERLEAVED,
+			&coords[0],
+			(int) coords.size(),
+			&vertices,
+			&vertices_allocated,
+			&vertices_size,
+			&error);
     assert( iBase_SUCCESS == error );
     assert( vertices_allocated == num_i*num_j*num_k );
     assert( vertices_size == num_i*num_j*num_k );
@@ -267,13 +267,13 @@ void create_tet_mesh( iMesh_Instance &mesh )
 	data += 1.0;
     }
 
-    iMesh_setDblArrData(mesh,
-			vertices,
-			vertices_size,
-			vertex_tag,
-			&vertex_tag_data[0],
-			(int) vertex_tag_data.size(),
-			&error);
+    iMesh_setDblArrData( mesh,
+			 vertices,
+			 vertices_size,
+			 vertex_tag,
+			 &vertex_tag_data[0],
+			 (int) vertex_tag_data.size(),
+			 &error);
     assert( iBase_SUCCESS == error );
 
     // Create a vertex set and add the vertex array.
@@ -339,34 +339,34 @@ void create_tet_mesh( iMesh_Instance &mesh )
 		connectivity[3] = vertices[ v4 ];
 
 		iBase_EntityHandle tetrahedron_1;
-		iMesh_createEnt(mesh,
-				iMesh_TETRAHEDRON,
-				connectivity,
-				4,
-				&tetrahedron_1,
-				&tet_creation_status,
-				&error);
+		iMesh_createEnt( mesh,
+				 iMesh_TETRAHEDRON,
+				 connectivity,
+				 4,
+				 &tetrahedron_1,
+				 &tet_creation_status,
+				 &error);
 		assert( iBase_SUCCESS == error );
 		assert( iBase_NEW == tet_creation_status );
 
 		data_arr[0] = tet_data;
 		data_arr[1] = tet_data;
 		data_arr[2] = tet_data;
-		iMesh_setDblArrData(mesh,
-				    &tetrahedron_1,
-				    1,
-				    tet_tag,
-				    data_arr,
-				    3,
-				    &error);
+		iMesh_setDblArrData( mesh,
+				     &tetrahedron_1,
+				     1,
+				     tet_tag,
+				     data_arr,
+				     3,
+				     &error);
 		assert( iBase_SUCCESS == error );
 		
 		tet_data += 1.0;
 
-		iMesh_addEntToSet(mesh,
-				  tetrahedron_1,
-				  tet_set,
-				  &error);
+		iMesh_addEntToSet( mesh,
+				   tetrahedron_1,
+				   tet_set,
+				   &error);
 		assert( iBase_SUCCESS == error );
 
 		// Tetrahedron 2.
@@ -389,21 +389,21 @@ void create_tet_mesh( iMesh_Instance &mesh )
 		data_arr[0] = tet_data;
 		data_arr[1] = tet_data;
 		data_arr[2] = tet_data;
-		iMesh_setDblArrData(mesh,
-				    &tetrahedron_2,
-				    1,
-				    tet_tag,
-				    data_arr,
-				    3,
-				    &error);
+		iMesh_setDblArrData( mesh,
+				     &tetrahedron_2,
+				     1,
+				     tet_tag,
+				     data_arr,
+				     3,
+				     &error);
 		assert( iBase_SUCCESS == error );
 		
 		tet_data += 1.0;
 
-		iMesh_addEntToSet(mesh,
-				  tetrahedron_2,
-				  tet_set,
-				  &error);
+		iMesh_addEntToSet( mesh,
+				   tetrahedron_2,
+				   tet_set,
+				   &error);
 		assert( iBase_SUCCESS == error );
 
 		// Tetrahedron 3.
@@ -413,26 +413,26 @@ void create_tet_mesh( iMesh_Instance &mesh )
 		connectivity[3] = vertices[ v1 ];
 
 		iBase_EntityHandle tetrahedron_3;
-		iMesh_createEnt(mesh,
-				iMesh_TETRAHEDRON,
-				connectivity,
-				4,
-				&tetrahedron_3,
-				&tet_creation_status,
-				&error);
+		iMesh_createEnt( mesh,
+				 iMesh_TETRAHEDRON,
+				 connectivity,
+				 4,
+				 &tetrahedron_3,
+				 &tet_creation_status,
+				 &error);
 		assert( iBase_SUCCESS == error );
 		assert( iBase_NEW == tet_creation_status );
 
 		data_arr[0] = tet_data;
 		data_arr[1] = tet_data;
 		data_arr[2] = tet_data;
-		iMesh_setDblArrData(mesh,
-				    &tetrahedron_3,
-				    1,
-				    tet_tag,
-				    data_arr,
-				    3,
-				    &error);
+		iMesh_setDblArrData( mesh,
+				     &tetrahedron_3,
+				     1,
+				     tet_tag,
+				     data_arr,
+				     3,
+				     &error);
 		assert( iBase_SUCCESS == error );
 		
 		tet_data += 1.0;
@@ -450,34 +450,34 @@ void create_tet_mesh( iMesh_Instance &mesh )
 		connectivity[3] = vertices[ v3 ];
 
 		iBase_EntityHandle tetrahedron_4;
-		iMesh_createEnt(mesh,
-				iMesh_TETRAHEDRON,
-				connectivity,
-				4,
-				&tetrahedron_4,
-				&tet_creation_status,
-				&error);
+		iMesh_createEnt( mesh,
+				 iMesh_TETRAHEDRON,
+				 connectivity,
+				 4,
+				 &tetrahedron_4,
+				 &tet_creation_status,
+				 &error);
 		assert( iBase_SUCCESS == error );
 		assert( iBase_NEW == tet_creation_status );
 
 		data_arr[0] = tet_data;
 		data_arr[1] = tet_data;
 		data_arr[2] = tet_data;
-		iMesh_setDblArrData(mesh,
-				    &tetrahedron_4,
-				    1,
-				    tet_tag,
-				    data_arr,
-				    3,
-				    &error);
+		iMesh_setDblArrData( mesh,
+				     &tetrahedron_4,
+				     1,
+				     tet_tag,
+				     data_arr,
+				     3,
+				     &error);
 		assert( iBase_SUCCESS == error );
  		
 		tet_data += 1.0;
 
-		iMesh_addEntToSet(mesh,
-				  tetrahedron_4,
-				  tet_set,
-				  &error);
+		iMesh_addEntToSet( mesh,
+				   tetrahedron_4,
+				   tet_set,
+				   &error);
 		assert( iBase_SUCCESS == error );
 
 		// Tetrahedron 5.
@@ -487,34 +487,34 @@ void create_tet_mesh( iMesh_Instance &mesh )
 		connectivity[3] = vertices[ v4 ];
 
 		iBase_EntityHandle tetrahedron_5;
-		iMesh_createEnt(mesh,
-				iMesh_TETRAHEDRON,
-				connectivity,
-				4,
-				&tetrahedron_5,
-				&tet_creation_status,
-				&error);
+		iMesh_createEnt( mesh,
+				 iMesh_TETRAHEDRON,
+				 connectivity,
+				 4,
+				 &tetrahedron_5,
+				 &tet_creation_status,
+				 &error);
 		assert( iBase_SUCCESS == error );
 		assert( iBase_NEW == tet_creation_status );
 
 		data_arr[0] = tet_data;
 		data_arr[1] = tet_data;
 		data_arr[2] = tet_data;
-		iMesh_setDblArrData(mesh,
-				    &tetrahedron_5,
-				    1,
-				    tet_tag,
-				    data_arr,
-				    3,
-				    &error);
+		iMesh_setDblArrData( mesh,
+				     &tetrahedron_5,
+				     1,
+				     tet_tag,
+				     data_arr,
+				     3,
+				     &error);
 		assert( iBase_SUCCESS == error );
 		
 		tet_data += 1.0;
 
-		iMesh_addEntToSet(mesh,
-				  tetrahedron_5,
-				  tet_set,
-				  &error);
+		iMesh_addEntToSet( mesh,
+				   tetrahedron_5,
+				   tet_set,
+				   &error);
 		assert( iBase_SUCCESS == error );
 	    }
 	}
@@ -636,7 +636,8 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_vertex_tag_test )
     TEST_ASSERT( iBase_SUCCESS == error );
 
     // Attach the field to the tag.
-    field.attachToTagData( vertex_tag );
+    field.attachToTagData( vertex_tag, error );
+    TEST_ASSERT( iBase_SUCCESS == error );
 
     // Test the tag attachment.
     int myRank = getDefaultComm<int>()->getRank();
@@ -714,7 +715,8 @@ TEUCHOS_UNIT_TEST( TensorField, dof_tet_mesh_region_tag_test )
     TEST_ASSERT( iBase_SUCCESS == error );
 
     // Attach the field to the tag.
-    field.attachToTagData( vertex_tag );
+    field.attachToTagData( vertex_tag, error );
+    TEST_ASSERT( iBase_SUCCESS == error );
 
     // Test the tag attachment.
     int myRank = getDefaultComm<int>()->getRank();
@@ -799,7 +801,8 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_region_array_test )
 				     "HEX_FIELD" );
 
     // Generate a degrees of freedom array to attach to the field.
-    Teuchos::ArrayRCP<double> dof_array(1000,0.0);
+    int num_hex = 1000;
+    Teuchos::ArrayRCP<double> dof_array(num_hex, 0.0);
     Teuchos::ArrayRCP<double>::iterator dof_iterator;
     double data = 0.0;
     for (dof_iterator = dof_array.begin(); 
@@ -811,12 +814,12 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_region_array_test )
     }
 
     // Attach the field to the array.
-    field.attachToArrayData( dof_array, iBase_INTERLEAVED );
+    field.attachToArrayData( dof_array, iBase_INTERLEAVED, error );
+    TEST_ASSERT( iBase_SUCCESS == error );
 
     // Test the array attachment.
     int myRank = getDefaultComm<int>()->getRank();
     int mySize = getDefaultComm<int>()->getSize();
-    int num_hex = 1000;
 
     TEST_ASSERT( (int) field.getTensorFieldDFMap()->getGlobalNumElements()
 		 == num_hex*mySize );
@@ -829,6 +832,51 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_region_array_test )
 		     == myRank*mySize + i );
 	TEST_ASSERT( field.getTensorFieldDFView()[i] == (double) i );
 	TEST_ASSERT( field.getTensorFieldDFConstView()[i] == (double) i );
+    }
+
+    // Check that the mesh got tagged.
+    iBase_TagHandle field_tag = field.getTensorFieldDFTag();
+
+    iBase_TagHandle test_tag;
+    std::string tag_name = "HEX_FIELD";
+    iMesh_getTagHandle( mesh,
+			&tag_name[0],
+			&test_tag,
+			&error,
+			(int) tag_name.size());
+    TEST_ASSERT( iBase_SUCCESS == error );
+    TEST_ASSERT( test_tag == field_tag );
+
+    iBase_EntityHandle *dof_entities = 0;
+    int entities_allocated = num_hex;
+    int entities_size = 0;
+    iMesh_getEntities( mesh,
+		       root_set,
+		       iBase_REGION,
+		       iMesh_HEXAHEDRON,
+		       &dof_entities,
+		       &entities_allocated,
+		       &entities_size,
+		       &error );
+    TEST_ASSERT( iBase_SUCCESS == error );
+
+    int tag_values_allocated = num_hex*sizeof(double);
+    int tag_values_size = 0;
+    Teuchos::ArrayRCP<double> field_tag_data(num_hex, 0.0);
+    iMesh_getArrData( mesh,
+		      dof_entities,
+		      num_hex,
+		      field_tag,
+		      &field_tag_data,
+		      &tag_values_allocated,
+		      &tag_values_size,
+		      &error );
+    TEST_ASSERT( iBase_SUCCESS == error );
+    TEST_ASSERT( tag_values_allocated == tag_values_size );
+
+    for (int i = 0; i < num_hex; ++i)
+    {
+	TEST_ASSERT( field_tag_data[i] == dof_array[i] );
     }
 }
 

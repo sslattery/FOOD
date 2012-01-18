@@ -46,6 +46,8 @@ class TensorField
     typedef Teuchos::RCP<Unit>                       RCP_Unit;
     typedef Tpetra::Map<OrdinalType>                 Tpetra_Map_t;
     typedef Teuchos::RCP<const Tpetra_Map_t>         RCP_Tpetra_Map;
+    typedef Teuchos::ArrayView<ScalarType>           View;
+    typedef Teuchos::ArrayView<const ScalarType>     ConstView;
     typedef int                                      ErrorCode;
     //@}
 
@@ -82,6 +84,9 @@ class TensorField
     // The name of this field.
     std::string d_name;
 
+    // Degrees of freedom tag on the mesh.
+    iBase_TagHandle d_dof_tag;
+
   public:
 
     // Constructor.
@@ -98,26 +103,53 @@ class TensorField
     ~TensorField();
 
     // Attach this field to tag data.
-    ErrorCode attachToTagData( iBase_TagHandle dof_tag );
+    void attachToTagData( iBase_TagHandle dof_tag,
+			  ErrorCode &error);
 
-    // Attach this field to array data.
-    ErrorCode attachToArrayData( Teuchos::ArrayRCP<ScalarType> dof_array,
-				 int storage_order);
+    // Attach this field to array data and tag the mesh.
+    void attachToArrayData( Teuchos::ArrayRCP<ScalarType> dof_array,
+			    int storage_order,
+			    ErrorCode &error);
+
+    // Evaluate the degrees of freedom of this field at a set of coordinates
+    // in a particular entity.
+    Teuchos::ArrayRCP<ScalarType> evaluateDF( iBase_EntityHandle entity,
+					      Teuchos::Tuple<double,3> coords);
+
+    // Evaluate gradient of the degrees of freedom of this field at a set of
+    // coordinates in a particular entity. 
+    Teuchos::ArrayRCP<ScalarType> 
+    evaluateGradDF( iBase_EntityHandle entity,
+		    Teuchos::Tuple<double,3> coords);
+
+    // Evaluate the Hessian of the degrees of freedom of this field at a set
+    // of coordinates in a particular entity. 
+    Teuchos::ArrayRCP<ScalarType> 
+    evaluateHessianDF( iBase_EntityHandle entity,
+		       Teuchos::Tuple<double,3> coords);
 
     //! Get a view of all the degrees of freedom for this field.
-    Teuchos::ArrayView<ScalarType> getTensorFieldDFView()
-    { return Teuchos::ArrayView<ScalarType>(d_dofs); }
+    View getTensorFieldDFView()
+    { return View(d_dofs); }
 
     //! Get a const view of all the degrees of freedom for this field.
-    Teuchos::ArrayView<const ScalarType> getTensorFieldDFConstView() const
-    { return Teuchos::ArrayView<ScalarType>(d_dofs); }
+    ConstView getTensorFieldDFConstView() const
+    { return View(d_dofs); }
 
-    //! Get a component view of the degrees of freedom for this field.
-    Teuchos::ArrayView<ScalarType> getTensorFieldComponentView(int component);
+    // Get a component view of the degrees of freedom for this field.
+    View getTensorFieldComponentView(int component);
 
-    //! Get a const component view of the degrees of freedom for this field.
-    Teuchos::ArrayView<const ScalarType> 
-    getTensorFieldConstComponentView(int component) const;
+    // Get a const component view of the degrees of freedom for this field.
+    ConstView getTensorFieldConstComponentView(int component) const;
+
+    // Get const degrees of freedom for a particular entity in the domain.
+    ConstView getTensorFieldConstEntDF( iBase_EntityHandle entity,
+					ErrorCode &error );
+
+    // Get const degrees of freedom for an array of entites in the
+    // domain. Returned implicitly interleaved. 
+    ConstView
+    getTensorFieldConstEntArrDF( Teuchos::ArrayRCP<iBase_EntityHandle> entities );
 
     //! Get the Tpetra map for the degrees of freedom.
     RCP_Tpetra_Map getTensorFieldDFMap() const
@@ -150,6 +182,11 @@ class TensorField
     //! Get the name of this field.
     const std::string& getTensorFieldName() const
     { return d_name; }
+
+    //! Get the degrees of freedom tag on the mesh this field is associated
+    //! with.
+    iBase_TagHandle getTensorFieldDFTag() const
+    { return d_dof_tag; }
 
   private:
 

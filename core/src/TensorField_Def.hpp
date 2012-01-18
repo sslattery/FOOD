@@ -32,6 +32,7 @@ TensorField<ScalarType>::TensorField( RCP_Communicator comm,
     , d_tensor_template(tensor_template)
     , d_unit(unit)
     , d_name(name)
+    , d_dof_tag(0)
 { /* ... */ }
 
 /*!
@@ -48,10 +49,15 @@ TensorField<ScalarType>::~TensorField()
  * vector and define the Tpetra map of that vector.
  */
 template<class ScalarType>
-typename TensorField<ScalarType>::ErrorCode 
-TensorField<ScalarType>::attachToTagData( iBase_TagHandle dof_tag )
+void TensorField<ScalarType>::attachToTagData( iBase_TagHandle dof_tag,
+					       ErrorCode &error)
 {
-    ErrorCode error = 0;
+    d_dof_tag = dof_tag;
+
+    error = 0;
+
+    int num_tensor_component = 
+	d_tensor_template->getTensorTemplateNumComponents();
 
     int num_domain_entity = 0;
     iMesh_getNumOfTopo( d_domain->getDomainMesh(),
@@ -60,9 +66,6 @@ TensorField<ScalarType>::attachToTagData( iBase_TagHandle dof_tag )
 			&num_domain_entity,
 			&error );
     assert( iBase_SUCCESS == error );
-
-    int num_tensor_component = 
-	d_tensor_template->getTensorTemplateNumComponents();
 
     int dof_size = num_tensor_component*num_domain_entity;
     d_dofs.clear();
@@ -101,7 +104,6 @@ TensorField<ScalarType>::attachToTagData( iBase_TagHandle dof_tag )
     int tag_value_allocated = 
 	num_tensor_component*num_domain_entity*sizeof(ScalarType);
     int tag_value_size = 0;
-
     iMesh_getArrData( d_domain->getDomainMesh(),
 		      dof_entities,
 		      entities_size,
@@ -113,20 +115,32 @@ TensorField<ScalarType>::attachToTagData( iBase_TagHandle dof_tag )
     assert( iBase_SUCCESS == error );
 
     mapDF();
-
-    return error;
 }
 
 /*!
- * \brief Attach this field to array data.
+ * \brief Attach this field to array data and tag the mesh.
  */
 template<class ScalarType>
-typename TensorField<ScalarType>::ErrorCode 
-TensorField<ScalarType>::attachToArrayData( 
-    Teuchos::ArrayRCP<ScalarType> dof_array, int storage_order )
+void TensorField<ScalarType>::attachToArrayData( 
+    Teuchos::ArrayRCP<ScalarType> dof_array, 
+    int storage_order,
+    ErrorCode &error )
 {
-    ErrorCode error = 0;
+    error = 0;
 
+    int num_tensor_component = 
+	d_tensor_template->getTensorTemplateNumComponents();
+
+    int tag_size = num_tensor_component*sizeof(ScalarType);
+    iMesh_createTag( d_domain->getDomainMesh(),
+		     &d_name[0],
+		     tag_size,
+		     iBase_BYTES,
+		     &d_dof_tag,
+		     &error,
+		     (int) d_name.size() );
+    assert( iBase_SUCCESS == error );
+		     
     int num_domain_entity = 0;
     iMesh_getNumOfTopo( d_domain->getDomainMesh(),
 			d_domain->getDomainMeshSet(),
@@ -135,22 +149,60 @@ TensorField<ScalarType>::attachToArrayData(
 			&error );
     assert( iBase_SUCCESS == error );
 
-    int num_tensor_component = 
-	d_tensor_template->getTensorTemplateNumComponents();
-
     int dof_size = num_tensor_component*num_domain_entity;
     d_dofs.clear();
     assert( (int) dof_array.size() == dof_size );
 
+    iBase_EntityHandle *dof_entities = 0;
+    int entities_allocated = num_domain_entity;
+    int entities_size = 0;
+    iMesh_getEntities( d_domain->getDomainMesh(),
+		       d_domain->getDomainMeshSet(),
+		       d_entity_type,
+		       d_entity_topology,
+		       &dof_entities,
+		       &entities_allocated,
+		       &entities_size,
+		       &error );
+    assert( iBase_SUCCESS == error );
+    assert( num_domain_entity == entities_size );
+
     if ( iBase_INTERLEAVED == storage_order )
     {
 	d_dofs = dof_array;
+
+	int tag_values_size = 
+	    num_tensor_component*sizeof(ScalarType)*entities_size;
+	iMesh_setArrData( d_domain->getDomainMesh(),
+			  dof_entities,
+			  entities_size,
+			  d_dof_tag,
+			  &d_dofs[0],
+			  tag_values_size,
+			  &error );
+	assert( iBase_SUCCESS == error );
     }
 
     mapDF();
-
-    return error;
 }
+
+/*! 
+ * \brief Get const degrees of freedom for a particular entity in the domain.
+ */
+template<class ScalarType>
+typename TensorField<ScalarType>::ConstView 
+TensorField<ScalarType>::getTensorFieldConstEntDF( iBase_EntityHandle entity,
+						   ErrorCode &error )
+{
+    error = 0;
+
+    Teuchos::ArrayRCP<ScalarType> 
+	entity_data( d_tensor_template->getTensorTemplateNumComponents() );
+
+    int tag_value_allocated = entity_data.size() * sizeof(ScalarType);
+    int tag_value_size = 0;
+}
+
 
 /*!
  * \brief Map the degrees of freedom.
