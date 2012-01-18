@@ -8,6 +8,7 @@
 #define FOOD_TENSORFIELD_HPP
  
 #include <string>
+#include <vector>
 
 #include "Types.hpp"
 #include "Unit.hpp"
@@ -18,7 +19,10 @@
 #include <iBase.h>
 
 #include <Teuchos_RCP.hpp>
+#include <Teuchos_Comm.hpp>
 #include <Teuchos_Tuple.hpp>
+#include <Teuchos_ArrayView.hpp>
+#include <Teuchos_ArrayRCP.hpp>
 
 #include <Tpetra_Map.hpp>
 
@@ -35,25 +39,35 @@ class TensorField
     //! Typedefs.
     typedef ScalarType_T                             ScalarType;
     typedef int                                      OrdinalType;
+    typedef Teuchos::Comm<OrdinalType>               Communicator_t;
+    typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
     typedef Teuchos::RCP<Domain>                     RCP_Domain;
     typedef Teuchos::RCP<TensorTemplate>             RCP_TensorTemplate;
     typedef Teuchos::RCP<Unit>                       RCP_Unit;
-    typedef Teuchos::ArrayRCP<ScalarType>            DOFArray;
     typedef Tpetra::Map<OrdinalType>                 Tpetra_Map_t;
-    typedef Teuchos::RCP<Tpetra_Map_t>               RCP_Tpetra_Map;
+    typedef Teuchos::RCP<const Tpetra_Map_t>         RCP_Tpetra_Map;
     typedef int                                      ErrorCode;
     //@}
 
   private:
 
+    // The communicator this field is defined on.
+    RCP_Communicator d_comm;
+
     // The degrees of freedom represented by this field.
-    DOFArray d_dofs;
+    Teuchos::ArrayRCP<ScalarType> d_dofs;
 
     // Tpetra map for the degrees of freedom represented by this field.
     RCP_Tpetra_Map d_dof_map;
 
     // The domain this field is defined on.
     RCP_Domain d_domain;
+
+    // The entity type this field is defined on.
+    int d_entity_type;
+
+    // The entity topology this field is defined on.
+    int d_entity_topology;
 
     // The coordinate system for physical field coordinates.
     int d_coord_type;
@@ -70,7 +84,10 @@ class TensorField
   public:
 
     // Constructor.
-    TensorField( RCP_Domain domain,
+    TensorField( RCP_Communicator comm,
+		 RCP_Domain domain,
+		 int entity_type,
+		 int entity_topology,
 		 int coord_type,
 		 RCP_TensorTemplate tensor_template,
 		 RCP_Unit unit,
@@ -80,24 +97,33 @@ class TensorField
     ~TensorField();
 
     // Attach this field to tag data.
-    ErrorCode attachToTagData( iBase_TagHandle dof_tag,
-			       ScalarType untagged_values );
+    ErrorCode attachToTagData( iBase_TagHandle dof_tag );
 
     // Attach this field to array data.
-    ErrorCode attachToArrayData( DOFArray dof_array,
-				 int storage_order );
+    ErrorCode attachToArrayData( Teuchos::ArrayView<ScalarType> dof_array );
 
-    //! Get the degrees of freedom for this field.
-    DOFArray getTensorFieldDF() const
-    { return d_dofs; }
+    //! Get all the degrees of freedom for this field.
+    Teuchos::ArrayView<ScalarType> getTensorFieldDFView()
+    { return Teuchos::ArrayView<ScalarType>(d_dofs); }
+
+    //! Get a component of the degrees of freedom for this field.
+    Teuchos::ArrayView<ScalarType> getTensorFieldComponentView(int component);
 
     //! Get the Tpetra map for the degrees of freedom.
-    RCP_Tpetra_Map getTensorFieldMap() const
+    RCP_Tpetra_Map getTensorFieldDFMap() const
     { return d_dof_map; }
 
     //! Get the domain this field is defined on.
     RCP_Domain getTensorFieldDomain() const
     { return d_domain; }
+
+    //! Get the entity type this field is defined on.
+    int getTensorFieldEntityType() const
+    { return d_entity_type; }
+
+    //! Get the entity topology this field is defined on.
+    int getTensorFieldEntityTopology() const
+    { return d_entity_topology; }
 
     //! Get the coordinate system for physics field coordinates.
     int getTensorFieldCoordType() const
