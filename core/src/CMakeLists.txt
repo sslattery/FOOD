@@ -27,6 +27,8 @@ APPEND_SET(HEADERS
   TensorTemplate.hpp
   TensorField.hpp
   TensorField_Def.hpp
+  Rendezvous.hpp
+  Rendezvous_Def.hpp
   )
 
 # Set sources

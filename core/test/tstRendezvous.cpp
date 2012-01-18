@@ -1,8 +1,8 @@
 //----------------------------------*-C++-*----------------------------------//
 /*!
- * \file   mesh/test/tstTensorField.cpp
+ * \file   mesh/test/tstRendezvous.cpp
  * \author Stuart Slattery
- * \brief  TensorField class unit tests.
+ * \brief  Rendezvous class unit tests.
  */
 //---------------------------------------------------------------------------//
 
@@ -17,6 +17,7 @@
 #include <Unit.hpp>
 #include <TensorTemplate.hpp>
 #include <TensorField.hpp>
+#include <Rendezvous.hpp>
 
 #include <iMesh.h>
 #include <iBase.h>
@@ -560,336 +561,32 @@ TEUCHOS_UNIT_TEST( TensorField, constructor_test )
     Teuchos::RCP<FOOD::TensorTemplate> tensor_template = Teuchos::rcp(
 	new FOOD::TensorTemplate(0, 1, FOOD::REAL, quantity) );
 
-    // Create the field and check basic accessors.
-    FOOD::TensorField<double> field( getDefaultComm<int>(),
-				     domain,
-				     iBase_VERTEX,
-				     iMesh_POINT,
-				     FOOD::CARTESIAN, 
-				     tensor_template,
-				     unit,
-				     "FOO_FIELD" );
+    // Create the field domain and range and check basic accessors.
+    Teuchos::RCP< FOOD::TensorField<double> > field_domain
+	= Teuchos::rcp( new FOOD::TensorField<double>( getDefaultComm<int>(),
+						       domain,
+						       iBase_VERTEX,
+						       iMesh_POINT,
+						       FOOD::CARTESIAN, 
+						       tensor_template,
+						       unit,
+						       "DOMAIN" ) );
 
-    TEST_ASSERT( field.getTensorFieldDomain() == domain );
-    TEST_ASSERT( field.getTensorFieldEntityType() == iBase_VERTEX );
-    TEST_ASSERT( field.getTensorFieldEntityTopology() == iMesh_POINT );
-    TEST_ASSERT( field.getTensorFieldCoordType() == FOOD::CARTESIAN );
-    TEST_ASSERT( field.getTensorFieldTemplate() == tensor_template );
-    TEST_ASSERT( field.getTensorFieldUnit() == unit );
-    TEST_ASSERT( field.getTensorFieldName() == "FOO_FIELD" );
-}
+    Teuchos::RCP< FOOD::TensorField<double> > field_range
+	= Teuchos::rcp( new FOOD::TensorField<double>( getDefaultComm<int>(),
+						       domain,
+						       iBase_VERTEX,
+						       iMesh_POINT,
+						       FOOD::CARTESIAN, 
+						       tensor_template,
+						       unit,
+						       "RANGE" ) );
 
-TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_vertex_tag_test )
-{
-    // Create a hex mesh.
-    int error;
-    iMesh_Instance mesh;
-    create_hex_mesh( mesh );
-
-    // Generate the domain for the field on the root set.
-    iBase_EntitySetHandle root_set;
-    iMesh_getRootSet(mesh, &root_set, &error);
-    TEST_ASSERT( iBase_SUCCESS == error );
-    
-    Teuchos::RCP<FOOD::Domain> domain = Teuchos::rcp(
-	new FOOD::Domain(mesh, root_set) );
-
-    // Create the quantity for this field.
-    Teuchos::Tuple<int,7> numerator;
-    Teuchos::Tuple<int,7> denominator;
-    for (int i = 0; i < 7; ++i)
-    {
-	numerator[i] = i;
-	denominator[i] = 6 - i;
-    }
-
-    Teuchos::RCP<FOOD::Quantity> quantity = Teuchos::rcp(
-	new FOOD::Quantity(numerator, denominator, "VERTEX_QUANTITY") );
-
-    // Create the units for this field.
-    Teuchos::RCP<FOOD::Unit> unit = Teuchos::rcp(
-	new FOOD::Unit(quantity, 1.4, 4.3, "VERTEX_UNIT") );
-
-    // Create the tensor template for this field. The hex vertices are tagged
-    // with a scalar field.
-    Teuchos::RCP<FOOD::TensorTemplate> tensor_template = Teuchos::rcp(
-	new FOOD::TensorTemplate(0, 1, FOOD::REAL, quantity) );
-
-    // Create the field.
-    FOOD::TensorField<double> field( getDefaultComm<int>(),
-				     domain,
-				     iBase_VERTEX,
-				     iMesh_POINT,
-				     FOOD::CARTESIAN, 
-				     tensor_template,
-				     unit,
-				     "VERTEX_FIELD" );
-
-    // Get the vertex tag to attach to the field.
-    std::string tag_name = "vertex_tag";
-    iBase_TagHandle vertex_tag;
-    iMesh_getTagHandle( mesh,
-			&tag_name[0],
-			&vertex_tag,
-			&error,
-			(int) tag_name.size() );
-    TEST_ASSERT( iBase_SUCCESS == error );
-
-    // Attach the field to the tag.
-    field.attachToTagData( vertex_tag, error );
-    TEST_ASSERT( iBase_SUCCESS == error );
-
-    // Test the tag attachment.
-    int myRank = getDefaultComm<int>()->getRank();
-    int mySize = getDefaultComm<int>()->getSize();
-    int num_vertices = 1331;
-
-    TEST_ASSERT( (int) field.getTensorFieldDFMap()->getGlobalNumElements()
-		 == num_vertices*mySize );
-    TEST_ASSERT( (int) field.getTensorFieldDFView().size() == num_vertices );
-    TEST_ASSERT( (int) field.getTensorFieldDFConstView().size() == num_vertices );
-
-    for (int i = 0; i < num_vertices; ++i)
-    {
-	TEST_ASSERT( (int) field.getTensorFieldDFMap()->getNodeElementList()[i]
-		     == myRank*mySize + i );
-	TEST_ASSERT( field.getTensorFieldDFView()[i] == (double) i );
-	TEST_ASSERT( field.getTensorFieldDFConstView()[i] == (double) i );
-    }
-}
-
-TEUCHOS_UNIT_TEST( TensorField, dof_tet_mesh_region_tag_test )
-{
-    // Create a tet mesh.
-    int error;
-    iMesh_Instance mesh;
-    create_tet_mesh( mesh );
-
-    // Generate the domain for the field on the root set.
-    iBase_EntitySetHandle root_set;
-    iMesh_getRootSet(mesh, &root_set, &error);
-    TEST_ASSERT( iBase_SUCCESS == error );
-    
-    Teuchos::RCP<FOOD::Domain> domain = Teuchos::rcp(
-	new FOOD::Domain(mesh, root_set) );
-
-    // Create the quantity for this field.
-    Teuchos::Tuple<int,7> numerator;
-    Teuchos::Tuple<int,7> denominator;
-    for (int i = 0; i < 7; ++i)
-    {
-	numerator[i] = i;
-	denominator[i] = 6 - i;
-    }
-
-    Teuchos::RCP<FOOD::Quantity> quantity = Teuchos::rcp(
-	new FOOD::Quantity(numerator, denominator, "TET_QUANTITY") );
-
-    // Create the units for this field.
-    Teuchos::RCP<FOOD::Unit> unit = Teuchos::rcp(
-	new FOOD::Unit(quantity, 1.4, 4.3, "TET_UNIT") );
-
-    // Create the tensor template for this field. The tet volumes are tagged
-    // with a 3-vector field.
-    Teuchos::RCP<FOOD::TensorTemplate> tensor_template = Teuchos::rcp(
-	new FOOD::TensorTemplate(1, 3, FOOD::REAL, quantity) );
-
-    // Create the field.
-    FOOD::TensorField<double> field( getDefaultComm<int>(),
-				     domain,
-				     iBase_REGION,
-				     iMesh_TETRAHEDRON,
-				     FOOD::CARTESIAN, 
-				     tensor_template,
-				     unit,
-				     "TET_FIELD" );
-
-    // Get the vertex tag to attach to the field.
-    std::string tag_name = "tet_tag";
-    iBase_TagHandle vertex_tag;
-    iMesh_getTagHandle( mesh,
-			&tag_name[0],
-			&vertex_tag,
-			&error,
-			(int) tag_name.size() );
-    TEST_ASSERT( iBase_SUCCESS == error );
-
-    // Attach the field to the tag.
-    field.attachToTagData( vertex_tag, error );
-    TEST_ASSERT( iBase_SUCCESS == error );
-
-    // Test the tag attachment.
-    int myRank = getDefaultComm<int>()->getRank();
-    int mySize = getDefaultComm<int>()->getSize();
-    int num_tets = 5000;
-    int num_dof = num_tets*tensor_template->getTensorTemplateNumComponents();
-
-    TEST_ASSERT( (int) field.getTensorFieldDFMap()->getGlobalNumElements() ==
-		 num_dof*mySize );
-    TEST_ASSERT( (int) field.getTensorFieldDFView().size() == num_dof );
-    TEST_ASSERT( (int) field.getTensorFieldDFConstView().size() == num_dof );
-
-    int i1 = 0;
-    int i2 = 0;
-    int i3 = 0;
-    for (int i = 0; i < num_tets; ++i)
-    {
-	i1 = 3*i;
-	i2 = 3*i + 1;
-	i3 = 3*i + 2;
-	TEST_ASSERT( (int) field.getTensorFieldDFMap()->getNodeElementList()[i1]
-		     == myRank*mySize + i1 );
-	TEST_ASSERT( (int) field.getTensorFieldDFMap()->getNodeElementList()[i2]
-		     == myRank*mySize + i2 );
-	TEST_ASSERT( (int) field.getTensorFieldDFMap()->getNodeElementList()[i3]
-		     == myRank*mySize + i3 );
-
-	TEST_ASSERT( field.getTensorFieldDFView()[i1] == (double) i );
-	TEST_ASSERT( field.getTensorFieldDFView()[i2] == (double) i );
-	TEST_ASSERT( field.getTensorFieldDFView()[i3] == (double) i );
-
-	TEST_ASSERT( field.getTensorFieldDFConstView()[i1] == (double) i );
-	TEST_ASSERT( field.getTensorFieldDFConstView()[i2] == (double) i );
-	TEST_ASSERT( field.getTensorFieldDFConstView()[i3] == (double) i );
-    }
-}
-
-TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_region_array_test )
-{
-    // Create a hex mesh.
-    int error;
-    iMesh_Instance mesh;
-    create_hex_mesh( mesh );
-
-    // Generate the domain for the field on the root set.
-    iBase_EntitySetHandle root_set;
-    iMesh_getRootSet(mesh, &root_set, &error);
-    TEST_ASSERT( iBase_SUCCESS == error );
-    
-    Teuchos::RCP<FOOD::Domain> domain = Teuchos::rcp(
-	new FOOD::Domain(mesh, root_set) );
-
-    // Create the quantity for this field.
-    Teuchos::Tuple<int,7> numerator;
-    Teuchos::Tuple<int,7> denominator;
-    for (int i = 0; i < 7; ++i)
-    {
-	numerator[i] = i;
-	denominator[i] = 6 - i;
-    }
-
-    Teuchos::RCP<FOOD::Quantity> quantity = Teuchos::rcp(
-	new FOOD::Quantity(numerator, denominator, "HEX_QUANTITY") );
-
-    // Create the units for this field.
-    Teuchos::RCP<FOOD::Unit> unit = Teuchos::rcp(
-	new FOOD::Unit(quantity, 1.4, 4.3, "HEX_UNIT") );
-
-    // Create the tensor template for this field. The hex vertices are tagged
-    // with a scalar field.
-    Teuchos::RCP<FOOD::TensorTemplate> tensor_template = Teuchos::rcp(
-	new FOOD::TensorTemplate(0, 1, FOOD::REAL, quantity) );
-
-    // Create the field.
-    FOOD::TensorField<double> field( getDefaultComm<int>(),
-				     domain,
-				     iBase_REGION,
-				     iMesh_HEXAHEDRON,
-				     FOOD::CARTESIAN, 
-				     tensor_template,
-				     unit,
-				     "HEX_FIELD" );
-
-    // Generate a degrees of freedom array to attach to the field.
-    int num_hex = 1000;
-    Teuchos::ArrayRCP<double> dof_array(num_hex, 0.0);
-    Teuchos::ArrayRCP<double>::iterator dof_iterator;
-    double data = 0.0;
-    for (dof_iterator = dof_array.begin(); 
-	 dof_iterator != dof_array.end(); 
-	 ++dof_iterator)
-    {
-	*dof_iterator = data;
-	data += 1.0;
-    }
-
-    // Attach the field to the array.
-    field.attachToArrayData( dof_array, iBase_INTERLEAVED, error );
-    TEST_ASSERT( iBase_SUCCESS == error );
-
-    // Test the array attachment.
-    int myRank = getDefaultComm<int>()->getRank();
-    int mySize = getDefaultComm<int>()->getSize();
-
-    TEST_ASSERT( (int) field.getTensorFieldDFMap()->getGlobalNumElements()
-		 == num_hex*mySize );
-    TEST_ASSERT( (int) field.getTensorFieldDFView().size() == num_hex );
-    TEST_ASSERT( (int) field.getTensorFieldDFConstView().size() == num_hex );
-
-    for (int i = 0; i < num_hex; ++i)
-    {
-	TEST_ASSERT( (int) field.getTensorFieldDFMap()->getNodeElementList()[i]
-		     == myRank*mySize + i );
-	TEST_ASSERT( field.getTensorFieldDFView()[i] == (double) i );
-	TEST_ASSERT( field.getTensorFieldDFConstView()[i] == (double) i );
-    }
-
-    // Check that the mesh got tagged.
-    iBase_TagHandle field_tag = field.getTensorFieldDFTag();
-
-    iBase_TagHandle test_tag;
-    std::string tag_name = "HEX_FIELD";
-    iMesh_getTagHandle( mesh,
-			&tag_name[0],
-			&test_tag,
-			&error,
-			(int) tag_name.size());
-    TEST_ASSERT( iBase_SUCCESS == error );
-    TEST_ASSERT( test_tag == field_tag );
-
-    iBase_EntityHandle *dof_entities = 0;
-    int entities_allocated = num_hex;
-    int entities_size = 0;
-    iMesh_getEntities( mesh,
-		       root_set,
-		       iBase_REGION,
-		       iMesh_HEXAHEDRON,
-		       &dof_entities,
-		       &entities_allocated,
-		       &entities_size,
-		       &error );
-    TEST_ASSERT( iBase_SUCCESS == error );
-
-    int tag_values_allocated = num_hex*sizeof(double);
-    int tag_values_size = 0;
-    Teuchos::ArrayRCP<double> field_tag_data(num_hex, 0.0);
-    iMesh_getArrData( mesh,
-		      dof_entities,
-		      num_hex,
-		      field_tag,
-		      &field_tag_data,
-		      &tag_values_allocated,
-		      &tag_values_size,
-		      &error );
-    TEST_ASSERT( iBase_SUCCESS == error );
-    TEST_ASSERT( tag_values_allocated == tag_values_size );
-
-    Teuchos::ArrayRCP<const double> ent_arr_data 
-	= field.getTensorFieldConstEntArrDF( dof_entities, 
-					     entities_size,
-					     error );
-    TEST_ASSERT( iBase_SUCCESS == error );
-
-    for (int i = 0; i < num_hex; ++i)
-    {
-	TEST_ASSERT( field_tag_data[i] == dof_array[i] );
-	TEST_ASSERT( ent_arr_data[i] == dof_array[i] );
-	TEST_ASSERT( field.getTensorFieldConstEntDF( dof_entities[i], error)[0]
-		     == dof_array[i] );
-	TEST_ASSERT( iBase_SUCCESS == error );
-    }
+    FOOD::Rendezvous<double> rendezvous( field_domain, field_range );
+    TEST_ASSERT( rendezvous.getRendezvousDomainPrimary() == field_domain );
+    TEST_ASSERT( rendezvous.getRendezvousRangePrimary() == field_range );
 }
 
 //---------------------------------------------------------------------------//
-//                        end of tstTensorField.cpp
+//                        end of tstRendezvous.cpp
 //---------------------------------------------------------------------------//

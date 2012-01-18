@@ -27,7 +27,7 @@ class Rendezvous
     typedef ScalarType_T                                  ScalarType;
     typedef int                                           OrdinalType;
     typedef TensorField<ScalarType>                       TensorField_t;
-    typedef Teuchos::RCP<Tensor_Field_t>                  RCP_TensorField;
+    typedef Teuchos::RCP<TensorField_t>                   RCP_TensorField;
     typedef Tpetra::Export<OrdinalType>                   Export_t;
     typedef Teuchos::RCP<Export_t>                        RCP_Export;
     typedef int                                           ErrorCode;
@@ -58,8 +58,7 @@ class Rendezvous
   public:
 
     // Constructor.
-    Rendezvous( RCP_TensorField domain,
-		RCP_TensorField range );
+    Rendezvous( RCP_TensorField domain,	RCP_TensorField range );
 
     // Destructor.
     ~Rendezvous();
@@ -93,6 +92,8 @@ class Rendezvous
 };
 
 } // end namespace FOOD
+
+#include "Rendezvous_Def.hpp"
 
 #endif // end FOOD_RENDEZVOUS_HPP
 
