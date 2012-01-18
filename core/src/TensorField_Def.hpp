@@ -192,7 +192,7 @@ void TensorField<ScalarType>::attachToArrayData(
 template<class ScalarType>
 Teuchos::ArrayRCP<const ScalarType>
 TensorField<ScalarType>::getTensorFieldConstEntDF( iBase_EntityHandle entity,
-						   ErrorCode &error )
+						   ErrorCode &error ) const
 {
     error = 0;
 
@@ -225,7 +225,7 @@ Teuchos::ArrayRCP<const ScalarType>
 TensorField<ScalarType>::getTensorFieldConstEntArrDF( 
     iBase_EntityHandle *entities, 
     int num_entities,
-    ErrorCode &error )
+    ErrorCode &error ) const
 {
     error = 0;
 

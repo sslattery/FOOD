@@ -145,14 +145,14 @@ class TensorField
     // Get const degrees of freedom for a particular entity in the domain.
     Teuchos::ArrayRCP<const ScalarType> 
     getTensorFieldConstEntDF( iBase_EntityHandle entity,
-			      ErrorCode &error );
+			      ErrorCode &error ) const;
 
     // Get const degrees of freedom for an array of entities in the
     // domain. Returned implicitly interleaved. 
     Teuchos::ArrayRCP<const ScalarType> 
     getTensorFieldConstEntArrDF( iBase_EntityHandle *entities,
 				 int num_entities,
-				 ErrorCode &error );
+				 ErrorCode &error ) const;
 
     //! Get the Tpetra map for the degrees of freedom.
     RCP_Tpetra_Map getTensorFieldDFMap() const
