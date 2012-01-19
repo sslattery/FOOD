@@ -7,8 +7,6 @@
 #ifndef FOOD_TENSORFIELD_DEF_HPP
 #define FOOD_TENSORFIELD_DEF_HPP
 
-#include <valarray>
-
 namespace FOOD
 {
 
@@ -71,21 +69,21 @@ void TensorField<ScalarType>::attachToTagData( iBase_TagHandle dof_tag,
     d_dofs.clear();
     d_dofs.resize(dof_size);
 
-    int tag_size_type = 0;
+    int tag_size = 0;
     iMesh_getTagSizeValues( d_domain->getDomainMesh(),
 			    dof_tag,
-			    &tag_size_type,
+			    &tag_size,
 			    &error );
     assert( iBase_SUCCESS == error );
-    assert( tag_size_type == num_tensor_component );
+    assert( tag_size == num_tensor_component*TypeTraits<ScalarType>::tag_size );
 
-    int tag_size_bytes = 0;
-    iMesh_getTagSizeBytes( d_domain->getDomainMesh(),
-			   dof_tag,
-			   &tag_size_bytes,
-			   &error );
+    int tag_type = 0;
+    iMesh_getTagType( d_domain->getDomainMesh(),
+		      dof_tag,
+		      &tag_type,
+		      &error );
     assert( iBase_SUCCESS == error );
-    assert( tag_size_bytes == (int) (num_tensor_component*sizeof(ScalarType)) );
+    assert( tag_type == TypeTraits<ScalarType>::tag_type );
 
     iBase_EntityHandle *dof_entities = 0;
     int entities_allocated = num_domain_entity;
@@ -131,11 +129,11 @@ void TensorField<ScalarType>::attachToArrayData(
     int num_tensor_component = 
 	d_tensor_template->getTensorTemplateNumComponents();
 
-    int tag_size = num_tensor_component*sizeof(ScalarType);
+    int tag_size = num_tensor_component*TypeTraits<ScalarType>::tag_size;
     iMesh_createTag( d_domain->getDomainMesh(),
 		     &d_name[0],
 		     tag_size,
-		     iBase_BYTES,
+		     TypeTraits<ScalarType>::tag_type,
 		     &d_dof_tag,
 		     &error,
 		     (int) d_name.size() );
@@ -150,8 +148,8 @@ void TensorField<ScalarType>::attachToArrayData(
     assert( iBase_SUCCESS == error );
 
     int dof_size = num_tensor_component*num_domain_entity;
-    d_dofs.clear();
     assert( (int) dof_array.size() == dof_size );
+    d_dofs.clear();
 
     iBase_EntityHandle *dof_entities = 0;
     int entities_allocated = num_domain_entity;
@@ -172,7 +170,7 @@ void TensorField<ScalarType>::attachToArrayData(
 	d_dofs = dof_array;
 
 	int tag_values_size = 
-	    num_tensor_component*sizeof(ScalarType)*entities_size;
+	    num_tensor_component*entities_size*sizeof(ScalarType);
 	iMesh_setArrData( d_domain->getDomainMesh(),
 			  dof_entities,
 			  entities_size,

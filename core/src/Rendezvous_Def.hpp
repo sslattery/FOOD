@@ -27,13 +27,25 @@ Rendezvous<ScalarType>::Rendezvous(RCP_TensorField domain,
     , d_domain_exporter(0)
     , d_range_exporter(0)
 {
-    assert( domain->getTensorFieldTemplate() == 
-	    range->getTensorFieldTemplate() );
+    assert( d_domain_primary->getTensorFieldTemplate() == 
+	    d_range_primary->getTensorFieldTemplate() );
 }
 
+/*!
+ * \brief Destructor.
+ */
 template<class ScalarType>
 Rendezvous<ScalarType>::~Rendezvous()
 { /* ... */ }
+
+/*!
+ * \brief Do parallel rendezvous to generate secondary decompositions.
+ */
+template<class ScalarType>
+void Rendezvous<ScalarType>::createSecondaryDecompositions()
+{
+    
+}
 
 } // end namespace FOOD
 

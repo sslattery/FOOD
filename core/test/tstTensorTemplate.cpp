@@ -55,11 +55,12 @@ TEUCHOS_UNIT_TEST( TensorTemplate, constructor_test )
     Teuchos::RCP<FOOD::Quantity> quantity = Teuchos::rcp(
 	new FOOD::Quantity(numerator, denominator, "FOO_QUANTITY") );
 
-    FOOD::TensorTemplate tensor_template(1, 3, FOOD::REAL, quantity);
+    FOOD::TensorTemplate tensor_template(1, 3, FOOD::FOOD_REAL, quantity);
 
     TEST_ASSERT( tensor_template.getTensorTemplateOrder() == 1 );
     TEST_ASSERT( tensor_template.getTensorTemplateNumComponents() == 3 );
-    TEST_ASSERT( tensor_template.getTensorTemplateAlgType() == FOOD::REAL );
+    TEST_ASSERT( tensor_template.getTensorTemplateAlgType() == 
+		 FOOD::FOOD_REAL );
     TEST_ASSERT( tensor_template.getTensorTemplateQuantity() == quantity );
 }
 

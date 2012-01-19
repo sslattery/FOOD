@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "Types.hpp"
+#include "TypeTraits.hpp"
 #include "Unit.hpp"
 #include "Domain.hpp"
 #include "TensorTemplate.hpp"

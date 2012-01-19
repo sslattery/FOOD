@@ -559,7 +559,7 @@ TEUCHOS_UNIT_TEST( TensorField, constructor_test )
 
     // Create the tensor template for this field.
     Teuchos::RCP<FOOD::TensorTemplate> tensor_template = Teuchos::rcp(
-	new FOOD::TensorTemplate(0, 1, FOOD::REAL, quantity) );
+	new FOOD::TensorTemplate(0, 1, FOOD::FOOD_REAL, quantity) );
 
     // Create the field domain and range and check basic accessors.
     Teuchos::RCP< FOOD::TensorField<double> > field_domain
@@ -567,7 +567,7 @@ TEUCHOS_UNIT_TEST( TensorField, constructor_test )
 						       domain,
 						       iBase_VERTEX,
 						       iMesh_POINT,
-						       FOOD::CARTESIAN, 
+						       FOOD::FOOD_CARTESIAN, 
 						       tensor_template,
 						       unit,
 						       "DOMAIN" ) );
@@ -577,7 +577,7 @@ TEUCHOS_UNIT_TEST( TensorField, constructor_test )
 						       domain,
 						       iBase_VERTEX,
 						       iMesh_POINT,
-						       FOOD::CARTESIAN, 
+						       FOOD::FOOD_CARTESIAN, 
 						       tensor_template,
 						       unit,
 						       "RANGE" ) );

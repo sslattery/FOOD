@@ -20,15 +20,16 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  Types.hpp
   Domain.hpp
   Quantity.hpp
-  Unit.hpp
-  TensorTemplate.hpp
-  TensorField.hpp
-  TensorField_Def.hpp
   Rendezvous.hpp
   Rendezvous_Def.hpp
+  TensorField.hpp
+  TensorField_Def.hpp
+  TensorTemplate.hpp
+  Types.hpp
+  TypeTraits.hpp
+  Unit.hpp
   )
 
 # Set sources
@@ -36,8 +37,8 @@ APPEND_SET(HEADERS
 APPEND_SET(SOURCES
   Domain.cpp
   Quantity.cpp
-  Unit.cpp
   TensorTemplate.cpp
+  Unit.cpp
   )
 
 # Set addition headers and source based on package-specific

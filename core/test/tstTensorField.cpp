@@ -558,14 +558,14 @@ TEUCHOS_UNIT_TEST( TensorField, constructor_test )
 
     // Create the tensor template for this field.
     Teuchos::RCP<FOOD::TensorTemplate> tensor_template = Teuchos::rcp(
-	new FOOD::TensorTemplate(0, 1, FOOD::REAL, quantity) );
+	new FOOD::TensorTemplate(0, 1, FOOD::FOOD_REAL, quantity) );
 
     // Create the field and check basic accessors.
     FOOD::TensorField<double> field( getDefaultComm<int>(),
 				     domain,
 				     iBase_VERTEX,
 				     iMesh_POINT,
-				     FOOD::CARTESIAN, 
+				     FOOD::FOOD_CARTESIAN, 
 				     tensor_template,
 				     unit,
 				     "FOO_FIELD" );
@@ -573,7 +573,7 @@ TEUCHOS_UNIT_TEST( TensorField, constructor_test )
     TEST_ASSERT( field.getTensorFieldDomain() == domain );
     TEST_ASSERT( field.getTensorFieldEntityType() == iBase_VERTEX );
     TEST_ASSERT( field.getTensorFieldEntityTopology() == iMesh_POINT );
-    TEST_ASSERT( field.getTensorFieldCoordType() == FOOD::CARTESIAN );
+    TEST_ASSERT( field.getTensorFieldCoordType() == FOOD::FOOD_CARTESIAN );
     TEST_ASSERT( field.getTensorFieldTemplate() == tensor_template );
     TEST_ASSERT( field.getTensorFieldUnit() == unit );
     TEST_ASSERT( field.getTensorFieldName() == "FOO_FIELD" );
@@ -613,14 +613,14 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_vertex_tag_test )
     // Create the tensor template for this field. The hex vertices are tagged
     // with a scalar field.
     Teuchos::RCP<FOOD::TensorTemplate> tensor_template = Teuchos::rcp(
-	new FOOD::TensorTemplate(0, 1, FOOD::REAL, quantity) );
+	new FOOD::TensorTemplate(0, 1, FOOD::FOOD_REAL, quantity) );
 
     // Create the field.
     FOOD::TensorField<double> field( getDefaultComm<int>(),
 				     domain,
 				     iBase_VERTEX,
 				     iMesh_POINT,
-				     FOOD::CARTESIAN, 
+				     FOOD::FOOD_CARTESIAN, 
 				     tensor_template,
 				     unit,
 				     "VERTEX_FIELD" );
@@ -692,14 +692,14 @@ TEUCHOS_UNIT_TEST( TensorField, dof_tet_mesh_region_tag_test )
     // Create the tensor template for this field. The tet volumes are tagged
     // with a 3-vector field.
     Teuchos::RCP<FOOD::TensorTemplate> tensor_template = Teuchos::rcp(
-	new FOOD::TensorTemplate(1, 3, FOOD::REAL, quantity) );
+	new FOOD::TensorTemplate(1, 3, FOOD::FOOD_REAL, quantity) );
 
     // Create the field.
     FOOD::TensorField<double> field( getDefaultComm<int>(),
 				     domain,
 				     iBase_REGION,
 				     iMesh_TETRAHEDRON,
-				     FOOD::CARTESIAN, 
+				     FOOD::FOOD_CARTESIAN, 
 				     tensor_template,
 				     unit,
 				     "TET_FIELD" );
@@ -788,14 +788,14 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_region_array_test )
     // Create the tensor template for this field. The hex vertices are tagged
     // with a scalar field.
     Teuchos::RCP<FOOD::TensorTemplate> tensor_template = Teuchos::rcp(
-	new FOOD::TensorTemplate(0, 1, FOOD::REAL, quantity) );
+	new FOOD::TensorTemplate(0, 1, FOOD::FOOD_REAL, quantity) );
 
     // Create the field.
     FOOD::TensorField<double> field( getDefaultComm<int>(),
 				     domain,
 				     iBase_REGION,
 				     iMesh_HEXAHEDRON,
-				     FOOD::CARTESIAN, 
+				     FOOD::FOOD_CARTESIAN, 
 				     tensor_template,
 				     unit,
 				     "HEX_FIELD" );
