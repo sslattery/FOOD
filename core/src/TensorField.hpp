@@ -47,8 +47,10 @@ class TensorField
     typedef Teuchos::RCP<Unit>                       RCP_Unit;
     typedef Tpetra::Map<OrdinalType>                 Map_t;
     typedef Teuchos::RCP<const Map_t>                RCP_Map;
-    typedef Teuchos::ArrayView<ScalarType>           View;
-    typedef Teuchos::ArrayView<const ScalarType>     ConstView;
+    typedef Teuchos::ArrayView<ScalarType>           ScalarView;
+    typedef Teuchos::ArrayView<const ScalarType>     ConstScalarView;
+    typedef Teuchos::ArrayRCP<ScalarType>            ScalarArray;
+    typedef Teuchos::ArrayRCP<const ScalarType>      ConstScalarArray;    
     typedef int                                      ErrorCode;
     //@}
 
@@ -59,7 +61,7 @@ class TensorField
 
     // The degrees of freedom represented by this field. Interleaved component
     // storage.
-    Teuchos::ArrayRCP<ScalarType> d_dofs;
+    ScalarArray d_dofs;
 
     // Tpetra map for the degrees of freedom represented by this field.
     RCP_Map d_dof_map;
@@ -108,60 +110,55 @@ class TensorField
 			  ErrorCode &error );
 
     // Attach this field to array data and tag the mesh.
-    void attachToArrayData( Teuchos::ArrayRCP<ScalarType> dof_array,
+    void attachToArrayData( ScalarArray dof_array,
 			    int storage_order,
 			    ErrorCode &error );
 
     // Evaluate the degrees of freedom of this field at a set of coordinates
     // in a particular entity.
-    Teuchos::ArrayRCP<ScalarType>
-    evaluateDF( iBase_EntityHandle entity,
-		Teuchos::Tuple<double,3> coords,
-		int is_param );
+    ScalarArray evaluateDF( iBase_EntityHandle entity,
+			    Teuchos::Tuple<double,3> coords,
+			    int is_param );
 
     // Evaluate gradient of the degrees of freedom of this field at a set of
     // coordinates in a particular entity. 
-    Teuchos::ArrayRCP<ScalarType> 
-    evaluateGradDF( iBase_EntityHandle entity,
-		    Teuchos::Tuple<double,3> coords,
-		    int is_param );
+    ScalarArray evaluateGradDF( iBase_EntityHandle entity,
+				Teuchos::Tuple<double,3> coords,
+				int is_param );
 
     // Evaluate the Hessian of the degrees of freedom of this field at a set
     // of coordinates in a particular entity. 
-    Teuchos::ArrayRCP<ScalarType> 
-    evaluateHessianDF( iBase_EntityHandle entity,
-		       Teuchos::Tuple<double,3> coords,
-		       int is_param );
+    ScalarArray evaluateHessianDF( iBase_EntityHandle entity,
+				   Teuchos::Tuple<double,3> coords,
+				   int is_param );
 
     //! Get the communicator this tensor field is defined on.
     RCP_Communicator getTensorFieldComm() const
     { return d_comm; }
 
     //! Get a view of all the degrees of freedom for this field.
-    View getTensorFieldDFView()
-    { return View(d_dofs); }
+    ScalarView getTensorFieldDFView()
+    { return ScalarView(d_dofs); }
 
     //! Get a const view of all the degrees of freedom for this field.
-    ConstView getTensorFieldDFConstView() const
-    { return View(d_dofs); }
+    ConstScalarView getTensorFieldDFConstView() const
+    { return ScalarView(d_dofs); }
 
     // Get a component view of the degrees of freedom for this field.
-    View getTensorFieldComponentView( int component );
+    ScalarView getTensorFieldComponentView( int component );
 
     // Get a const component view of the degrees of freedom for this field.
-    ConstView getTensorFieldConstComponentView( int component ) const;
+    ConstScalarView getTensorFieldConstComponentView( int component ) const;
 
     // Get const degrees of freedom for a particular entity in the domain.
-    Teuchos::ArrayRCP<const ScalarType> 
-    getTensorFieldConstEntDF( iBase_EntityHandle entity,
-			      ErrorCode &error ) const;
+    ConstScalarArray getTensorFieldConstEntDF( iBase_EntityHandle entity,
+					       ErrorCode &error ) const;
 
     // Get const degrees of freedom for an array of entities in the
     // domain. Returned implicitly interleaved. 
-    Teuchos::ArrayRCP<const ScalarType> 
-    getTensorFieldConstEntArrDF( iBase_EntityHandle *entities,
-				 int num_entities,
-				 ErrorCode &error ) const;
+    ConstScalarArray getTensorFieldConstEntArrDF( iBase_EntityHandle *entities,
+						  int num_entities,
+						  ErrorCode &error ) const;
 
     //! Get the Tpetra map for the degrees of freedom.
     RCP_Map getTensorFieldDFMap() const
