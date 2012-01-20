@@ -63,12 +63,13 @@ struct KernelTraits : public PHX::TraitsBase {
     //@}
 };
  
-// ******************************************************************
-// ******************************************************************
-// Debug strings.  Specialize the Evaluation and Data types for the
-// TypeString object in phalanx/src/Phalanx_TypeString.hpp.
-// ******************************************************************
-// ******************************************************************
+
+} // end namespace 
+
+// Specialize the Evaluation and Data types for the TypeString object in
+// phalanx/src/Phalanx_TypeString.hpp. 
+namespace PHX
+{
 
 // Data Types
 template<> 
@@ -81,18 +82,18 @@ struct TypeString< Sacado::Fad::DFad<double> >
 
 // Evaluation Types
 template<> 
-struct TypeString<MyTraits::Residual> 
+struct TypeString<FOOD::KernelTraits::Residual> 
 { static const std::string value; };
 
 template<> 
-struct TypeString<MyTraits::Jacobian> 
+struct TypeString<FOOD::KernelTraits::Jacobian> 
 { static const std::string value; };
 
-} // end namespace FOOD
+}
 
 #endif // end FOOD_KERNELTRAITS_HPP
 
 //---------------------------------------------------------------------------//
-// end KernelTraits.hpp
+// end FOOD::KernelTraits.hpp
 //---------------------------------------------------------------------------//
 

@@ -21,6 +21,7 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
   Domain.hpp
+  KernelTraits.hpp
   Quantity.hpp
   Rendezvous.hpp
   Rendezvous_Def.hpp
@@ -36,6 +37,7 @@ APPEND_SET(HEADERS
 
 APPEND_SET(SOURCES
   Domain.cpp
+  KernelTraits.cpp
   Quantity.cpp
   TensorTemplate.cpp
   Unit.cpp

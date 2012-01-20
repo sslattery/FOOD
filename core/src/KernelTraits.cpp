@@ -4,10 +4,7 @@
 // /brief Specializations for trait debug strings.
 //---------------------------------------------------------------------------//
 
-#include "Traits.hpp"
-
-namespace FOOD
-{
+#include "KernelTraits.hpp"
 
 // Specialize the Evaluation and Data types for the TypeString object in the
 // phalanx/src/Phalanx_TypeStrings.hpp file. 
@@ -18,10 +15,10 @@ const std::string PHX::TypeString< Sacado::Fad::DFad<double> >::value =
   "Sacado::Fad::DFad<double>";
 
 // Evaluation types.
-const std::string PHX::TypeString<PHX::MyTraits::Residual>::value = "Residual";
-const std::string PHX::TypeString<PHX::MyTraits::Jacobian>::value = "Jacobian";
-
-}
+const std::string PHX::TypeString<FOOD::KernelTraits::Residual>::value = 
+    "Residual";
+const std::string PHX::TypeString<FOOD::KernelTraits::Jacobian>::value = 
+    "Jacobian";
 
 //---------------------------------------------------------------------------//
 // end KernelTraits.cpp
