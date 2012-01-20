@@ -57,7 +57,7 @@ struct KernelTraits : public PHX::TraitsBase {
     //@{
     //! Evaluation Data.
     typedef void* SetupData;
-    typedef const iBase_EntityHandle* EvalData;
+    typedef iBase_EntityHandle* EvalData;
     typedef void* PreEvalData;
     typedef void* PostEvalData;
     //@}

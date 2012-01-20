@@ -51,6 +51,15 @@ enum FOOD_StorageHint {
     FOOD_StorageHint_MAX =  FOOD_PER_ENTITY
 };
 
+// Distribution function kernel basis operator type.
+enum FOOD_BasisOperatorType {
+    FOOD_BasisOperatorType_MIN = 0,
+    FOOD_GRADIENT = FOOD_BasisOperatorType_MIN,
+    FOOD_DIVERGENCE,
+    FOOD_CURL,
+    FOOD_BasisOperatorType_MAX = FOOD_CURL
+};
+
 } // end namespace FOOD
 
 #endif // end FOOD_TYPES_HPP
