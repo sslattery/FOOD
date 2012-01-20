@@ -20,6 +20,8 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
+  DFuncKernel.hpp
+  DFuncKernel_Def.hpp
   Domain.hpp
   KernelTraits.hpp
   Quantity.hpp

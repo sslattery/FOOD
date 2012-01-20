@@ -51,6 +51,15 @@ enum FOOD_StorageHint {
     FOOD_StorageHint_MAX =  FOOD_PER_ENTITY
 };
 
+// Distribution function kernel discretization type.
+enum FOOD_DiscretizationType {
+    FOOD_DiscretizationType_MIN = 0,
+    FOOD_FEM = FOOD_DiscretizationType_MIN,
+    FOOD_FV,
+    FOOD_FD,
+    FOOD_DiscretizationType_MAX = FOOD_FD
+};
+
 // Distribution function kernel basis operator type.
 enum FOOD_BasisOperatorType {
     FOOD_BasisOperatorType_MIN = 0,
