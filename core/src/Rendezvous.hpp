@@ -10,6 +10,7 @@
 #include "TensorField.hpp"
 
 #include <Teuchos_RCP.hpp>
+#include <Teuchos_Tuple.hpp>
 
 #include <Tpetra_Export.hpp>
 
@@ -49,11 +50,11 @@ class Rendezvous
 
     // Exporter for transfer between primary and secondary domain
     // decompositions. 
-    RCP_Export d_domain_exporter;
+    RCP_Export d_domain_export;
 
     // Exporter for transfer between primary and secondary range
     // decompositions. 
-    RCP_Export d_range_exporter;
+    RCP_Export d_range_export;
 
   public:
 
@@ -89,6 +90,17 @@ class Rendezvous
     //! Get the range secondary decomposition.
     RCP_TensorField getRendezvousRangeSecondary() const
     { return d_domain_secondary; }
+
+  private:
+
+    // Compute a global axis aligned bounding box that bounds the intersection
+    // of the domain and range mesh sets. 
+    Teuchos::Tuple<double,6> computeIntersectionBoundingBox();
+
+    // Intersection test for two axis aligned boxes. Return the resulting
+    // intersecting axis aligned box.
+    Teuchos::Tuple<double,6> boxIntersectionTest( Teuchos::Tuple<double,6> box_A,
+						  Teuchos::Tuple<double,6> box_B );
 };
 
 } // end namespace FOOD

@@ -570,6 +570,7 @@ TEUCHOS_UNIT_TEST( TensorField, constructor_test )
 				     unit,
 				     "FOO_FIELD" );
 
+    TEST_ASSERT( field.getTensorFieldComm() == getDefaultComm<int>() );
     TEST_ASSERT( field.getTensorFieldDomain() == domain );
     TEST_ASSERT( field.getTensorFieldEntityType() == iBase_VERTEX );
     TEST_ASSERT( field.getTensorFieldEntityTopology() == iMesh_POINT );

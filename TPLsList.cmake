@@ -7,8 +7,7 @@
 #
 
 SET(FOOD_TPLS_FINDMODS_CLASSIFICATIONS
-  HDF5       "cmake/TPLs/"      EX
-  iMesh      "cmake/TPLs/"      EX
+  MOAB      "cmake/TPLs/"      EX
   )
 
 # NOTE: Above, the paths to the FindTPL<TPLNAME> modules (with an implicit

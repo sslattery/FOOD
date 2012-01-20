@@ -133,6 +133,10 @@ class TensorField
 		       Teuchos::Tuple<double,3> coords,
 		       int is_param );
 
+    //! Get the communicator this tensor field is defined on.
+    RCP_Communicator getTensorFieldComm() const
+    { return d_comm; }
+
     //! Get a view of all the degrees of freedom for this field.
     View getTensorFieldDFView()
     { return View(d_dofs); }

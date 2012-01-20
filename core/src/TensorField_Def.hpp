@@ -113,6 +113,8 @@ void TensorField<ScalarType>::attachToTagData( iBase_TagHandle dof_tag,
     assert( iBase_SUCCESS == error );
 
     mapDF();
+
+    free(dof_entities);
 }
 
 /*!

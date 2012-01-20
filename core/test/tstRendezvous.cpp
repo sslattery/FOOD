@@ -526,7 +526,7 @@ void create_tet_mesh( iMesh_Instance &mesh )
 // TESTS
 //---------------------------------------------------------------------------//
 
-TEUCHOS_UNIT_TEST( TensorField, constructor_test )
+TEUCHOS_UNIT_TEST( Rendezvous, constructor_test )
 {
     // Create the domain for this field.
     int error;
@@ -585,6 +585,11 @@ TEUCHOS_UNIT_TEST( TensorField, constructor_test )
     FOOD::Rendezvous<double> rendezvous( field_domain, field_range );
     TEST_ASSERT( rendezvous.getRendezvousDomainPrimary() == field_domain );
     TEST_ASSERT( rendezvous.getRendezvousRangePrimary() == field_range );
+}
+
+TEUCHOS_UNIT_TEST( Rendezvous, secondary_decomposition_test )
+{
+
 }
 
 //---------------------------------------------------------------------------//

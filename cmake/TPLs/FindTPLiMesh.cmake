@@ -1,6 +1,0 @@
-INCLUDE(TribitsTplDeclareLibraries)
-
-TRIBITS_TPL_DECLARE_LIBRARIES( iMesh
-  REQUIRED_HEADERS iMesh.h iBase.h
-  REQUIRED_LIBS_NAMES iMesh
-  )
