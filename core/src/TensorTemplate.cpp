@@ -11,8 +11,10 @@ namespace FOOD
 /*!
  * \brief Constructor.
  */
-TensorTemplate::TensorTemplate(std::size_t order, std::size_t num_comp, 
-			       std::size_t alg_type, RCP_Quantity quantity )
+TensorTemplate::TensorTemplate(const int order, 
+			       const int num_comp, 
+			       const int alg_type, 
+			       RCP_Quantity quantity )
     : d_order(order)
     , d_num_comp(num_comp)
     , d_alg_type(alg_type)

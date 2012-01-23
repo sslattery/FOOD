@@ -39,10 +39,10 @@ class DFuncKernel
   public:
 
     // Constructor.
-    DFuncKernel( int entity_topology,
-		 int discretization_type,
-	         int basis_degree,
-		 int basis_operator_type );
+    DFuncKernel( const int entity_topology,
+		 const int discretization_type,
+	         const int basis_degree,
+		 const int basis_operator_type );
 
     // Destructor.
     ~DFuncKernel();

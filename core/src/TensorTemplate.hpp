@@ -42,8 +42,10 @@ class TensorTemplate
   public:
 
     // Constructor.
-    TensorTemplate( std::size_t order, std::size_t num_comp, 
-		    std::size_t alg_type, RCP_Quantity quantity );
+    TensorTemplate( const int order, 
+		    const int num_comp, 
+		    const int alg_type, 
+		    RCP_Quantity quantity );
 
     // Destructor.
     ~TensorTemplate();

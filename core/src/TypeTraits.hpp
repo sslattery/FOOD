@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------//
 // \file TypeTraits.hpp
 // \author Stuart Slattery
-// \brief TypeTraits defintion.
+// \brief TypeTraits definition.
 //---------------------------------------------------------------------------//
 
 #ifndef FOOD_TYPETRAITS_HPP

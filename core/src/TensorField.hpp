@@ -95,9 +95,9 @@ class TensorField
     // Constructor.
     TensorField( RCP_Communicator comm,
 		 RCP_Domain domain,
-		 int entity_type,
-		 int entity_topology,
-		 int coord_type,
+		 const int entity_type,
+		 const int entity_topology,
+		 const int coord_type,
 		 RCP_TensorTemplate tensor_template,
 		 RCP_Unit unit,
 		 const std::string &name );

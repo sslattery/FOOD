@@ -16,9 +16,9 @@ namespace FOOD
 template<class ScalarType>
 TensorField<ScalarType>::TensorField( RCP_Communicator comm,
 				      RCP_Domain domain,
-				      int entity_type,
-				      int entity_topology,
-				      int coord_type,
+				      const int entity_type,
+				      const int entity_topology,
+				      const int coord_type,
 				      RCP_TensorTemplate tensor_template,
 				      RCP_Unit unit,
 				      const std::string &name )
@@ -132,7 +132,7 @@ void TensorField<ScalarType>::attachToArrayData(
     int num_tensor_component = 
 	d_tensor_template->getTensorTemplateNumComponents();
 
-   iMesh_createTag( d_domain->getDomainMesh(),
+    iMesh_createTag( d_domain->getDomainMesh(),
 		     &d_name[0],
 		     TypeTraits<ScalarType>::tag_size*num_tensor_component,
 		     TypeTraits<ScalarType>::tag_type,
