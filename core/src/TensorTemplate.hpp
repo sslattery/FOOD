@@ -51,19 +51,19 @@ class TensorTemplate
     ~TensorTemplate();
 
     // Get the order of this tensor template.
-    std::size_t getTensorTemplateOrder() const
+    std::size_t getOrder() const
     { return d_order; }
 
     // Get the number of components in this tensor template.
-    std::size_t getTensorTemplateNumComponents() const
+    std::size_t getNumComponents() const
     { return d_num_comp; }
 
     // Get the algebraic type of this tensor template.
-    std::size_t getTensorTemplateAlgType() const
+    std::size_t getAlgType() const
     { return d_alg_type; }
 
     // Get the physical quantity this tensor template represents.
-    RCP_Quantity getTensorTemplateQuantity() const
+    RCP_Quantity getQuantity() const
     { return d_quantity; }
 };
 

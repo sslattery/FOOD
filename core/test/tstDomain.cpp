@@ -51,8 +51,8 @@ TEUCHOS_UNIT_TEST( Domain, constructor_test )
     TEST_ASSERT( iBase_SUCCESS == error );
     
     FOOD::Domain domain(mesh, root_set);
-    TEST_ASSERT( domain.getDomainMesh() == mesh );
-    TEST_ASSERT( domain.getDomainMeshSet() == root_set );
+    TEST_ASSERT( domain.getMesh() == mesh );
+    TEST_ASSERT( domain.getMeshSet() == root_set );
 }
 
 TEUCHOS_UNIT_TEST( Domain, mesh_iterator_test )

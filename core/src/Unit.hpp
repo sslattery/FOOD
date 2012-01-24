@@ -54,26 +54,26 @@ class Unit
     ~Unit();
 
     //! Get the quantity associated with this unit.
-    RCP_Quantity getUnitQuantity() const
+    RCP_Quantity getQuantity() const
     { return d_quantity; }
 
     //! Get the scale of this unit with respect to the associated quantity.
-    double getUnitScale() const
+    double getScale() const
     { return d_scale; }
 
     //! Get the offset of this unit with respect to the associated quantity.
-    double getUnitOffset() const
+    double getOffset() const
     { return d_offset; }
 
     //! Get the name of this unit.
-    const std::string& getUnitName() const
+    const std::string& getName() const
     { return d_name; }
 
     // Set the name of this unit.
-    void setUnitName( const std::string &new_name );
+    void setName( const std::string &new_name );
 
     // Set the name of the quantity this unit is a measure of.
-    void setUnitQuantityName( const std::string &new_name );
+    void setQuantityName( const std::string &new_name );
 };
 
 } // end namespace FOOD

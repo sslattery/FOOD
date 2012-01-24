@@ -39,22 +39,22 @@ class Quantity
     ~Quantity();
 
     //! Get the numerator powers for this quantity.
-    const Teuchos::Tuple<int,7>& getQuantityNumerator() const
+    const Teuchos::Tuple<int,7>& getNumerator() const
     { return d_numerator; }
 
     //! Get the denominator powers for this quantity.
-    const Teuchos::Tuple<int,7>& getQuantityDenominator() const
+    const Teuchos::Tuple<int,7>& getDenominator() const
     { return d_denominator; }
 
     //! Get the name for this quantity.
-    const std::string& getQuantityName() const
+    const std::string& getName() const
     { return d_name; }
 
     // Multiplication operator. Used for creating derived quantities.
     Quantity operator*( const Quantity &quantity );
 
     // Rename a quantity. Do this if derived.
-    void setQuantityName( const std::string &new_name );
+    void setName( const std::string &new_name );
 };
 
 } // end namespace FOOD

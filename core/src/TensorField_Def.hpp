@@ -56,18 +56,18 @@ void TensorField<Scalar>::attachToTagData( iBase_TagHandle dof_tag,
     error = 0;
 
     int num_tensor_component = 
-	d_tensor_template->getTensorTemplateNumComponents();
+	d_tensor_template->getNumComponents();
 
     int num_domain_entity = 0;
-    iMesh_getNumOfTopo( d_domain->getDomainMesh(),
-			d_domain->getDomainMeshSet(),
+    iMesh_getNumOfTopo( d_domain->getMesh(),
+			d_domain->getMeshSet(),
 			d_entity_topology,
 			&num_domain_entity,
 			&error );
     assert( iBase_SUCCESS == error );
 
     int tag_size = 0;
-    iMesh_getTagSizeValues( d_domain->getDomainMesh(),
+    iMesh_getTagSizeValues( d_domain->getMesh(),
 			    dof_tag,
 			    &tag_size,
 			    &error );
@@ -75,7 +75,7 @@ void TensorField<Scalar>::attachToTagData( iBase_TagHandle dof_tag,
     assert( tag_size == num_tensor_component*TypeTraits<Scalar>::tag_size );
 
     int tag_type = 0;
-    iMesh_getTagType( d_domain->getDomainMesh(),
+    iMesh_getTagType( d_domain->getMesh(),
 		      dof_tag,
 		      &tag_type,
 		      &error );
@@ -85,8 +85,8 @@ void TensorField<Scalar>::attachToTagData( iBase_TagHandle dof_tag,
     iBase_EntityHandle *dof_entities = 0;
     int entities_allocated = num_domain_entity;
     int entities_size = 0;
-    iMesh_getEntities( d_domain->getDomainMesh(),
-		       d_domain->getDomainMeshSet(),
+    iMesh_getEntities( d_domain->getMesh(),
+		       d_domain->getMeshSet(),
 		       d_entity_type,
 		       d_entity_topology,
 		       &dof_entities,
@@ -103,7 +103,7 @@ void TensorField<Scalar>::attachToTagData( iBase_TagHandle dof_tag,
     int tag_value_allocated = 
 	num_tensor_component*num_domain_entity*sizeof(Scalar);
     int tag_value_size = 0;
-    iMesh_getArrData( d_domain->getDomainMesh(),
+    iMesh_getArrData( d_domain->getMesh(),
 		      dof_entities,
 		      entities_size,
 		      dof_tag,
@@ -136,9 +136,9 @@ void TensorField<Scalar>::attachToArrayData(
     error = 0;
 
     int num_tensor_component = 
-	d_tensor_template->getTensorTemplateNumComponents();
+	d_tensor_template->getNumComponents();
 
-    iMesh_createTag( d_domain->getDomainMesh(),
+    iMesh_createTag( d_domain->getMesh(),
 		     &d_name[0],
 		     TypeTraits<Scalar>::tag_size*num_tensor_component,
 		     TypeTraits<Scalar>::tag_type,
@@ -148,8 +148,8 @@ void TensorField<Scalar>::attachToArrayData(
     assert( iBase_SUCCESS == error );
 		     
     int num_domain_entity = 0;
-    iMesh_getNumOfTopo( d_domain->getDomainMesh(),
-			d_domain->getDomainMeshSet(),
+    iMesh_getNumOfTopo( d_domain->getMesh(),
+			d_domain->getMeshSet(),
 			d_entity_topology,
 			&num_domain_entity,
 			&error );
@@ -162,8 +162,8 @@ void TensorField<Scalar>::attachToArrayData(
     iBase_EntityHandle *dof_entities = 0;
     int entities_allocated = num_domain_entity;
     int entities_size = 0;
-    iMesh_getEntities( d_domain->getDomainMesh(),
-		       d_domain->getDomainMeshSet(),
+    iMesh_getEntities( d_domain->getMesh(),
+		       d_domain->getMeshSet(),
 		       d_entity_type,
 		       d_entity_topology,
 		       &dof_entities,
@@ -183,7 +183,7 @@ void TensorField<Scalar>::attachToArrayData(
 
 	int tag_values_size = 
 	    num_tensor_component*entities_size*sizeof(Scalar);
-	iMesh_setArrData( d_domain->getDomainMesh(),
+	iMesh_setArrData( d_domain->getMesh(),
 			  dof_entities,
 			  entities_size,
 			  d_dof_tag,
@@ -203,18 +203,18 @@ void TensorField<Scalar>::attachToArrayData(
  */
 template<class Scalar>
 Teuchos::ArrayRCP<const Scalar>
-TensorField<Scalar>::getTensorFieldConstEntDF( iBase_EntityHandle entity,
-					       ErrorCode &error ) const
+TensorField<Scalar>::getConstEntDF( iBase_EntityHandle entity,
+				    ErrorCode &error ) const
 {
     error = 0;
 
     Teuchos::ArrayRCP<Scalar> entity_dofs( 
-	d_tensor_template->getTensorTemplateNumComponents() );
+	d_tensor_template->getNumComponents() );
 
     int tag_values_allocated = entity_dofs.size()*sizeof(Scalar);
     int tag_values_size = 0;
 
-    iMesh_getArrData( d_domain->getDomainMesh(),
+    iMesh_getArrData( d_domain->getMesh(),
 		      &entity,
 		      1,
 		      d_dof_tag,
@@ -234,20 +234,19 @@ TensorField<Scalar>::getTensorFieldConstEntDF( iBase_EntityHandle entity,
  */
 template<class Scalar>
 Teuchos::ArrayRCP<const Scalar>
-TensorField<Scalar>::getTensorFieldConstEntArrDF( 
-    iBase_EntityHandle *entities, 
-    int num_entities,
-    ErrorCode &error ) const
+TensorField<Scalar>::getConstEntArrDF( iBase_EntityHandle *entities, 
+				       int num_entities,
+				       ErrorCode &error ) const
 {
     error = 0;
 
     Teuchos::ArrayRCP<Scalar> entities_dofs( 
-	num_entities*d_tensor_template->getTensorTemplateNumComponents() );
+	num_entities*d_tensor_template->getNumComponents() );
 
     int tag_values_allocated = entities_dofs.size()*sizeof(Scalar);
     int tag_values_size = 0;
 
-    iMesh_getArrData( d_domain->getDomainMesh(),
+    iMesh_getArrData( d_domain->getMesh(),
 		      entities,
 		      num_entities,
 		      d_dof_tag,

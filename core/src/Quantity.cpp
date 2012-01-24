@@ -53,8 +53,8 @@ Quantity Quantity::operator*(const Quantity &quantity)
 
     for (int i = 0; i < 7; ++i)
     {
-	product = quantity.getQuantityNumerator()[i] + d_numerator[i] -
-		  quantity.getQuantityDenominator()[i] - d_denominator[i];
+	product = quantity.getNumerator()[i] + d_numerator[i] -
+		  quantity.getDenominator()[i] - d_denominator[i];
 
 	if ( product > 0 )
 	{
@@ -82,7 +82,7 @@ Quantity Quantity::operator*(const Quantity &quantity)
 /*!
  * \brief Rename a quantity. Do this if derived.
  */
-void Quantity::setQuantityName( const std::string &new_name )
+void Quantity::setName( const std::string &new_name )
 {
     d_name = new_name;
 }

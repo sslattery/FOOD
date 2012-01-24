@@ -57,11 +57,11 @@ TEUCHOS_UNIT_TEST( TensorTemplate, constructor_test )
 
     FOOD::TensorTemplate tensor_template(1, 3, FOOD::FOOD_REAL, quantity);
 
-    TEST_ASSERT( tensor_template.getTensorTemplateOrder() == 1 );
-    TEST_ASSERT( tensor_template.getTensorTemplateNumComponents() == 3 );
-    TEST_ASSERT( tensor_template.getTensorTemplateAlgType() == 
+    TEST_ASSERT( tensor_template.getOrder() == 1 );
+    TEST_ASSERT( tensor_template.getNumComponents() == 3 );
+    TEST_ASSERT( tensor_template.getAlgType() == 
 		 FOOD::FOOD_REAL );
-    TEST_ASSERT( tensor_template.getTensorTemplateQuantity() == quantity );
+    TEST_ASSERT( tensor_template.getQuantity() == quantity );
 }
 
 //---------------------------------------------------------------------------//

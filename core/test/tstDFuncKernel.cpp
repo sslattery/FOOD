@@ -51,9 +51,9 @@ TEUCHOS_UNIT_TEST( DFuncKernel, constructor_test )
 						    1,
 						    1 );
 
-    TEST_ASSERT( hex_fem_div_1_kernel.getDFuncKernelBasis()->getCardinality() 
+    TEST_ASSERT( hex_fem_div_1_kernel.getBasis()->getCardinality() 
 		 == 6 );
-    TEST_ASSERT( hex_fem_div_1_kernel.getDFuncKernelBasis()->getDegree()
+    TEST_ASSERT( hex_fem_div_1_kernel.getBasis()->getDegree()
 		 == 1 );
 
     FOOD::DFuncKernel<double> tet_fem_curl_1_kernel( iMesh_TETRAHEDRON,
@@ -62,9 +62,9 @@ TEUCHOS_UNIT_TEST( DFuncKernel, constructor_test )
 						     1,
 						     1 );
 
-    TEST_ASSERT( tet_fem_curl_1_kernel.getDFuncKernelBasis()->getCardinality() 
+    TEST_ASSERT( tet_fem_curl_1_kernel.getBasis()->getCardinality() 
 		 == 6 );
-    TEST_ASSERT( tet_fem_curl_1_kernel.getDFuncKernelBasis()->getDegree()
+    TEST_ASSERT( tet_fem_curl_1_kernel.getBasis()->getDegree()
 		 == 1 );
 
     FOOD::DFuncKernel<double> quad_fem_grad_2_kernel( iMesh_QUADRILATERAL,
@@ -73,9 +73,9 @@ TEUCHOS_UNIT_TEST( DFuncKernel, constructor_test )
 						      2,
 						      1);
 
-    TEST_ASSERT( quad_fem_grad_2_kernel.getDFuncKernelBasis()->getCardinality() 
+    TEST_ASSERT( quad_fem_grad_2_kernel.getBasis()->getCardinality() 
 		 == 9 );
-    TEST_ASSERT( quad_fem_grad_2_kernel.getDFuncKernelBasis()->getDegree()
+    TEST_ASSERT( quad_fem_grad_2_kernel.getBasis()->getDegree()
 		 == 2 );
 }
 

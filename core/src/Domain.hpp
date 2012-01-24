@@ -45,11 +45,11 @@ class Domain
     ~Domain();
 
     //! Get the mesh instance.
-    Mesh getDomainMesh() const
+    Mesh getMesh() const
     { return d_mesh; }
 
     //! Get the mesh set.
-    EntitySet getDomainMeshSet() const
+    EntitySet getMeshSet() const
     { return d_mesh_set; }
 
     // Initialize an iterator over the specified entity type and topology.

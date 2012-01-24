@@ -570,14 +570,14 @@ TEUCHOS_UNIT_TEST( TensorField, constructor_test )
 				     unit,
 				     "FOO_FIELD" );
 
-    TEST_ASSERT( field.getTensorFieldComm() == getDefaultComm<int>() );
-    TEST_ASSERT( field.getTensorFieldDomain() == domain );
-    TEST_ASSERT( field.getTensorFieldEntityType() == iBase_VERTEX );
-    TEST_ASSERT( field.getTensorFieldEntityTopology() == iMesh_POINT );
-    TEST_ASSERT( field.getTensorFieldCoordType() == FOOD::FOOD_CARTESIAN );
-    TEST_ASSERT( field.getTensorFieldTemplate() == tensor_template );
-    TEST_ASSERT( field.getTensorFieldUnit() == unit );
-    TEST_ASSERT( field.getTensorFieldName() == "FOO_FIELD" );
+    TEST_ASSERT( field.getComm() == getDefaultComm<int>() );
+    TEST_ASSERT( field.getDomain() == domain );
+    TEST_ASSERT( field.getEntityType() == iBase_VERTEX );
+    TEST_ASSERT( field.getEntityTopology() == iMesh_POINT );
+    TEST_ASSERT( field.getCoordType() == FOOD::FOOD_CARTESIAN );
+    TEST_ASSERT( field.getTemplate() == tensor_template );
+    TEST_ASSERT( field.getUnit() == unit );
+    TEST_ASSERT( field.getName() == "FOO_FIELD" );
 }
 
 TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_vertex_tag_test )
@@ -645,17 +645,17 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_vertex_tag_test )
     int mySize = getDefaultComm<int>()->getSize();
     int num_vertices = 1331;
 
-    TEST_ASSERT( (int) field.getTensorFieldDFMap()->getGlobalNumElements()
+    TEST_ASSERT( (int) field.getDFMap()->getGlobalNumElements()
 		 == num_vertices*mySize );
-    TEST_ASSERT( (int) field.getTensorFieldDFView().size() == num_vertices );
-    TEST_ASSERT( (int) field.getTensorFieldDFConstView().size() == num_vertices );
+    TEST_ASSERT( (int) field.getDFView().size() == num_vertices );
+    TEST_ASSERT( (int) field.getDFConstView().size() == num_vertices );
 
     for (int i = 0; i < num_vertices; ++i)
     {
-	TEST_ASSERT( (int) field.getTensorFieldDFMap()->getNodeElementList()[i]
+	TEST_ASSERT( (int) field.getDFMap()->getNodeElementList()[i]
 		     == myRank*mySize + i );
-	TEST_ASSERT( field.getTensorFieldDFView()[i] == (double) i );
-	TEST_ASSERT( field.getTensorFieldDFConstView()[i] == (double) i );
+	TEST_ASSERT( field.getDFView()[i] == (double) i );
+	TEST_ASSERT( field.getDFConstView()[i] == (double) i );
     }
 }
 
@@ -725,10 +725,10 @@ TEUCHOS_UNIT_TEST( TensorField, dof_tet_mesh_region_tag_test )
     int num_tets = 5000;
     int num_dof = num_tets*tensor_template->getTensorTemplateNumComponents();
 
-    TEST_ASSERT( (int) field.getTensorFieldDFMap()->getGlobalNumElements() ==
+    TEST_ASSERT( (int) field.getDFMap()->getGlobalNumElements() ==
 		 num_dof*mySize );
-    TEST_ASSERT( (int) field.getTensorFieldDFView().size() == num_dof );
-    TEST_ASSERT( (int) field.getTensorFieldDFConstView().size() == num_dof );
+    TEST_ASSERT( (int) field.getDFView().size() == num_dof );
+    TEST_ASSERT( (int) field.getDFConstView().size() == num_dof );
 
     int i1 = 0;
     int i2 = 0;
@@ -738,20 +738,20 @@ TEUCHOS_UNIT_TEST( TensorField, dof_tet_mesh_region_tag_test )
 	i1 = 3*i;
 	i2 = 3*i + 1;
 	i3 = 3*i + 2;
-	TEST_ASSERT( (int) field.getTensorFieldDFMap()->getNodeElementList()[i1]
+	TEST_ASSERT( (int) field.getDFMap()->getNodeElementList()[i1]
 		     == myRank*mySize + i1 );
-	TEST_ASSERT( (int) field.getTensorFieldDFMap()->getNodeElementList()[i2]
+	TEST_ASSERT( (int) field.getDFMap()->getNodeElementList()[i2]
 		     == myRank*mySize + i2 );
-	TEST_ASSERT( (int) field.getTensorFieldDFMap()->getNodeElementList()[i3]
+	TEST_ASSERT( (int) field.getDFMap()->getNodeElementList()[i3]
 		     == myRank*mySize + i3 );
 
-	TEST_ASSERT( field.getTensorFieldDFView()[i1] == (double) i );
-	TEST_ASSERT( field.getTensorFieldDFView()[i2] == (double) i );
-	TEST_ASSERT( field.getTensorFieldDFView()[i3] == (double) i );
+	TEST_ASSERT( field.getDFView()[i1] == (double) i );
+	TEST_ASSERT( field.getDFView()[i2] == (double) i );
+	TEST_ASSERT( field.getDFView()[i3] == (double) i );
 
-	TEST_ASSERT( field.getTensorFieldDFConstView()[i1] == (double) i );
-	TEST_ASSERT( field.getTensorFieldDFConstView()[i2] == (double) i );
-	TEST_ASSERT( field.getTensorFieldDFConstView()[i3] == (double) i );
+	TEST_ASSERT( field.getDFConstView()[i1] == (double) i );
+	TEST_ASSERT( field.getDFConstView()[i2] == (double) i );
+	TEST_ASSERT( field.getDFConstView()[i3] == (double) i );
     }
 }
 
@@ -822,21 +822,21 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_region_array_test )
     int myRank = getDefaultComm<int>()->getRank();
     int mySize = getDefaultComm<int>()->getSize();
 
-    TEST_ASSERT( (int) field.getTensorFieldDFMap()->getGlobalNumElements()
+    TEST_ASSERT( (int) field.getDFMap()->getGlobalNumElements()
 		 == num_hex*mySize );
-    TEST_ASSERT( (int) field.getTensorFieldDFView().size() == num_hex );
-    TEST_ASSERT( (int) field.getTensorFieldDFConstView().size() == num_hex );
+    TEST_ASSERT( (int) field.getDFView().size() == num_hex );
+    TEST_ASSERT( (int) field.getDFConstView().size() == num_hex );
 
     for (int i = 0; i < num_hex; ++i)
     {
-	TEST_ASSERT( (int) field.getTensorFieldDFMap()->getNodeElementList()[i]
+	TEST_ASSERT( (int) field.getDFMap()->getNodeElementList()[i]
 		     == myRank*mySize + i );
-	TEST_ASSERT( field.getTensorFieldDFView()[i] == (double) i );
-	TEST_ASSERT( field.getTensorFieldDFConstView()[i] == (double) i );
+	TEST_ASSERT( field.getDFView()[i] == (double) i );
+	TEST_ASSERT( field.getDFConstView()[i] == (double) i );
     }
 
     // Check that the mesh got tagged.
-    iBase_TagHandle field_tag = field.getTensorFieldDFTag();
+    iBase_TagHandle field_tag = field.getDFTag();
 
     iBase_TagHandle test_tag;
     std::string tag_name = "HEX_FIELD";
@@ -876,16 +876,16 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_region_array_test )
     TEST_ASSERT( tag_values_allocated == tag_values_size );
 
     Teuchos::ArrayRCP<const double> ent_arr_data 
-	= field.getTensorFieldConstEntArrDF( dof_entities, 
-					     entities_size,
-					     error );
+	= field.getConstEntArrDF( dof_entities, 
+				  entities_size,
+				  error );
     TEST_ASSERT( iBase_SUCCESS == error );
 
     for (int i = 0; i < num_hex; ++i)
     {
 	TEST_ASSERT( field_tag_data[i] == dof_array[i] );
 	TEST_ASSERT( ent_arr_data[i] == dof_array[i] );
-	TEST_ASSERT( field.getTensorFieldConstEntDF( dof_entities[i], error)[0]
+	TEST_ASSERT( field.getConstEntDF( dof_entities[i], error)[0]
 		     == dof_array[i] );
 	TEST_ASSERT( iBase_SUCCESS == error );
     }

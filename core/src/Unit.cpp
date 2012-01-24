@@ -31,7 +31,7 @@ Unit::~Unit()
 /*!
  * \brief Set the name of this unit.
  */
-void Unit::setUnitName( const std::string &new_name )
+void Unit::setName( const std::string &new_name )
 {
     d_name = new_name;
 }
@@ -39,7 +39,7 @@ void Unit::setUnitName( const std::string &new_name )
 /*!
  * \brief Set the name of the quantity this unit is a measure of.
  */
-void Unit::setUnitQuantityName( const std::string &new_name )
+void Unit::setQuantityName( const std::string &new_name )
 {
     d_quantity->setQuantityName(new_name);
 }

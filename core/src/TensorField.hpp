@@ -58,7 +58,7 @@ class TensorField
     RCP_Communicator d_comm;
 
     // The degrees of freedom represented by this field. Stored in a
-    // multidimensional array. Shallow copy of tag data.
+    // multidimensional array access wrapper. Shallow copy of tag data.
     MDArray d_dofs;
 
     // Tpetra map for the degrees of freedom represented by this field.
@@ -134,24 +134,32 @@ class TensorField
 		       int is_param );
 
     //! Get the communicator this tensor field is defined on.
-    RCP_Communicator getTensorFieldComm() const
+    RCP_Communicator getComm() const
     { return d_comm; }
 
+    //! Get the degrees of freedom for this field.
+    Teuchos::ArrayRCP<Scalar> getDF()
+    { return d_dofs.getData(); }
+
+    //! Get const degrees of freedom for this field.
+    Teuchos::ArrayRCP<const Scalar> getConstDF()
+    { return d_dofs.getData(); }
+
     //! Get a view of all the degrees of freedom for this field.
-    Teuchos::ArrayView<Scalar> getTensorFieldDFView()
+    Teuchos::ArrayView<Scalar> getDFView()
     { return Teuchos::ArrayView<Scalar>( d_dofs.getData() ); }
 
     //! Get a const view of all the degrees of freedom for this field.
-    Teuchos::ArrayView<const Scalar> getTensorFieldDFConstView() const
+    Teuchos::ArrayView<const Scalar> getDFConstView() const
     { return Teuchos::ArrayView<const Scalar>( d_dofs.getData() ); }
 
     // Get a component view of the degrees of freedom for this field.
     Teuchos::ArrayView<Scalar> 
-    getTensorFieldComponentView( int component );
+    getComponentView( int component );
 
     // Get a const component view of the degrees of freedom for this field.
-    Teuchos::ArrayView<const Scalar>
-    getTensorFieldConstComponentView( int component ) const;
+    Teuchos::ArrayView<const Scalar> 
+    getConstComponentView( int component ) const;
 
     // Get const degrees of freedom for a particular entity in the domain.
     Teuchos::ArrayRCP<const Scalar> 
@@ -161,45 +169,45 @@ class TensorField
     // Get const degrees of freedom for an array of entities in the
     // domain. Returned implicitly interleaved. 
     Teuchos::ArrayRCP<const Scalar> 
-    getTensorFieldConstEntArrDF( iBase_EntityHandle *entities,
-				 int num_entities,
-				 ErrorCode &error ) const;
+    getConstEntArrDF( iBase_EntityHandle *entities,
+		      int num_entities,
+		      ErrorCode &error ) const;
 
     //! Get the Tpetra map for the degrees of freedom.
-    RCP_Map getTensorFieldDFMap() const
+    RCP_Map getDFMap() const
     { return d_dof_map; }
 
     //! Get the domain this field is defined on.
-    RCP_Domain getTensorFieldDomain() const
+    RCP_Domain getDomain() const
     { return d_domain; }
 
     //! Get the entity type this field is defined on.
-    int getTensorFieldEntityType() const
+    int getEntityType() const
     { return d_entity_type; }
 
     //! Get the entity topology this field is defined on.
-    int getTensorFieldEntityTopology() const
+    int getEntityTopology() const
     { return d_entity_topology; }
 
     //! Get the coordinate system for physics field coordinates.
-    int getTensorFieldCoordType() const
+    int getCoordType() const
     { return d_coord_type; }
 
     //! Get the tensor template for this field.
-    RCP_TensorTemplate getTensorFieldTemplate() const
+    RCP_TensorTemplate getTemplate() const
     { return d_tensor_template; }
 
     //! Get the unit for this field.
-    RCP_Unit getTensorFieldUnit() const
+    RCP_Unit getUnit() const
     { return d_unit; }
 
     //! Get the name of this field.
-    const std::string& getTensorFieldName() const
+    const std::string& getName() const
     { return d_name; }
 
     //! Get the degrees of freedom tag on the mesh this field is associated
     //! with.
-    iBase_TagHandle getTensorFieldDFTag() const
+    iBase_TagHandle getDFTag() const
     { return d_dof_tag; }
 
   private:

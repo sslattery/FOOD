@@ -56,15 +56,15 @@ TEUCHOS_UNIT_TEST( Unit, constructor_test )
 
     FOOD::Unit unit(quantity, 1.4, 4.3, "FOO_UNIT");
 
-    TEST_ASSERT( unit.getUnitQuantity() == quantity );
-    TEST_ASSERT( unit.getUnitScale() == 1.4 );
-    TEST_ASSERT( unit.getUnitName() == "FOO_UNIT" );
+    TEST_ASSERT( unit.getQuantity() == quantity );
+    TEST_ASSERT( unit.getScale() == 1.4 );
+    TEST_ASSERT( unit.getName() == "FOO_UNIT" );
    
-    unit.setUnitName( "BAR_UNIT" );
-    TEST_ASSERT( unit.getUnitName() == "BAR_UNIT" );
+    unit.setName( "BAR_UNIT" );
+    TEST_ASSERT( unit.getName() == "BAR_UNIT" );
     
-    unit.setUnitQuantityName( "BAR_QUANTITY" );
-    TEST_ASSERT( unit.getUnitQuantity()->getQuantityName() == "BAR_QUANTITY" );
+    unit.setQuantityName( "BAR_QUANTITY" );
+    TEST_ASSERT( unit.getQuantity()->getQuantityName() == "BAR_QUANTITY" );
 }
 
 //---------------------------------------------------------------------------//

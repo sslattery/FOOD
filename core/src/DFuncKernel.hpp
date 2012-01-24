@@ -61,11 +61,11 @@ class DFuncKernel
     void evaluateGradDF( MDArray &dfunc_grad_values, const MDArray &coords );
 
     //! Get the basis for this kernel.
-    RCP_Basis getDFuncKernelBasis() const
+    RCP_Basis getBasis() const
     { return d_basis; }
 
     //! Get the integration rule for this kernel.
-    RCP_Cubature getDFuncKernelCubature() const
+    RCP_Cubature getCubature() const
     { return d_cubature; }
 };
 
