@@ -7,6 +7,8 @@
 #ifndef FOOD_TENSORFIELD_DEF_HPP
 #define FOOD_TENSORFIELD_DEF_HPP
 
+#include <Teuchos_CommHelpers.hpp>
+
 namespace FOOD
 {
 
@@ -261,13 +263,19 @@ TensorField<Scalar>::getConstEntArrDF( iBase_EntityHandle *entities,
 }
 
 /*!
- * \brief Map the degrees of freedom.
+ * \brief Map the degrees of freedom with globally unique ID's.
  */
 template<class Scalar>
 void TensorField<Scalar>::mapDF()
 {
     int myRank = d_comm->getRank();
-    int mySize = d_comm->getSize();
+    int local_size = d_dofs.size();
+    int global_size = 0;
+    Teuchos::reduceAll<int>( *d_comm,
+			     Teuchos::REDUCE_MAX,
+			     int(1),
+			     &local_size,
+			     &global_size );
     int offset = 0;
     std::vector<OrdinalType> dof_ordinals( d_dofs.size() );
     std::vector<OrdinalType>::iterator dof_ordinal_iterator;
@@ -275,7 +283,7 @@ void TensorField<Scalar>::mapDF()
 	  dof_ordinal_iterator != dof_ordinals.end();
 	  ++dof_ordinal_iterator, ++offset )
     {
-	*dof_ordinal_iterator = myRank*mySize + offset;
+	*dof_ordinal_iterator = global_size*myRank + offset;
     }
     Teuchos::ArrayView<const OrdinalType> dof_ordinals_view(dof_ordinals);
     d_dof_map = 

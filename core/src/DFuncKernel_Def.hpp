@@ -27,6 +27,7 @@ DFuncKernel<Scalar>::DFuncKernel( const int entity_topology,
 				  const int basis_degree,
 				  const int cubature_degree )
     : d_basis(0)
+    , d_cubature(0)
 {
     BasisFactory<Scalar,MDArray> basis_factory;
     d_basis = basis_factory.create( entity_topology,
@@ -59,7 +60,6 @@ void DFuncKernel<Scalar>::evaluateDF( MDArray &dfunc_values,
 {
 
 }
-
 
 } // end namespace FOOD
 

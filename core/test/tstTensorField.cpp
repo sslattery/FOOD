@@ -575,7 +575,7 @@ TEUCHOS_UNIT_TEST( TensorField, constructor_test )
     TEST_ASSERT( field.getEntityType() == iBase_VERTEX );
     TEST_ASSERT( field.getEntityTopology() == iMesh_POINT );
     TEST_ASSERT( field.getCoordType() == FOOD::FOOD_CARTESIAN );
-    TEST_ASSERT( field.getTemplate() == tensor_template );
+    TEST_ASSERT( field.getTensorTemplate() == tensor_template );
     TEST_ASSERT( field.getUnit() == unit );
     TEST_ASSERT( field.getName() == "FOO_FIELD" );
 }
@@ -723,7 +723,7 @@ TEUCHOS_UNIT_TEST( TensorField, dof_tet_mesh_region_tag_test )
     int myRank = getDefaultComm<int>()->getRank();
     int mySize = getDefaultComm<int>()->getSize();
     int num_tets = 5000;
-    int num_dof = num_tets*tensor_template->getTensorTemplateNumComponents();
+    int num_dof = num_tets*tensor_template->getNumComponents();
 
     TEST_ASSERT( (int) field.getDFMap()->getGlobalNumElements() ==
 		 num_dof*mySize );

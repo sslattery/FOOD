@@ -114,24 +114,24 @@ class TensorField
 
     // Evaluate the degrees of freedom of this field at a set of coordinates
     // in a particular entity.
-    Teuchos::ArrayView<Scalar> 
-    evaluateDF( iBase_EntityHandle entity,
-		Teuchos::Tuple<double,3> coords,
-		int is_param );
+    void evaluateDF( iBase_EntityHandle entity,
+		     const MDArray &coords,
+		     const int is_param,
+	             MDArray &dfunc_values );
 
     // Evaluate gradient of the degrees of freedom of this field at a set of
     // coordinates in a particular entity. 
-    Teuchos::ArrayView<Scalar> 
-    evaluateGradDF( iBase_EntityHandle entity,
-		    Teuchos::Tuple<double,3> coords,
-		    int is_param );
+    void evaluateGradDF( iBase_EntityHandle entity,
+			 const MDArray &coords,
+			 const int is_param,
+			 MDArray &dfunc_values );
 
     // Evaluate the Hessian of the degrees of freedom of this field at a set
     // of coordinates in a particular entity. 
-    Teuchos::ArrayView<Scalar> 
-    evaluateHessianDF( iBase_EntityHandle entity,
-		       Teuchos::Tuple<double,3> coords,
-		       int is_param );
+    void evaluateHessianDF( iBase_EntityHandle entity,
+			    const MDArray &coords,
+			    const int is_param,
+			    MDArray &dfunc_values );
 
     //! Get the communicator this tensor field is defined on.
     RCP_Communicator getComm() const
@@ -194,7 +194,7 @@ class TensorField
     { return d_coord_type; }
 
     //! Get the tensor template for this field.
-    RCP_TensorTemplate getTemplate() const
+    RCP_TensorTemplate getTensorTemplate() const
     { return d_tensor_template; }
 
     //! Get the unit for this field.
@@ -212,7 +212,7 @@ class TensorField
 
   private:
 
-    // Map the degrees of freedom.
+    // Map the degrees of freedom with globally unique ID's.
     void mapDF();
 }; 
 
