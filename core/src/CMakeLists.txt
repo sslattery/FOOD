@@ -20,6 +20,9 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
+  BasisFactory.hpp
+  BasisFactory_Def.hpp
+  CellTopologyFactory.hpp
   DFuncKernel.hpp
   DFuncKernel_Def.hpp
   Domain.hpp
@@ -38,6 +41,7 @@ APPEND_SET(HEADERS
 # Set sources
 
 APPEND_SET(SOURCES
+  CellTopologyFactory.cpp
   Domain.cpp
   KernelTraits.cpp
   Quantity.cpp
