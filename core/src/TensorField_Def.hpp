@@ -9,6 +9,8 @@
 
 #include <Teuchos_CommHelpers.hpp>
 
+#include <Intrepid_FunctionSpaceTools.hpp>
+
 namespace FOOD
 {
 
@@ -18,6 +20,7 @@ namespace FOOD
 template<class Scalar>
 TensorField<Scalar>::TensorField( RCP_Communicator comm,
 				  RCP_Domain domain,
+				  RCP_DFuncKernel dfunckernel,
 				  const int entity_type,
 				  const int entity_topology,
 				  const int coord_type,
@@ -27,6 +30,7 @@ TensorField<Scalar>::TensorField( RCP_Communicator comm,
     : d_comm(comm)
     , d_dofs(0)
     , d_domain(domain)
+    , d_dfunckernel(dfunckernel)
     , d_entity_type(entity_type)
     , d_entity_topology(entity_topology)
     , d_coord_type(coord_type)
@@ -198,6 +202,26 @@ void TensorField<Scalar>::attachToArrayData(
     mapDF();
 
     free( dof_entities );
+}
+
+/*!
+ * \brief Evaluate the degrees of freedom of this field at a set of
+ * coordinates in a particular entity. 
+ */
+template<class Scalar>
+void TensorField<Scalar>::evaluateDF( iBase_EntityHandle entity,
+				      const MDArray &coords,
+				      const int is_param,
+				      MDArray &dfunc_values )
+{
+    if( is_param )
+    {
+	d_dfunckernel->evaluateDF( dfunc_values, coords );
+    }
+    else
+    {
+	
+    }
 }
 
 /*! 

@@ -52,13 +52,18 @@ DFuncKernel<Scalar>::~DFuncKernel()
 
 /*!
  * \brief Evaluate the degrees of freedom for this kernel at a specific
- * location. Coordinates are parametric. 
+ * location. Coordinates are parametric (defined in the reference cell).
+ *
+ * \param dfunc_values The evaluated distribution function
+ * values. ArrayDim[basis_cardinality][num_points].
+ * \param coords The coords to evaluate the distribution functions
+ * at. ArrayDim[num_points][xyz].
  */
 template<class Scalar>
 void DFuncKernel<Scalar>::evaluateDF( MDArray &dfunc_values, 
 				      const MDArray &coords )
 {
-
+    d_basis.getValues( dfunc_values, coords, Intrepid::OPERATOR_VALUE );
 }
 
 } // end namespace FOOD

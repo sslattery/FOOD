@@ -14,6 +14,7 @@
 #include "TypeTraits.hpp"
 #include "Unit.hpp"
 #include "Domain.hpp"
+#include "DFuncKernel.hpp"
 #include "TensorTemplate.hpp"
 
 #include <iMesh.h>
@@ -44,6 +45,8 @@ class TensorField
     typedef Teuchos::Comm<int>                       Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
     typedef Teuchos::RCP<Domain>                     RCP_Domain;
+    typedef DFuncKernel<Scalar>                      DFuncKernel_t;
+    typedef Teuchos::RCP<DFuncKernel_t>              RCP_DFuncKernel;
     typedef Teuchos::RCP<TensorTemplate>             RCP_TensorTemplate;
     typedef Teuchos::RCP<Unit>                       RCP_Unit;
     typedef Tpetra::Map<OrdinalType>                 Map_t;
@@ -66,6 +69,9 @@ class TensorField
 
     // The domain this field is defined on.
     RCP_Domain d_domain;
+
+    // The distribution function kernel to be used to evaluate this field.
+    RCP_DFuncKernel d_dfunckernel;
 
     // The entity type this field is defined on.
     std::size_t d_entity_type;
@@ -93,6 +99,7 @@ class TensorField
     // Constructor.
     TensorField( RCP_Communicator comm,
 		 RCP_Domain domain,
+		 RCP_DFuncKernel dfunckernel,
 		 const int entity_type,
 		 const int entity_topology,
 		 const int coord_type,
@@ -152,14 +159,6 @@ class TensorField
     //! Get a const view of all the degrees of freedom for this field.
     Teuchos::ArrayView<const Scalar> getDFConstView() const
     { return Teuchos::ArrayView<const Scalar>( d_dofs.getData() ); }
-
-    // Get a component view of the degrees of freedom for this field.
-    Teuchos::ArrayView<Scalar> 
-    getComponentView( int component );
-
-    // Get a const component view of the degrees of freedom for this field.
-    Teuchos::ArrayView<const Scalar> 
-    getConstComponentView( int component ) const;
 
     // Get const degrees of freedom for a particular entity in the domain.
     Teuchos::ArrayRCP<const Scalar> 
