@@ -40,7 +40,7 @@ class TensorField
 
     //@{
     //! Typedefs.
-    typedef int                                      OrdinalType;
+    typedef unsigned long int                        OrdinalType;
     typedef Teuchos::Comm<int>                       Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
     typedef Teuchos::RCP<Domain>                     RCP_Domain;
