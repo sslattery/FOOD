@@ -79,6 +79,8 @@ TEUCHOS_UNIT_TEST( BasisFactory, factory_test )
 			      1 );
     int num_fields = basis->getCardinality();
     TEST_ASSERT( num_fields == 4 );
+
+    // Evaluate the basis.
 }
 
 //---------------------------------------------------------------------------//
