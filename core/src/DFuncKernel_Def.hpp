@@ -22,10 +22,10 @@ namespace FOOD
  */
 template<class Scalar>
 DFuncKernel<Scalar>::DFuncKernel( const int entity_topology,
-				      const int discretization_type,
-				      const int basis_operator_type,
-    				      const int basis_degree,
-				      const int cubature_degree )
+				  const int discretization_type,
+				  const int basis_operator_type,
+				  const int basis_degree,
+				  const int cubature_degree )
     : d_basis(0)
 {
     BasisFactory<Scalar,MDArray> basis_factory;
