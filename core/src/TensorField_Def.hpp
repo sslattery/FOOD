@@ -13,15 +13,15 @@ namespace FOOD
 /*!
  * \brief Constructor.
  */
-template<class ScalarType>
-TensorField<ScalarType>::TensorField( RCP_Communicator comm,
-				      RCP_Domain domain,
-				      const int entity_type,
-				      const int entity_topology,
-				      const int coord_type,
-				      RCP_TensorTemplate tensor_template,
-				      RCP_Unit unit,
-				      const std::string &name )
+template<class Scalar>
+TensorField<Scalar>::TensorField( RCP_Communicator comm,
+				  RCP_Domain domain,
+				  const int entity_type,
+				  const int entity_topology,
+				  const int coord_type,
+				  RCP_TensorTemplate tensor_template,
+				  RCP_Unit unit,
+				  const std::string &name )
     : d_comm(comm)
     , d_dofs(0)
     , d_domain(domain)
@@ -37,8 +37,8 @@ TensorField<ScalarType>::TensorField( RCP_Communicator comm,
 /*!
  * \brief Destructor.
  */
-template<class ScalarType>
-TensorField<ScalarType>::~TensorField()
+template<class Scalar>
+TensorField<Scalar>::~TensorField()
 { /* ... */ }
 
 /*! 
@@ -47,9 +47,9 @@ TensorField<ScalarType>::~TensorField()
  * Here we set a pointer to the tag data from the specified entity topology
  * and define the Tpetra map of that vector.
  */
-template<class ScalarType>
-void TensorField<ScalarType>::attachToTagData( iBase_TagHandle dof_tag,
-					       ErrorCode &error )
+template<class Scalar>
+void TensorField<Scalar>::attachToTagData( iBase_TagHandle dof_tag,
+					   ErrorCode &error )
 {
     d_dof_tag = dof_tag;
 
@@ -66,17 +66,13 @@ void TensorField<ScalarType>::attachToTagData( iBase_TagHandle dof_tag,
 			&error );
     assert( iBase_SUCCESS == error );
 
-    int dof_size = num_tensor_component*num_domain_entity;
-    d_dofs.clear();
-    d_dofs.resize(dof_size);
-
     int tag_size = 0;
     iMesh_getTagSizeValues( d_domain->getDomainMesh(),
 			    dof_tag,
 			    &tag_size,
 			    &error );
     assert( iBase_SUCCESS == error );
-    assert( tag_size == num_tensor_component*TypeTraits<ScalarType>::tag_size );
+    assert( tag_size == num_tensor_component*TypeTraits<Scalar>::tag_size );
 
     int tag_type = 0;
     iMesh_getTagType( d_domain->getDomainMesh(),
@@ -84,7 +80,7 @@ void TensorField<ScalarType>::attachToTagData( iBase_TagHandle dof_tag,
 		      &tag_type,
 		      &error );
     assert( iBase_SUCCESS == error );
-    assert( tag_type == (int) TypeTraits<ScalarType>::tag_type );
+    assert( tag_type == (int) TypeTraits<Scalar>::tag_type );
 
     iBase_EntityHandle *dof_entities = 0;
     int entities_allocated = num_domain_entity;
@@ -100,18 +96,28 @@ void TensorField<ScalarType>::attachToTagData( iBase_TagHandle dof_tag,
     assert( iBase_SUCCESS == error );
     assert( num_domain_entity == entities_size );
 
+    int dof_size = 
+	num_tensor_component*num_domain_entity*TypeTraits<Scalar>::tag_size;
+    Teuchos::ArrayRCP<Scalar> dof_array(dof_size);
+
     int tag_value_allocated = 
-	num_tensor_component*num_domain_entity*sizeof(ScalarType);
+	num_tensor_component*num_domain_entity*sizeof(Scalar);
     int tag_value_size = 0;
     iMesh_getArrData( d_domain->getDomainMesh(),
 		      dof_entities,
 		      entities_size,
 		      dof_tag,
-		      &d_dofs,
+		      &dof_array,
 		      &tag_value_allocated,
 		      &tag_value_size,
 		      &error );
     assert( iBase_SUCCESS == error );
+
+    Teuchos::Tuple<int,2> dof_dimensions;
+    dof_dimensions[0] = num_domain_entity;
+    dof_dimensions[1] = num_tensor_component;
+    
+    d_dofs = MDArray( Teuchos::Array<int>(dof_dimensions), dof_array );
 
     mapDF();
 
@@ -121,9 +127,9 @@ void TensorField<ScalarType>::attachToTagData( iBase_TagHandle dof_tag,
 /*!
  * \brief Attach this field to array data and tag the mesh.
  */
-template<class ScalarType>
-void TensorField<ScalarType>::attachToArrayData( 
-    ScalarArray dof_array, 
+template<class Scalar>
+void TensorField<Scalar>::attachToArrayData( 
+    Teuchos::ArrayRCP<Scalar> dof_array, 
     int storage_order,
     ErrorCode &error )
 {
@@ -134,8 +140,8 @@ void TensorField<ScalarType>::attachToArrayData(
 
     iMesh_createTag( d_domain->getDomainMesh(),
 		     &d_name[0],
-		     TypeTraits<ScalarType>::tag_size*num_tensor_component,
-		     TypeTraits<ScalarType>::tag_type,
+		     TypeTraits<Scalar>::tag_size*num_tensor_component,
+		     TypeTraits<Scalar>::tag_type,
 		     &d_dof_tag,
 		     &error,
 		     (int) d_name.size() );
@@ -169,15 +175,19 @@ void TensorField<ScalarType>::attachToArrayData(
 
     if ( iBase_INTERLEAVED == storage_order )
     {
-	d_dofs = dof_array;
+	Teuchos::Tuple<int,2> dof_dimensions;
+	dof_dimensions[0] = num_domain_entity;
+	dof_dimensions[1] = num_tensor_component;
+    
+	d_dofs = MDArray( Teuchos::Array<int>(dof_dimensions), dof_array );
 
 	int tag_values_size = 
-	    num_tensor_component*entities_size*sizeof(ScalarType);
+	    num_tensor_component*entities_size*sizeof(Scalar);
 	iMesh_setArrData( d_domain->getDomainMesh(),
 			  dof_entities,
 			  entities_size,
 			  d_dof_tag,
-			  &d_dofs[0],
+			  &(d_dofs.getData())[0],
 			  tag_values_size,
 			  &error );
 	assert( iBase_SUCCESS == error );
@@ -191,17 +201,17 @@ void TensorField<ScalarType>::attachToArrayData(
 /*! 
  * \brief Get const degrees of freedom for a particular entity in the domain.
  */
-template<class ScalarType>
-typename TensorField<ScalarType>::ConstScalarArray
-TensorField<ScalarType>::getTensorFieldConstEntDF( iBase_EntityHandle entity,
-						   ErrorCode &error ) const
+template<class Scalar>
+Teuchos::ArrayRCP<const Scalar>
+TensorField<Scalar>::getTensorFieldConstEntDF( iBase_EntityHandle entity,
+					       ErrorCode &error ) const
 {
     error = 0;
 
-    ScalarArray entity_dofs( 
+    Teuchos::ArrayRCP<Scalar> entity_dofs( 
 	d_tensor_template->getTensorTemplateNumComponents() );
 
-    int tag_values_allocated = entity_dofs.size()*sizeof(ScalarType);
+    int tag_values_allocated = entity_dofs.size()*sizeof(Scalar);
     int tag_values_size = 0;
 
     iMesh_getArrData( d_domain->getDomainMesh(),
@@ -222,19 +232,19 @@ TensorField<ScalarType>::getTensorFieldConstEntDF( iBase_EntityHandle entity,
  * \brief Get const degrees of freedom for an array of entities in the
  * domain. Returned implicitly interleaved.
  */
-template<class ScalarType>
-typename TensorField<ScalarType>::ConstScalarArray
-TensorField<ScalarType>::getTensorFieldConstEntArrDF( 
+template<class Scalar>
+Teuchos::ArrayRCP<const Scalar>
+TensorField<Scalar>::getTensorFieldConstEntArrDF( 
     iBase_EntityHandle *entities, 
     int num_entities,
     ErrorCode &error ) const
 {
     error = 0;
 
-    ScalarArray entities_dofs( 
+    Teuchos::ArrayRCP<Scalar> entities_dofs( 
 	num_entities*d_tensor_template->getTensorTemplateNumComponents() );
 
-    int tag_values_allocated = entities_dofs.size()*sizeof(ScalarType);
+    int tag_values_allocated = entities_dofs.size()*sizeof(Scalar);
     int tag_values_size = 0;
 
     iMesh_getArrData( d_domain->getDomainMesh(),
@@ -254,8 +264,8 @@ TensorField<ScalarType>::getTensorFieldConstEntArrDF(
 /*!
  * \brief Map the degrees of freedom.
  */
-template<class ScalarType>
-void TensorField<ScalarType>::mapDF()
+template<class Scalar>
+void TensorField<Scalar>::mapDF()
 {
     int myRank = d_comm->getRank();
     int mySize = d_comm->getSize();

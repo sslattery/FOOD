@@ -27,10 +27,12 @@
 
 #include <Tpetra_Map.hpp>
 
+#include <Intrepid_FieldContainer.hpp>
+
 namespace FOOD
 {
 
-template<class ScalarType_T>
+template<class Scalar>
 class TensorField
 {
 
@@ -38,7 +40,6 @@ class TensorField
 
     //@{
     //! Typedefs.
-    typedef ScalarType_T                             ScalarType;
     typedef int                                      OrdinalType;
     typedef Teuchos::Comm<int>                       Communicator_t;
     typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
@@ -47,10 +48,7 @@ class TensorField
     typedef Teuchos::RCP<Unit>                       RCP_Unit;
     typedef Tpetra::Map<OrdinalType>                 Map_t;
     typedef Teuchos::RCP<const Map_t>                RCP_Map;
-    typedef Teuchos::ArrayView<ScalarType>           ScalarView;
-    typedef Teuchos::ArrayView<const ScalarType>     ConstScalarView;
-    typedef Teuchos::ArrayRCP<ScalarType>            ScalarArray;
-    typedef Teuchos::ArrayRCP<const ScalarType>      ConstScalarArray;    
+    typedef Intrepid::FieldContainer<Scalar>         MDArray;
     typedef int                                      ErrorCode;
     //@}
 
@@ -59,9 +57,9 @@ class TensorField
     // The communicator this field is defined on.
     RCP_Communicator d_comm;
 
-    // The degrees of freedom represented by this field. Interleaved component
-    // storage.
-    ScalarArray d_dofs;
+    // The degrees of freedom represented by this field. Stored in a
+    // multidimensional array. Shallow copy of tag data.
+    MDArray d_dofs;
 
     // Tpetra map for the degrees of freedom represented by this field.
     RCP_Map d_dof_map;
@@ -110,55 +108,62 @@ class TensorField
 			  ErrorCode &error );
 
     // Attach this field to array data and tag the mesh.
-    void attachToArrayData( ScalarArray dof_array,
+    void attachToArrayData( Teuchos::ArrayRCP<Scalar> dof_array,
 			    int storage_order,
 			    ErrorCode &error );
 
     // Evaluate the degrees of freedom of this field at a set of coordinates
     // in a particular entity.
-    ScalarArray evaluateDF( iBase_EntityHandle entity,
-			    Teuchos::Tuple<double,3> coords,
-			    int is_param );
+    Teuchos::ArrayView<Scalar> 
+    evaluateDF( iBase_EntityHandle entity,
+		Teuchos::Tuple<double,3> coords,
+		int is_param );
 
     // Evaluate gradient of the degrees of freedom of this field at a set of
     // coordinates in a particular entity. 
-    ScalarArray evaluateGradDF( iBase_EntityHandle entity,
-				Teuchos::Tuple<double,3> coords,
-				int is_param );
+    Teuchos::ArrayView<Scalar> 
+    evaluateGradDF( iBase_EntityHandle entity,
+		    Teuchos::Tuple<double,3> coords,
+		    int is_param );
 
     // Evaluate the Hessian of the degrees of freedom of this field at a set
     // of coordinates in a particular entity. 
-    ScalarArray evaluateHessianDF( iBase_EntityHandle entity,
-				   Teuchos::Tuple<double,3> coords,
-				   int is_param );
+    Teuchos::ArrayView<Scalar> 
+    evaluateHessianDF( iBase_EntityHandle entity,
+		       Teuchos::Tuple<double,3> coords,
+		       int is_param );
 
     //! Get the communicator this tensor field is defined on.
     RCP_Communicator getTensorFieldComm() const
     { return d_comm; }
 
     //! Get a view of all the degrees of freedom for this field.
-    ScalarView getTensorFieldDFView()
-    { return ScalarView(d_dofs); }
+    Teuchos::ArrayView<Scalar> getTensorFieldDFView()
+    { return Teuchos::ArrayView<Scalar>( d_dofs.getData() ); }
 
     //! Get a const view of all the degrees of freedom for this field.
-    ConstScalarView getTensorFieldDFConstView() const
-    { return ScalarView(d_dofs); }
+    Teuchos::ArrayView<const Scalar> getTensorFieldDFConstView() const
+    { return Teuchos::ArrayView<const Scalar>( d_dofs.getData() ); }
 
     // Get a component view of the degrees of freedom for this field.
-    ScalarView getTensorFieldComponentView( int component );
+    Teuchos::ArrayView<Scalar> 
+    getTensorFieldComponentView( int component );
 
     // Get a const component view of the degrees of freedom for this field.
-    ConstScalarView getTensorFieldConstComponentView( int component ) const;
+    Teuchos::ArrayView<const Scalar>
+    getTensorFieldConstComponentView( int component ) const;
 
     // Get const degrees of freedom for a particular entity in the domain.
-    ConstScalarArray getTensorFieldConstEntDF( iBase_EntityHandle entity,
-					       ErrorCode &error ) const;
+    Teuchos::ArrayRCP<const Scalar> 
+    getTensorFieldConstEntDF( iBase_EntityHandle entity,
+			      ErrorCode &error ) const;
 
     // Get const degrees of freedom for an array of entities in the
     // domain. Returned implicitly interleaved. 
-    ConstScalarArray getTensorFieldConstEntArrDF( iBase_EntityHandle *entities,
-						  int num_entities,
-						  ErrorCode &error ) const;
+    Teuchos::ArrayRCP<const Scalar> 
+    getTensorFieldConstEntArrDF( iBase_EntityHandle *entities,
+				 int num_entities,
+				 ErrorCode &error ) const;
 
     //! Get the Tpetra map for the degrees of freedom.
     RCP_Map getTensorFieldDFMap() const
