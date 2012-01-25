@@ -41,7 +41,7 @@ void Unit::setName( const std::string &new_name )
  */
 void Unit::setQuantityName( const std::string &new_name )
 {
-    d_quantity->setQuantityName(new_name);
+    d_quantity->setName(new_name);
 }
 
 } // end namespace FOOD
