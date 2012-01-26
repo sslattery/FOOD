@@ -49,12 +49,11 @@ TEUCHOS_UNIT_TEST( DFuncKernel, constructor_test )
 						    FOOD::FOOD_FEM,
 						    FOOD::FOOD_DIVERGENCE,
 						    1,
-						    1 );
+						    2 );
     TEST_ASSERT( hex_fem_div_1_kernel.getBasis()->getCardinality() == 6 );
     TEST_ASSERT( hex_fem_div_1_kernel.getBasis()->getDegree() == 1 );
-    TEST_ASSERT( hex_fem_div_1_kernel.getCubature()->getNumPoints() == 4 );
+    TEST_ASSERT( hex_fem_div_1_kernel.getCubature()->getNumPoints() == 8 );
     TEST_ASSERT( hex_fem_div_1_kernel.getCubature()->getDimension() == 3 );
-    TEST_ASSERT( hex_fem_div_1_kernel.getCubature()->getAccuracy() == 3 );
 
     FOOD::DFuncKernel<double> tet_fem_curl_1_kernel( iMesh_TETRAHEDRON,
 						     FOOD::FOOD_FEM,
@@ -63,9 +62,8 @@ TEUCHOS_UNIT_TEST( DFuncKernel, constructor_test )
 						     1 );
     TEST_ASSERT( tet_fem_curl_1_kernel.getBasis()->getCardinality() == 6 );
     TEST_ASSERT( tet_fem_curl_1_kernel.getBasis()->getDegree() == 1 );
-    TEST_ASSERT( tet_fem_curl_1_kernel.getCubature()->getNumPoints() == 4 );
+    TEST_ASSERT( tet_fem_curl_1_kernel.getCubature()->getNumPoints() == 1 );
     TEST_ASSERT( tet_fem_curl_1_kernel.getCubature()->getDimension() == 3 );
-    TEST_ASSERT( tet_fem_curl_1_kernel.getCubature()->getAccuracy() == 3 );
 
     FOOD::DFuncKernel<double> quad_fem_grad_2_kernel( iMesh_QUADRILATERAL,
 						      FOOD::FOOD_FEM,
@@ -74,14 +72,38 @@ TEUCHOS_UNIT_TEST( DFuncKernel, constructor_test )
 						      1);
     TEST_ASSERT( quad_fem_grad_2_kernel.getBasis()->getCardinality() == 9 );
     TEST_ASSERT( quad_fem_grad_2_kernel.getBasis()->getDegree() == 2 );
-    TEST_ASSERT( quad_fem_grad_2_kernel.getCubature()->getNumPoints() == 4 );
+    TEST_ASSERT( quad_fem_grad_2_kernel.getCubature()->getNumPoints() == 1 );
     TEST_ASSERT( quad_fem_grad_2_kernel.getCubature()->getDimension() == 2 );
-    TEST_ASSERT( quad_fem_grad_2_kernel.getCubature()->getAccuracy() == 3 );
 }
 
-TEUCHOS_UNIT_TEST( DFuncKernel, evaluation_test )
+TEUCHOS_UNIT_TEST( DFuncKernel, hex_evaluation_test )
 {
+    typedef Intrepid::FieldContainer<double> MDArray;
 
+    FOOD::DFuncKernel<double> hex_kernel( iMesh_HEXAHEDRON,
+					  FOOD::FOOD_FEM,
+					  FOOD::FOOD_GRADIENT,
+					  1,
+					  1 );
+    
+    MDArray coords(1,3);
+    coords(0,0) = 0.5;
+    coords(0,1) = 0.5;
+    coords(0,2) = 0.5;
+
+    MDArray values_at_coords( hex_kernel.getBasis()->getCardinality(),
+			      coords.dimension(0) );
+
+    hex_kernel.evaluateDF( values_at_coords, coords);
+
+    TEST_ASSERT( values_at_coords(0,0) == 0.015625 );
+    TEST_ASSERT( values_at_coords(1,0) == 0.046875 );
+    TEST_ASSERT( values_at_coords(2,0) == 0.140625 );
+    TEST_ASSERT( values_at_coords(3,0) == 0.046875 );
+    TEST_ASSERT( values_at_coords(4,0) == 0.046875 );
+    TEST_ASSERT( values_at_coords(5,0) == 0.140625 );
+    TEST_ASSERT( values_at_coords(6,0) == 0.421875 );
+    TEST_ASSERT( values_at_coords(7,0) == 0.140625 );
 }
 
 //---------------------------------------------------------------------------//

@@ -9,6 +9,7 @@
 
 #include <Teuchos_CommHelpers.hpp>
 
+#include <Intrepid_CellTools.hpp>
 #include <Intrepid_FunctionSpaceTools.hpp>
 
 namespace FOOD
@@ -209,28 +210,87 @@ void TensorField<Scalar>::attachToArrayData(
  * coordinates in a particular entity. 
  */
 template<class Scalar>
-void TensorField<Scalar>::evaluateDF( iBase_EntityHandle entity,
+void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
 				      const MDArray &coords,
 				      const int is_param,
 				      MDArray &dfunc_values )
 {
-    if( is_param )
-    {
-	d_dfunckernel->evaluateDF( dfunc_values, coords );
-    }
-    else
-    {
-	
-    }
+    ErrorCode error = 0;
+
+    // Get the entity nodes and their coordinates.
+    iBase_EntityHandle *element_nodes = 0;
+    int adj_entity_handles_allocated = 8;
+    int adj_entity_handles_size = 0;
+    iMesh_getEntAdj( d_domain->getMesh(),
+		     entity,
+		     iBase_VERTEX,
+		     &element_nodes,
+		     &adj_entity_handles_allocated,
+		     &adj_entity_handles_size,
+		     &error );
+    assert( iBase_SUCCESS == error );
+
+    int coords_allocated = adj_entity_handles_size*3;
+    int coords_size = 0;
+    double *coord_array = 0;
+    iMesh_getVtxArrCoords( d_domain->getMesh(),
+			   element_nodes,
+			   adj_entity_handles_size,
+			   iBase_INTERLEAVED,
+			   &coord_array,
+			   &coords_allocated,
+			   &coords_size,
+			   &error );
+    assert( iBase_SUCCESS == error );
+
+    Teuchos::Tuple<int,3> cell_node_dimensions;
+    cell_node_dimensions[0] = 1;
+    cell_node_dimensions[1] = adj_entity_handles_size;
+    cell_node_dimensions[2] = 3;
+    MDArray cell_nodes( Teuchos::Array<int>(cell_node_dimensions), 
+			coord_array );
+
+    // Obtain pre-images of the set of evaluation points in the reference frame.
+    MDArray reference_points(1,3);
+    Intrepid::CellTools<Scalar>::mapToReferenceFrame( reference_points,
+						      coords,
+						      cell_nodes,
+						      *d_dfunckernel->getCellTopology(),
+						      0 );
+
+    // Evaluate the basis at the pre-image set in the reference frame.
+    MDArray basis_eval( d_dfunckernel->getBasis()->getCardinality(),
+			coords.dimension(0) );
+    d_dfunckernel->evaluateDF( basis_eval, reference_points );
+
+    // Transform basis values to physical frame.
+    MDArray transformed_eval( 1, 
+			      d_dfunckernel->getBasis()->getCardinality(),
+			      coords.dimension(0) );
+    Intrepid::FunctionSpaceTools::HGRADtransformVALUE<Scalar,MDArray,MDArray>( 
+	transformed_eval, basis_eval );
+
+    // Evaluate the field.
+    Teuchos::Tuple<int,2> coeffs_dimensions;
+    coeffs_dimensions[0] = 1;
+    coeffs_dimensions[1] = d_dfunckernel->getBasis()->getCardinality();
+    Teuchos::ArrayRCP<Scalar> entity_dofs = getEntDF( entity, error );
+    assert( iBase_SUCCESS == error );
+    MDArray dof_coeffs( Teuchos::Array<int>(coeffs_dimensions), entity_dofs );
+    Intrepid::FunctionSpaceTools::evaluate<Scalar,MDArray,MDArray>( 
+	dfunc_values, dof_coeffs, transformed_eval );
+
+    free( element_nodes );
+    free( coord_array );
 }
 
 /*! 
- * \brief Get const degrees of freedom for a particular entity in the domain.
+ * \brief Get degrees of freedom for a particular entity in the domain.
  */
 template<class Scalar>
-Teuchos::ArrayRCP<const Scalar>
-TensorField<Scalar>::getConstEntDF( iBase_EntityHandle entity,
-				    ErrorCode &error ) const
+Teuchos::ArrayRCP<Scalar>
+TensorField<Scalar>::getEntDF( iBase_EntityHandle entity,
+			       ErrorCode &error ) const
 {
     error = 0;
 
@@ -255,14 +315,14 @@ TensorField<Scalar>::getConstEntDF( iBase_EntityHandle entity,
 }
 
 /*! 
- * \brief Get const degrees of freedom for an array of entities in the
+ * \brief Get degrees of freedom for an array of entities in the
  * domain. Returned implicitly interleaved.
  */
 template<class Scalar>
-Teuchos::ArrayRCP<const Scalar>
-TensorField<Scalar>::getConstEntArrDF( iBase_EntityHandle *entities, 
-				       int num_entities,
-				       ErrorCode &error ) const
+Teuchos::ArrayRCP<Scalar>
+TensorField<Scalar>::getEntArrDF( iBase_EntityHandle *entities, 
+				  int num_entities,
+				  ErrorCode &error ) const
 {
     error = 0;
 

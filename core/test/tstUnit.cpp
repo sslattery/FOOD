@@ -64,7 +64,7 @@ TEUCHOS_UNIT_TEST( Unit, constructor_test )
     TEST_ASSERT( unit.getName() == "BAR_UNIT" );
     
     unit.setQuantityName( "BAR_QUANTITY" );
-    TEST_ASSERT( unit.getQuantity()->getQuantityName() == "BAR_QUANTITY" );
+    TEST_ASSERT( unit.getQuantity()->getName() == "BAR_QUANTITY" );
 }
 
 //---------------------------------------------------------------------------//

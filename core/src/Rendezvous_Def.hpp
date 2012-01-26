@@ -34,10 +34,10 @@ Rendezvous<ScalarType>::Rendezvous(RCP_TensorField domain,
     , d_domain_export(0)
     , d_range_export(0)
 {
-    assert( d_domain_primary->getTensorFieldTemplate() == 
-	    d_range_primary->getTensorFieldTemplate() );
-    assert( d_domain_primary->getTensorFieldComm() == 
-	    d_range_primary->getTensorFieldComm() );
+    assert( d_domain_primary->getTensorTemplate() == 
+	    d_range_primary->getTensorTemplate() );
+    assert( d_domain_primary->getComm() == 
+	    d_range_primary->getComm() );
 }
 
 /*!
@@ -77,11 +77,11 @@ template<class ScalarType>
 void Rendezvous<ScalarType>::domainCopyPrimaryToSecondary()
 {
     Tpetra::Vector<ScalarType> primary_vector( 
-	d_domain_primary->getTensorFieldDFMap(),
-	d_domain_primary->getTensorFieldConstDFView() );
+	d_domain_primary->getDFMap(),
+	d_domain_primary->getConstDFView() );
 
     Tpetra::Vector<ScalarType> secondary_vector( 
-	d_domain_secondary->getTensorFieldDFMap() );
+	d_domain_secondary->getDFMap() );
 
     secondary_vector.doExport( primary_vector, 
 			       *d_domain_export, 
@@ -96,11 +96,11 @@ template<class ScalarType>
 void Rendezvous<ScalarType>::rangeCopySecondaryToPrimary()
 {
     Tpetra::Vector<ScalarType> secondary_vector( 
-	d_range_secondary->getTensorFieldDFMap(),
-	d_range_secondary->getTensorFieldConstDFView() );
+	d_range_secondary->getDFMap(),
+	d_range_secondary->getConstDFView() );
 
     Tpetra::Vector<ScalarType> primary_vector( 
-	d_range_primary->getTensorFieldDFMap() );
+	d_range_primary->getDFMap() );
 
     primary_vector.doExport( secondary_vector, 
 			     *d_range_export, 
@@ -118,8 +118,8 @@ Rendezvous<ScalarType>::computeIntersectionBoundingBox()
     int error = 0;
 
     int num_domain_vertices = 0;
-    iMesh_getNumOfTopo( d_domain_primary->getTensorFieldDomain()->getDomainMesh(),
-			d_domain_primary->getTensorFieldDomain()->getDomainMeshSet(),
+    iMesh_getNumOfTopo( d_domain_primary->getDomain()->getDomainMesh(),
+			d_domain_primary->getDomain()->getDomainMeshSet(),
 			iMesh_POINT,
 			&num_domain_vertices,
 			&error );
@@ -128,8 +128,8 @@ Rendezvous<ScalarType>::computeIntersectionBoundingBox()
     iBase_EntityHandle *domain_vertices = 0;
     int domain_vertices_allocated = num_domain_vertices;
     int domain_vertices_size = 0;
-    iMesh_getEntities( d_domain_primary->getTensorFieldDomain()->getDomainMesh(),
-		       d_domain_primary->getTensorFieldDomain()->getDomainMeshSet(),
+    iMesh_getEntities( d_domain_primary->getDomain()->getDomainMesh(),
+		       d_domain_primary->getDomain()->getDomainMeshSet(),
 		       iBase_VERTEX,
 		       iMesh_POINT,
 		       &domain_vertices,
@@ -141,8 +141,8 @@ Rendezvous<ScalarType>::computeIntersectionBoundingBox()
     int domain_coords_allocated = 3*domain_vertices_size;
     int domain_coords_size = 0;
     Teuchos::ArrayRCP<double> domain_coords( domain_coords_allocated, 0.0 );
-    iMesh_getVtxArrCoords( d_domain_primary->getTensorFieldDomain()->getDomainMesh(),
-			   d_domain_primary->getTensorFieldDomain()->getDomainMeshSet(),
+    iMesh_getVtxArrCoords( d_domain_primary->getDomain()->getDomainMesh(),
+			   d_domain_primary->getDomain()->getDomainMeshSet(),
 			   iBase_BLOCKED,
 			   &domain_coords,
 			   &domain_coords_allocated,
@@ -176,45 +176,45 @@ Rendezvous<ScalarType>::computeIntersectionBoundingBox()
 
     Teuchos::Tuple<double,6> global_domain_box;
 
-    Teuchos::reduceAll<int>( *d_domain_primary->getTensorFieldComm(),
+    Teuchos::reduceAll<int>( *d_domain_primary->getComm(),
 			     Teuchos::REDUCE_MIN,
 			     int(1),
 			     &local_domain_box[0],
 			     &global_domain_box[0] );
 
-    Teuchos::reduceAll<int>( *d_domain_primary->getTensorFieldComm(),
+    Teuchos::reduceAll<int>( *d_domain_primary->getComm(),
 			     Teuchos::REDUCE_MAX,
 			     int(1),
 			     &local_domain_box[1],
 			     &global_domain_box[1] );
 
-    Teuchos::reduceAll<int>( *d_domain_primary->getTensorFieldComm(),
+    Teuchos::reduceAll<int>( *d_domain_primary->getComm(),
 			     Teuchos::REDUCE_MIN,
 			     int(1),
 			     &local_domain_box[2],
 			     &global_domain_box[2] );
 
-    Teuchos::reduceAll<int>( *d_domain_primary->getTensorFieldComm(),
+    Teuchos::reduceAll<int>( *d_domain_primary->getComm(),
 			     Teuchos::REDUCE_MAX,
 			     int(1),
 			     &local_domain_box[3],
 			     &global_domain_box[3] );
 
-    Teuchos::reduceAll<int>( *d_domain_primary->getTensorFieldComm(),
+    Teuchos::reduceAll<int>( *d_domain_primary->getComm(),
 			     Teuchos::REDUCE_MIN,
 			     int(1),
 			     &local_domain_box[4],
 			     &global_domain_box[4] );
 
-    Teuchos::reduceAll<int>( *d_domain_primary->getTensorFieldComm(),
+    Teuchos::reduceAll<int>( *d_domain_primary->getComm(),
 			     Teuchos::REDUCE_MAX,
 			     int(1),
 			     &local_domain_box[5],
 			     &global_domain_box[5] );
 
     int num_primary_range_vertices = 0;
-    iMesh_getNumOfTopo( d_range_primary->getTensorFieldDomain()->getDomainMesh(),
-			d_range_primary->getTensorFieldDomain()->getDomainMeshSet(),
+    iMesh_getNumOfTopo( d_range_primary->getDomain()->getDomainMesh(),
+			d_range_primary->getDomain()->getDomainMeshSet(),
 			iMesh_POINT,
 			&num_primary_range_vertices,
 			&error );
@@ -223,8 +223,8 @@ Rendezvous<ScalarType>::computeIntersectionBoundingBox()
     iBase_EntityHandle *range_vertices = 0;
     int range_vertices_allocated = num_primary_range_vertices;
     int range_vertices_size = 0;
-    iMesh_getEntities( d_range_primary->getTensorFieldDomain()->getDomainMesh(),
-		       d_range_primary->getTensorFieldDomain()->getDomainMeshSet(),
+    iMesh_getEntities( d_range_primary->getDomain()->getDomainMesh(),
+		       d_range_primary->getDomain()->getDomainMeshSet(),
 		       iBase_VERTEX,
 		       iMesh_POINT,
 		       &range_vertices,
@@ -236,8 +236,8 @@ Rendezvous<ScalarType>::computeIntersectionBoundingBox()
     int range_coords_allocated = 3*range_vertices_size;
     int range_coords_size = 0;
     Teuchos::ArrayRCP<double> range_coords( range_coords_allocated, 0.0 );
-    iMesh_getVtxArrCoords( d_range_primary->getTensorFieldDomain()->getDomainMesh(),
-			   d_range_primary->getTensorFieldDomain()->getDomainMeshSet(),
+    iMesh_getVtxArrCoords( d_range_primary->getDomain()->getDomainMesh(),
+			   d_range_primary->getDomain()->getDomainMeshSet(),
 			   iBase_BLOCKED,
 			   &range_coords,
 			   &range_coords_allocated,
@@ -271,37 +271,37 @@ Rendezvous<ScalarType>::computeIntersectionBoundingBox()
 
     Teuchos::Tuple<double,6> global_range_box;
 
-    Teuchos::reduceAll<int>( *d_domain_primary->getTensorFieldComm(),
+    Teuchos::reduceAll<int>( *d_domain_primary->getComm(),
 			     Teuchos::REDUCE_MIN,
 			     int(1),
 			     &local_range_box[0],
 			     &global_range_box[0] );
 
-    Teuchos::reduceAll<int>( *d_domain_primary->getTensorFieldComm(),
+    Teuchos::reduceAll<int>( *d_domain_primary->getComm(),
 			     Teuchos::REDUCE_MAX,
 			     int(1),
 			     &local_range_box[1],
 			     &global_range_box[1] );
 
-    Teuchos::reduceAll<int>( *d_domain_primary->getTensorFieldComm(),
+    Teuchos::reduceAll<int>( *d_domain_primary->getComm(),
 			     Teuchos::REDUCE_MIN,
 			     int(1),
 			     &local_range_box[2],
 			     &global_range_box[2] );
 
-    Teuchos::reduceAll<int>( *d_domain_primary->getTensorFieldComm(),
+    Teuchos::reduceAll<int>( *d_domain_primary->getComm(),
 			     Teuchos::REDUCE_MAX,
 			     int(1),
 			     &local_range_box[3],
 			     &global_range_box[3] );
 
-    Teuchos::reduceAll<int>( *d_domain_primary->getTensorFieldComm(),
+    Teuchos::reduceAll<int>( *d_domain_primary->getComm(),
 			     Teuchos::REDUCE_MIN,
 			     int(1),
 			     &local_range_box[4],
 			     &global_range_box[4] );
 
-    Teuchos::reduceAll<int>( *d_domain_primary->getTensorFieldComm(),
+    Teuchos::reduceAll<int>( *d_domain_primary->getComm(),
 			     Teuchos::REDUCE_MAX,
 			     int(1),
 			     &local_range_box[5],

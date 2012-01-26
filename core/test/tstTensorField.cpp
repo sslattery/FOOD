@@ -15,6 +15,8 @@
 #include <Types.hpp>
 #include <Quantity.hpp>
 #include <Unit.hpp>
+#include <Domain.hpp>
+#include <DFuncKernel.hpp>
 #include <TensorTemplate.hpp>
 #include <TensorField.hpp>
 
@@ -27,6 +29,8 @@
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_ArrayRCP.hpp>
+
+#include <Intrepid_FieldContainer.hpp>
 
 //---------------------------------------------------------------------------//
 // HELPER FUNCTIONS
@@ -560,9 +564,18 @@ TEUCHOS_UNIT_TEST( TensorField, constructor_test )
     Teuchos::RCP<FOOD::TensorTemplate> tensor_template = Teuchos::rcp(
 	new FOOD::TensorTemplate(0, 1, FOOD::FOOD_REAL, quantity) );
 
+    // Create a distribution function for this field.
+    Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel =
+	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_QUADRILATERAL,
+						     FOOD::FOOD_FEM,
+						     FOOD::FOOD_GRADIENT,
+						     1,
+						     1 ) );
+
     // Create the field and check basic accessors.
     FOOD::TensorField<double> field( getDefaultComm<int>(),
 				     domain,
+				     dfunckernel,
 				     iBase_VERTEX,
 				     iMesh_POINT,
 				     FOOD::FOOD_CARTESIAN, 
@@ -616,9 +629,18 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_vertex_tag_test )
     Teuchos::RCP<FOOD::TensorTemplate> tensor_template = Teuchos::rcp(
 	new FOOD::TensorTemplate(0, 1, FOOD::FOOD_REAL, quantity) );
 
+    // Create a distribution function kernel for the field.
+    Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel =
+	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_HEXAHEDRON,
+						     FOOD::FOOD_FEM,
+						     FOOD::FOOD_GRADIENT,
+						     1,
+						     1 ) );
+
     // Create the field.
     FOOD::TensorField<double> field( getDefaultComm<int>(),
 				     domain,
+				     dfunckernel,
 				     iBase_VERTEX,
 				     iMesh_POINT,
 				     FOOD::FOOD_CARTESIAN, 
@@ -695,9 +717,18 @@ TEUCHOS_UNIT_TEST( TensorField, dof_tet_mesh_region_tag_test )
     Teuchos::RCP<FOOD::TensorTemplate> tensor_template = Teuchos::rcp(
 	new FOOD::TensorTemplate(1, 3, FOOD::FOOD_REAL, quantity) );
 
+    // Create a distribution function kernel for the field.
+    Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel =
+	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_TETRAHEDRON,
+						     FOOD::FOOD_FEM,
+						     FOOD::FOOD_GRADIENT,
+						     1,
+						     1 ) );
+
     // Create the field.
     FOOD::TensorField<double> field( getDefaultComm<int>(),
 				     domain,
+				     dfunckernel,
 				     iBase_REGION,
 				     iMesh_TETRAHEDRON,
 				     FOOD::FOOD_CARTESIAN, 
@@ -791,9 +822,18 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_region_array_test )
     Teuchos::RCP<FOOD::TensorTemplate> tensor_template = Teuchos::rcp(
 	new FOOD::TensorTemplate(0, 1, FOOD::FOOD_REAL, quantity) );
 
+    // Create a distribution function kernel for the field.
+    Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel =
+	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_HEXAHEDRON,
+						     FOOD::FOOD_FEM,
+						     FOOD::FOOD_GRADIENT,
+						     1,
+						     1 ) );
+
     // Create the field.
     FOOD::TensorField<double> field( getDefaultComm<int>(),
 				     domain,
+				     dfunckernel,
 				     iBase_REGION,
 				     iMesh_HEXAHEDRON,
 				     FOOD::FOOD_CARTESIAN, 
@@ -875,8 +915,8 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_region_array_test )
     TEST_ASSERT( iBase_SUCCESS == error );
     TEST_ASSERT( tag_values_allocated == tag_values_size );
 
-    Teuchos::ArrayRCP<const double> ent_arr_data 
-	= field.getConstEntArrDF( dof_entities, 
+    Teuchos::ArrayRCP<double> ent_arr_data 
+	= field.getEntArrDF( dof_entities, 
 				  entities_size,
 				  error );
     TEST_ASSERT( iBase_SUCCESS == error );
@@ -885,10 +925,113 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_region_array_test )
     {
 	TEST_ASSERT( field_tag_data[i] == dof_array[i] );
 	TEST_ASSERT( ent_arr_data[i] == dof_array[i] );
-	TEST_ASSERT( field.getConstEntDF( dof_entities[i], error)[0]
+	TEST_ASSERT( field.getEntDF( dof_entities[i], error)[0]
 		     == dof_array[i] );
 	TEST_ASSERT( iBase_SUCCESS == error );
     }
+}
+
+TEUCHOS_UNIT_TEST( TensorField, hex_evaluation_test )
+{
+    typedef Intrepid::FieldContainer<double> MDArray;
+
+    // Create a hex mesh.
+    int error;
+    iMesh_Instance mesh;
+    iMesh_newMesh( "", &mesh, &error, 0);
+    TEST_ASSERT( iBase_SUCCESS == error );
+
+    double vtx_coords[24] = { 0,0,0, 1,0,0, 1,1,0, 0,1,0,
+			      0,0,1, 1,0,1, 1,1,1, 0,1,1 };
+    int num_verts = 8;
+    int new_coords_size = 24;
+    int new_vertex_handles_allocated = 8;
+    int new_vertex_handles_size = 0;
+    iBase_EntityHandle *vertex_handles = 0;
+    iMesh_createVtxArr( mesh,
+			num_verts,
+			iBase_INTERLEAVED,
+			vtx_coords,
+			new_coords_size,
+			&vertex_handles,
+			&new_vertex_handles_allocated,
+			&new_vertex_handles_size,
+			&error );
+    TEST_ASSERT( iBase_SUCCESS == error );
+
+    int status = 0;
+    iBase_EntityHandle hex_element;
+    iMesh_createEnt( mesh,
+		     iMesh_HEXAHEDRON,
+		     vertex_handles,
+		     new_vertex_handles_size,
+		     &hex_element,
+		     &status,
+		     &error );  
+    TEST_ASSERT( iBase_SUCCESS == error );
+
+    // Generate the domain for the field on the root set.
+    iBase_EntitySetHandle root_set;
+    iMesh_getRootSet(mesh, &root_set, &error);
+    TEST_ASSERT( iBase_SUCCESS == error );
+    
+    Teuchos::RCP<FOOD::Domain> domain = Teuchos::rcp(
+	new FOOD::Domain(mesh, root_set) );
+
+    // Create the quantity for this field.
+    Teuchos::Tuple<int,7> numerator;
+    Teuchos::Tuple<int,7> denominator;
+    for (int i = 0; i < 7; ++i)
+    {
+	numerator[i] = i;
+	denominator[i] = 6 - i;
+    }
+
+    Teuchos::RCP<FOOD::Quantity> quantity = Teuchos::rcp(
+	new FOOD::Quantity(numerator, denominator, "HEX_QUANTITY") );
+
+    // Create the units for this field.
+    Teuchos::RCP<FOOD::Unit> unit = Teuchos::rcp(
+	new FOOD::Unit(quantity, 1.4, 4.3, "HEX_UNIT") );
+
+    // Create the tensor template for this field. The hex vertices are tagged
+    // with a scalar field.
+    Teuchos::RCP<FOOD::TensorTemplate> tensor_template = Teuchos::rcp(
+	new FOOD::TensorTemplate(0, 1, FOOD::FOOD_REAL, quantity) );
+
+    // Create a distribution function kernel for the field.
+    Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel =
+	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_HEXAHEDRON,
+						     FOOD::FOOD_FEM,
+						     FOOD::FOOD_GRADIENT,
+						     1,
+						     1 ) );
+
+    // Create the field.
+    FOOD::TensorField<double> field( getDefaultComm<int>(),
+				     domain,
+				     dfunckernel,
+				     iBase_REGION,
+				     iMesh_HEXAHEDRON,
+				     FOOD::FOOD_CARTESIAN, 
+				     tensor_template,
+				     unit,
+				     "HEX_FIELD" );
+
+    // Attach the field to array data.
+    Teuchos::ArrayRCP<double> hex_dof(1, 6.54);
+    field.attachToArrayData( hex_dof, iBase_INTERLEAVED, error );
+    TEST_ASSERT( iBase_SUCCESS == error );
+
+    // Evaluate the basis at a set of coordinates in the hex element.
+    MDArray eval_coords(1,3);
+    eval_coords(0,0) = 0.5;
+    eval_coords(0,1) = 0.5;
+    eval_coords(0,2) = 0.5;
+
+    MDArray dfunc_values(1,1);
+    field.evaluateDF( hex_element, eval_coords, false, dfunc_values );
+    std::cout << "INTERPOLATED DOF VAL " << dfunc_values[0] << std::endl;
 }
 
 //---------------------------------------------------------------------------//

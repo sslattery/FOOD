@@ -15,6 +15,8 @@
 #include <Types.hpp>
 #include <Quantity.hpp>
 #include <Unit.hpp>
+#include <Domain.hpp>
+#include <DFuncKernel.hpp>
 #include <TensorTemplate.hpp>
 #include <TensorField.hpp>
 #include <Rendezvous.hpp>
@@ -561,10 +563,19 @@ TEUCHOS_UNIT_TEST( Rendezvous, constructor_test )
     Teuchos::RCP<FOOD::TensorTemplate> tensor_template = Teuchos::rcp(
 	new FOOD::TensorTemplate(0, 1, FOOD::FOOD_REAL, quantity) );
 
+    // Create a distribution function kernel for this field.
+    Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel = 
+	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_QUADRILATERAL,
+						     FOOD::FOOD_FEM,
+						     FOOD::FOOD_GRADIENT,
+						     1,
+						     1 ) );
+
     // Create the field domain and range and check basic accessors.
     Teuchos::RCP< FOOD::TensorField<double> > field_domain
 	= Teuchos::rcp( new FOOD::TensorField<double>( getDefaultComm<int>(),
 						       domain,
+						       dfunckernel,
 						       iBase_VERTEX,
 						       iMesh_POINT,
 						       FOOD::FOOD_CARTESIAN, 
@@ -575,6 +586,7 @@ TEUCHOS_UNIT_TEST( Rendezvous, constructor_test )
     Teuchos::RCP< FOOD::TensorField<double> > field_range
 	= Teuchos::rcp( new FOOD::TensorField<double>( getDefaultComm<int>(),
 						       domain,
+						       dfunckernel,
 						       iBase_VERTEX,
 						       iMesh_POINT,
 						       FOOD::FOOD_CARTESIAN, 

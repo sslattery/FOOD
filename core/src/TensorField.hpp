@@ -121,21 +121,21 @@ class TensorField
 
     // Evaluate the degrees of freedom of this field at a set of coordinates
     // in a particular entity.
-    void evaluateDF( iBase_EntityHandle entity,
+    void evaluateDF( const iBase_EntityHandle entity,
 		     const MDArray &coords,
 		     const int is_param,
 	             MDArray &dfunc_values );
 
     // Evaluate gradient of the degrees of freedom of this field at a set of
     // coordinates in a particular entity. 
-    void evaluateGradDF( iBase_EntityHandle entity,
+    void evaluateGradDF( const iBase_EntityHandle entity,
 			 const MDArray &coords,
 			 const int is_param,
 			 MDArray &dfunc_values );
 
     // Evaluate the Hessian of the degrees of freedom of this field at a set
     // of coordinates in a particular entity. 
-    void evaluateHessianDF( iBase_EntityHandle entity,
+    void evaluateHessianDF( const iBase_EntityHandle entity,
 			    const MDArray &coords,
 			    const int is_param,
 			    MDArray &dfunc_values );
@@ -160,17 +160,17 @@ class TensorField
     Teuchos::ArrayView<const Scalar> getDFConstView() const
     { return Teuchos::ArrayView<const Scalar>( d_dofs.getData() ); }
 
-    // Get const degrees of freedom for a particular entity in the domain.
-    Teuchos::ArrayRCP<const Scalar> 
-    getTensorFieldConstEntDF( iBase_EntityHandle entity,
-			      ErrorCode &error ) const;
+    // Get degrees of freedom for a particular entity in the domain.
+    Teuchos::ArrayRCP<Scalar> 
+    getEntDF( iBase_EntityHandle entity,
+	      ErrorCode &error ) const;
 
-    // Get const degrees of freedom for an array of entities in the
+    // Get degrees of freedom for an array of entities in the
     // domain. Returned implicitly interleaved. 
-    Teuchos::ArrayRCP<const Scalar> 
-    getConstEntArrDF( iBase_EntityHandle *entities,
-		      int num_entities,
-		      ErrorCode &error ) const;
+    Teuchos::ArrayRCP<Scalar> 
+    getEntArrDF( iBase_EntityHandle *entities,
+		 int num_entities,
+		 ErrorCode &error ) const;
 
     //! Get the Tpetra map for the degrees of freedom.
     RCP_Map getDFMap() const
