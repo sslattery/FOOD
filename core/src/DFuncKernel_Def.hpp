@@ -72,6 +72,24 @@ void DFuncKernel<Scalar>::evaluateDF( MDArray &values_at_coords,
 			Intrepid::OPERATOR_VALUE );
 }
 
+/*!
+ * \brief Evaluate the gradient of the degrees of freedom for this kernel at a
+ * specific location.
+ *
+ * \param dfunc_values The evaluated distribution function gradient.
+ * values. ArrayDim[basis_carindality][num_points].
+ * \param coords The coords to evaluate the distribution functions
+ * at. ArrayDim[num_points][dimension].
+ */
+template<class Scalar>
+void DFuncKernel<Scalar>::evaluateGradDF( MDArray &values_at_coords, 
+					  const MDArray &coords )
+{
+    d_basis->getValues( values_at_coords, 
+			coords, 
+			Intrepid::OPERATOR_GRAD );
+}
+
 } // end namespace FOOD
 
 #endif // end FOOD_DFUNCKERNEL_DEF_HPP
