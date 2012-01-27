@@ -277,9 +277,19 @@ void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
     Teuchos::ArrayRCP<Scalar> entity_dofs = getEntDF( entity, error );
     assert( iBase_SUCCESS == error );
     MDArray dof_coeffs( Teuchos::Array<int>(coeffs_dimensions), entity_dofs );
+    MDArray interpolated_vals( 1, d_dfunckernel->getBasis()->getCardinality() );
     Intrepid::FunctionSpaceTools::evaluate<Scalar,MDArray,MDArray>( 
-	dfunc_values, dof_coeffs, transformed_eval );
+	interpolated_vals, dof_coeffs, transformed_eval );
 
+    for ( int m = 0; m < coords.dimension(0); ++m )
+    {
+	dfunc_values(m) = 0.0;
+	for ( int n = 0; n < d_dfunckernel->getBasis()->getCardinality(); ++n )
+	{
+	    dfunc_values(m) += interpolated_vals(m,n);
+	}
+    }
+    
     free( element_nodes );
     free( coord_array );
 }
@@ -288,7 +298,7 @@ void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
  * \brief Get degrees of freedom for a particular entity in the domain.
  */
 template<class Scalar>
-Teuchos::ArrayRCP<Scalar>
+typename TensorField<Scalar>::MDArray
 TensorField<Scalar>::getEntDF( iBase_EntityHandle entity,
 			       ErrorCode &error ) const
 {
@@ -311,7 +321,12 @@ TensorField<Scalar>::getEntDF( iBase_EntityHandle entity,
     assert( iBase_SUCCESS == error );
     assert( tag_values_allocated == tag_values_size );
     
-    return entity_dofs;
+    Teuchos::Tuple<int,2> array_dimensions;
+    coeffs_dimensions[0] = 1;
+    coeffs_dimensions[1] = d_tensor_template->getNumComponents;
+    MDArray dof_array( Teuchos::Array<Scalar>(array_dimensions), entity_dofs );
+    
+    return dof_array;
 }
 
 /*! 
@@ -319,7 +334,7 @@ TensorField<Scalar>::getEntDF( iBase_EntityHandle entity,
  * domain. Returned implicitly interleaved.
  */
 template<class Scalar>
-Teuchos::ArrayRCP<Scalar>
+typename TensorField<Scalar>::MDArray
 TensorField<Scalar>::getEntArrDF( iBase_EntityHandle *entities, 
 				  int num_entities,
 				  ErrorCode &error ) const
@@ -342,8 +357,13 @@ TensorField<Scalar>::getEntArrDF( iBase_EntityHandle *entities,
 		      &error );
     assert( iBase_SUCCESS == error );
     assert( tag_values_allocated == tag_values_size );
+
+    Teuchos::Tuple<int,2> array_dimensions;
+    coeffs_dimensions[0] = num_entities;
+    coeffs_dimensions[1] = d_tensor_template->getNumComponents;
+    MDArray dof_array( Teuchos::Array<Scalar>(array_dimensions), entities_dofs );
     
-    return entities_dofs;
+    return dof_array;
 }
 
 /*!

@@ -1019,7 +1019,7 @@ TEUCHOS_UNIT_TEST( TensorField, hex_evaluation_test )
 				     "HEX_FIELD" );
 
     // Attach the field to array data.
-    Teuchos::ArrayRCP<double> hex_dof(1, 6.54);
+    Teuchos::ArrayRCP<double> hex_dof(8, 6.54);
     field.attachToArrayData( hex_dof, iBase_INTERLEAVED, error );
     TEST_ASSERT( iBase_SUCCESS == error );
 
@@ -1029,7 +1029,7 @@ TEUCHOS_UNIT_TEST( TensorField, hex_evaluation_test )
     eval_coords(0,1) = 0.5;
     eval_coords(0,2) = 0.5;
 
-    MDArray dfunc_values(1,1);
+    MDArray dfunc_values(1);
     field.evaluateDF( hex_element, eval_coords, false, dfunc_values );
     std::cout << "INTERPOLATED DOF VAL " << dfunc_values[0] << std::endl;
 }

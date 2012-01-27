@@ -145,12 +145,12 @@ class TensorField
     { return d_comm; }
 
     //! Get the degrees of freedom for this field.
-    Teuchos::ArrayRCP<Scalar> getDF()
-    { return d_dofs.getData(); }
+    MDArray getDF()
+    { return d_dofs; }
 
     //! Get const degrees of freedom for this field.
-    Teuchos::ArrayRCP<const Scalar> getConstDF()
-    { return d_dofs.getData(); }
+    MDArray getConstDF()
+    { return d_dofs; }
 
     //! Get a view of all the degrees of freedom for this field.
     Teuchos::ArrayView<Scalar> getDFView()
@@ -161,16 +161,14 @@ class TensorField
     { return Teuchos::ArrayView<const Scalar>( d_dofs.getData() ); }
 
     // Get degrees of freedom for a particular entity in the domain.
-    Teuchos::ArrayRCP<Scalar> 
-    getEntDF( iBase_EntityHandle entity,
-	      ErrorCode &error ) const;
+    MDArray getEntDF( iBase_EntityHandle entity, 
+		      ErrorCode &error ) const;
 
     // Get degrees of freedom for an array of entities in the
     // domain. Returned implicitly interleaved. 
-    Teuchos::ArrayRCP<Scalar> 
-    getEntArrDF( iBase_EntityHandle *entities,
-		 int num_entities,
-		 ErrorCode &error ) const;
+    MDArray getEntArrDF( iBase_EntityHandle *entities,
+			 int num_entities,
+			 ErrorCode &error ) const;
 
     //! Get the Tpetra map for the degrees of freedom.
     RCP_Map getDFMap() const
