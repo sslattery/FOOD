@@ -4,8 +4,18 @@
 #include "iBase.h"
 
 #ifdef __cplusplus
-extern "C"
+extern "C" {
 #endif
+
+/*!
+ * \brief Enumeration of ordering of array dimensions.
+ */
+enum iArray_DimensionOrder {
+    iArray_DimensionOrder_MIN = 0,
+    iArray_C_ORDER = iArray_DimensionOrder_MIN,
+    iArray_FORTRAN_ORDER,
+    iArray_DimensionOrder_MAX = iArray_FORTRAN_ORDER
+};
 
 /*!
  * \brief Describe the status of the array.
@@ -20,9 +30,10 @@ void iArray_getDescription( iBase_EntityHandle array,
 void iArray_allocateArray( const char* options,
 			   iBase_EntityHandle* array,
 			   const int storage_order,
+			   const int dimension_order,
 			   const int* dimensions,
 			   const int num_dimension,
-			   const int element_size,
+			   const int* data_allocated,
 			   int* err,
 			   int options_len );
 
@@ -32,10 +43,12 @@ void iArray_allocateArray( const char* options,
 void iArray_createArray(  const char* options,
 			  iBase_EntityHandle* array,
 			  const int storage_order,
+			  const int dimension_order,
 			  const int* dimensions,
 			  const int num_dimension,
-			  const int element_size,
 			  void* data,
+			  int* data_allocated,
+			  int* data_size,
 			  const int copy,
 			  int* err,
 			  int options_len );
@@ -61,7 +74,7 @@ void iArray_getNumDimensions( const iBase_EntityHandle array,
 			      int *err );
 
 /*!
- * \brief Get the dimensions of an array.
+ * \brief Get the size of the dimensions of an array.
  */
 void iArray_getDimensions( const iBase_EntityHandle array,
 			   int* dimensions,
@@ -70,7 +83,7 @@ void iArray_getDimensions( const iBase_EntityHandle array,
 			   int* err );
 
 /*!
- * \brief Get the size of a particular dimension.
+ * \brief Get the size of a particular dimension of an array.
  */
 void iArray_getDimension( const iBase_EntityHandle array,
 			  const int dimension,
@@ -141,8 +154,6 @@ void iArray_getSlice( const iBase_EntityHandle array,
 		      int* data_allocated,
 		      int* data_size,
 		      int* err );
-
-		      
 
 #ifdef __cplusplus
 } // end extern "C"

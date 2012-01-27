@@ -8,6 +8,7 @@
 
 SET(FOOD_TPLS_FINDMODS_CLASSIFICATIONS
   MOAB      "cmake/TPLs/"      EX
+  MeshKit   "cmake/TPLs/"      EX
   )
 
 # NOTE: Above, the paths to the FindTPL<TPLNAME> modules (with an implicit

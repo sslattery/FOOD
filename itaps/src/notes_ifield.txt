@@ -1,0 +1,41 @@
+# Notes on the iField interface
+
+*: Limited to doubles for field data. This should be arbitrary like the tag 
+   access model in iMesh. There should be implementations for standard scalar
+   types, but the option of a (void*) byte-based option as well. That way we can
+   access all of the iMesh functionality for tag data.
+
+*: Will the data model be improved by offering a general array interface for
+   DOF storage? The methods in this interface should not only replace the need
+   the tensor template, but also provide a more solid representation of the
+   DOFs themselves.
+
+*: The array model casts the array as an entity handle. We can tag anything with 
+   arrays then!
+
+*: The array model allows for arbitrary types.
+
+*: The array model considers both iBase_StorageOrder as well as C/Fortran storage
+   considerations for array access.
+
+*: The array model allows for more advanced access methods to contiguous data.
+
+*: The array model should allow for generic operations (e.g. norms, dot and cross
+   products. )
+
+*: DOF access through fields returns an array entity handle.
+
+*: Distribution function kernel evaluations operate on the general array. We
+   can use this general array to derive a common data structure for basis
+   functions.
+
+*: We can bind coordinates under the general array. We can evaluate fields on
+   arrays of coordinates in arrays of mesh entities.
+
+*: So we can do a lot of stuff with this general array ... but is it needed? 
+   It may just be another abstraction that isn't necessary. Sure it removes
+   some of the data structures in the other interface, but it also adds some.
+
+*: A distribution function kernel needs enumerations for the operator space
+   the basis is defined on (i.e. GRAD, DIV, CURL). If we have a basis function
+   defined on CURL space, the iField_evaluateGradDF() makes no sense.
