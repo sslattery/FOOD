@@ -270,7 +270,7 @@ void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
     Intrepid::FunctionSpaceTools::HGRADtransformVALUE<Scalar,MDArray,MDArray>( 
 	transformed_eval, basis_eval );
 
-    // 5) Evaluate the field using tensor components.
+    // 5) Evaluate the field using tensor components (the DOF for this entity).
     MDArray interpolated_vals( 1, d_dfunckernel->getBasis()->getCardinality() );
     Intrepid::FunctionSpaceTools::evaluate<Scalar,MDArray,MDArray>( 
 	interpolated_vals, 
