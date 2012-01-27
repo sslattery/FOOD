@@ -1031,7 +1031,9 @@ TEUCHOS_UNIT_TEST( TensorField, hex_evaluation_test )
 
     MDArray dfunc_values(1);
     field.evaluateDF( hex_element, eval_coords, false, dfunc_values );
-    std::cout << "INTERPOLATED DOF VAL " << dfunc_values[0] << std::endl;
+    TEST_ASSERT( dfunc_values(0) == 6.54 );
+
+    std::cout << "INTERPOLATED DOF VAL " << dfunc_values(0) << std::endl;
 }
 
 //---------------------------------------------------------------------------//

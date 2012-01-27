@@ -217,7 +217,7 @@ void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
 {
     ErrorCode error = 0;
 
-    // Get the entity nodes and their coordinates.
+    // 1) Get the entity nodes and their coordinates.
     iBase_EntityHandle *element_nodes = 0;
     int adj_entity_handles_allocated = 8;
     int adj_entity_handles_size = 0;
@@ -246,41 +246,40 @@ void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
     Teuchos::Tuple<int,3> cell_node_dimensions;
     cell_node_dimensions[0] = 1;
     cell_node_dimensions[1] = adj_entity_handles_size;
-    cell_node_dimensions[2] = 3;
+    cell_node_dimensions[2] = coords.dimension(1);
     MDArray cell_nodes( Teuchos::Array<int>(cell_node_dimensions), 
 			coord_array );
 
-    // Obtain pre-images of the set of evaluation points in the reference frame.
-    MDArray reference_points(1,3);
+    // 2) Obtain pre-images of the set of evaluation points in the reference frame.
+    MDArray reference_points( coords.dimension(0), coords.dimension(1) );
     Intrepid::CellTools<Scalar>::mapToReferenceFrame( reference_points,
 						      coords,
 						      cell_nodes,
 						      *d_dfunckernel->getCellTopology(),
 						      0 );
 
-    // Evaluate the basis at the pre-image set in the reference frame.
+    // 3) Evaluate the basis at the pre-image set in the reference frame.
     MDArray basis_eval( d_dfunckernel->getBasis()->getCardinality(),
 			coords.dimension(0) );
     d_dfunckernel->evaluateDF( basis_eval, reference_points );
 
-    // Transform basis values to physical frame.
+    // 4) Transform evaluated basis values to physical frame.
     MDArray transformed_eval( 1, 
 			      d_dfunckernel->getBasis()->getCardinality(),
 			      coords.dimension(0) );
     Intrepid::FunctionSpaceTools::HGRADtransformVALUE<Scalar,MDArray,MDArray>( 
 	transformed_eval, basis_eval );
 
-    // Evaluate the field.
-    Teuchos::Tuple<int,2> coeffs_dimensions;
-    coeffs_dimensions[0] = 1;
-    coeffs_dimensions[1] = d_dfunckernel->getBasis()->getCardinality();
-    Teuchos::ArrayRCP<Scalar> entity_dofs = getEntDF( entity, error );
-    assert( iBase_SUCCESS == error );
-    MDArray dof_coeffs( Teuchos::Array<int>(coeffs_dimensions), entity_dofs );
+    // 5) Evaluate the field using tensor components.
     MDArray interpolated_vals( 1, d_dfunckernel->getBasis()->getCardinality() );
     Intrepid::FunctionSpaceTools::evaluate<Scalar,MDArray,MDArray>( 
-	interpolated_vals, dof_coeffs, transformed_eval );
+	interpolated_vals, 
+	getEntDF( entity, error), 
+	transformed_eval );
+    assert( iBase_SUCCESS == error );
 
+    // 6) Integrate the evaluated basis function to give the values at the
+    //    requested coordinates.
     for ( int m = 0; m < coords.dimension(0); ++m )
     {
 	dfunc_values(m) = 0.0;
