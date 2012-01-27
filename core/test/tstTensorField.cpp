@@ -788,6 +788,8 @@ TEUCHOS_UNIT_TEST( TensorField, dof_tet_mesh_region_tag_test )
 
 TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_region_array_test )
 {
+    typedef Intrepid::FieldContainer<double> MDArray;
+
     // Create a hex mesh.
     int error;
     iMesh_Instance mesh;
@@ -915,10 +917,9 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_region_array_test )
     TEST_ASSERT( iBase_SUCCESS == error );
     TEST_ASSERT( tag_values_allocated == tag_values_size );
 
-    Teuchos::ArrayRCP<double> ent_arr_data 
-	= field.getEntArrDF( dof_entities, 
-				  entities_size,
-				  error );
+    MDArray ent_arr_data = field.getEntArrDF( dof_entities, 
+					      entities_size,
+					      error );
     TEST_ASSERT( iBase_SUCCESS == error );
 
     for (int i = 0; i < num_hex; ++i)
@@ -997,7 +998,7 @@ TEUCHOS_UNIT_TEST( TensorField, hex_evaluation_test )
     // Create the tensor template for this field. The hex vertices are tagged
     // with a scalar field.
     Teuchos::RCP<FOOD::TensorTemplate> tensor_template = Teuchos::rcp(
-	new FOOD::TensorTemplate(0, 1, FOOD::FOOD_REAL, quantity) );
+	new FOOD::TensorTemplate(0, 8, FOOD::FOOD_REAL, quantity) );
 
     // Create a distribution function kernel for the field.
     Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel =
@@ -1020,26 +1021,43 @@ TEUCHOS_UNIT_TEST( TensorField, hex_evaluation_test )
 
     // Attach the field to array data. These are nodal values but they are
     // bound to the hex, so we tag the hex with them.
-    Teuchos::ArrayRCP<double> hex_dof(8, 6.54);
-    field.attachToArrayData( hex_dof, iBase_INTERLEAVED, error );
+    Teuchos::ArrayRCP<double> hex_dof1(8, 6.54);
+    field.attachToArrayData( hex_dof1, iBase_INTERLEAVED, error );
     TEST_ASSERT( iBase_SUCCESS == error );
 
     // Evaluate the basis at a set of coordinates in the hex element.
-    MDArray eval_coords(2,3);
-    eval_coords(0,0) = 0.5;
-    eval_coords(0,1) = 0.5;
-    eval_coords(0,2) = 0.5;
+    MDArray eval_coords1(1,3);
+    eval_coords1(0,0) = 0.5;
+    eval_coords1(0,1) = 0.5;
+    eval_coords1(0,2) = 0.5;
 
-    eval_coords(1,0) = 0.75;
-    eval_coords(1,1) = 0.75;
-    eval_coords(1,2) = 0.75;
+    MDArray dfunc_values1(1,1);
+    field.evaluateDF( hex_element, eval_coords1, false, dfunc_values1 );
+    TEST_ASSERT( dfunc_values1(0,0) == 6.54 );
 
-    MDArray dfunc_values(2);
-    field.evaluateDF( hex_element, eval_coords, false, dfunc_values );
-    TEST_ASSERT( dfunc_values(0) == 6.54 );
-    TEST_ASSERT( dfunc_values(1) == 6.54 );
+    // Creage new DOFs and attach again;
+    Teuchos::ArrayRCP<double> hex_dof2(8, 0.0);
+    hex_dof2[4] = 1.0;
+    hex_dof2[5] = 1.0;
+    hex_dof2[6] = 1.0;
+    hex_dof2[7] = 1.0;
+    field.attachToArrayData( hex_dof2, iBase_INTERLEAVED, error );
+    TEST_ASSERT( iBase_SUCCESS == error );
 
-    std::cout << "INTERPOLATED DOF VAL " << dfunc_values(0) << std::endl;
+    // Evaluate the second basis at a set of coordinates in the hex element.
+    MDArray eval_coords2(2,3);
+    eval_coords2(0,0) = 0.5;
+    eval_coords2(0,1) = 0.5;
+    eval_coords2(0,2) = 0.5;
+
+    eval_coords2(1,0) = 0.75;
+    eval_coords2(1,1) = 0.75;
+    eval_coords2(1,2) = 0.75;
+
+    MDArray dfunc_values2(1,2);
+    field.evaluateDF( hex_element, eval_coords2, false, dfunc_values2 );
+    TEST_ASSERT( dfunc_values2(0,0) == 0.5 );
+    TEST_ASSERT( dfunc_values2(0,1) == 0.75 );
 }
 
 //---------------------------------------------------------------------------//
