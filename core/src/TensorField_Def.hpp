@@ -30,6 +30,7 @@ TensorField<Scalar>::TensorField( RCP_Communicator comm,
 				  const std::string &name )
     : d_comm(comm)
     , d_dofs(0)
+    , d_dof_map(0)
     , d_domain(domain)
     , d_dfunckernel(dfunckernel)
     , d_entity_type(entity_type)
@@ -135,7 +136,7 @@ void TensorField<Scalar>::attachToTagData( iBase_TagHandle dof_tag,
  * \brief Attach this field to array data and tag the mesh.
  */
 template<class Scalar>
-void TensorField<Scalar>::attachToArrayData( 
+void TensorField<Scalar>::attachToArrayData(
     Teuchos::ArrayRCP<Scalar> dof_array, 
     int storage_order,
     ErrorCode &error )
@@ -188,7 +189,6 @@ void TensorField<Scalar>::attachToArrayData(
 	Teuchos::Tuple<int,2> dof_dimensions;
 	dof_dimensions[0] = num_domain_entity;
 	dof_dimensions[1] = num_tensor_component;
-    
 	d_dofs = MDArray( Teuchos::Array<int>(dof_dimensions), dof_array );
 
 	int tag_values_size = 

@@ -569,7 +569,6 @@ TEUCHOS_UNIT_TEST( TensorField, constructor_test )
 	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_QUADRILATERAL,
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_GRADIENT,
-						     1,
 						     1 ) );
 
     // Create the field and check basic accessors.
@@ -634,7 +633,6 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_vertex_tag_test )
 	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_HEXAHEDRON,
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_GRADIENT,
-						     1,
 						     1 ) );
 
     // Create the field.
@@ -722,7 +720,6 @@ TEUCHOS_UNIT_TEST( TensorField, dof_tet_mesh_region_tag_test )
 	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_TETRAHEDRON,
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_GRADIENT,
-						     1,
 						     1 ) );
 
     // Create the field.
@@ -829,7 +826,6 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_region_array_test )
 	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_HEXAHEDRON,
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_GRADIENT,
-						     1,
 						     1 ) );
 
     // Create the field.
@@ -1005,7 +1001,6 @@ TEUCHOS_UNIT_TEST( TensorField, hex_evaluation_test )
 	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_HEXAHEDRON,
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_GRADIENT,
-						     1,
 						     1 ) );
 
     // Create the field.

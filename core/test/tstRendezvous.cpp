@@ -568,7 +568,6 @@ TEUCHOS_UNIT_TEST( Rendezvous, constructor_test )
 	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_QUADRILATERAL,
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_GRADIENT,
-						     1,
 						     1 ) );
 
     // Create the field domain and range and check basic accessors.

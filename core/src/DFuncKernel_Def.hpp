@@ -10,7 +10,6 @@
 #include "BasisFactory.hpp"
 #include "CellTopologyFactory.hpp"
 
-#include <Intrepid_DefaultCubatureFactory.hpp>
 #include <Intrepid_FunctionSpaceTools.hpp>
 
 namespace FOOD
@@ -23,16 +22,12 @@ template<class Scalar>
 DFuncKernel<Scalar>::DFuncKernel( const int entity_topology,
 				  const int discretization_type,
 				  const int basis_operator_type,
-				  const int basis_degree,
-				  const int cubature_degree )
+				  const int basis_degree )
     : d_entity_topology(entity_topology)
     , d_discretization_type(discretization_type)
     , d_basis_operator_type(basis_operator_type)
-    , d_basis_degree(basis_degree)
-    , d_cubature_degree(cubature_degree)
     , d_basis(0)
     , d_cell_topology(0)
-    , d_cubature(0)
 {
     BasisFactory<Scalar,MDArray> basis_factory;
     d_basis = basis_factory.create( entity_topology,
@@ -40,11 +35,8 @@ DFuncKernel<Scalar>::DFuncKernel( const int entity_topology,
 				    basis_operator_type,
 				    basis_degree );
 
-    CellTopologyFactory cell_topo_factory;
-    d_cell_topology = cell_topo_factory.create( entity_topology );
-    
-    Intrepid::DefaultCubatureFactory<Scalar> cubature_factory;
-    d_cubature = cubature_factory.create( *d_cell_topology, cubature_degree );
+    CellTopologyFactory topo_factory;
+    d_cell_topology = topo_factory.create( entity_topology );
 }
 
 /*!

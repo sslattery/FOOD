@@ -11,11 +11,8 @@
 
 #include <Teuchos_RCP.hpp>
 
-#include <Shards_CellTopology.hpp>
-
 #include <Intrepid_FieldContainer.hpp>
 #include <Intrepid_Basis.hpp>
-#include <Intrepid_Cubature.hpp>
 
 namespace FOOD 
 {
@@ -32,8 +29,7 @@ class DFuncKernel
     typedef Intrepid::Basis<Scalar,MDArray>           Basis_t;
     typedef Teuchos::RCP<Basis_t>                     RCP_Basis;
     typedef Teuchos::RCP<shards::CellTopology>        RCP_CellTopology;
-    typedef Intrepid::Cubature<Scalar>                Cubature_t;
-    typedef Teuchos::RCP<Cubature_t>                  RCP_Cubature;
+    //@}
 
   private:
 
@@ -46,20 +42,11 @@ class DFuncKernel
     // Basis operator space for this kernel.
     std::size_t d_basis_operator_type;
 
-    // Basis degree for this kernel.
-    std::size_t d_basis_degree;
-
-    // Cubature degree for this kernel.
-    std::size_t d_cubature_degree;
-
     // The basis for this kernel.
     RCP_Basis d_basis;
 
     // The cell topology for this kernel.
     RCP_CellTopology d_cell_topology;
-
-    // The integration rule for this kernel.
-    RCP_Cubature d_cubature;
 
   public:
 
@@ -67,8 +54,7 @@ class DFuncKernel
     DFuncKernel( const int entity_topology,
 		 const int discretization_type,
 		 const int basis_operator_type,
-	         const int basis_degree,
-		 const int cubature_degree );
+	         const int basis_degree );
 
     // Destructor.
     ~DFuncKernel();
@@ -94,14 +80,6 @@ class DFuncKernel
     int getBasisOperator() const
     { return d_basis_operator_type; }
 
-    //! Get the basis degree for this kernel.
-    int getBasisDegree() const
-    { return d_basis_degree; }
-
-    //! Get the cubature degree for this kernel.
-    int getCubatureDegree() const
-    { return d_cubature_degree; }
-
     //! Get the basis for this kernel.
     RCP_Basis getBasis() const
     { return d_basis; }
@@ -109,10 +87,6 @@ class DFuncKernel
     //! Get the cell topology for this kernel.
     RCP_CellTopology getCellTopology() const
     { return d_cell_topology; }
-
-    //! Get the integration rule for this kernel.
-    RCP_Cubature getCubature() const
-    { return d_cubature; }
 };
 
 } // end namespace FOOD
