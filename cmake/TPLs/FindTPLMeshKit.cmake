@@ -1,0 +1,6 @@
+INCLUDE(TribitsTplDeclareLibraries)
+
+TRIBITS_TPL_DECLARE_LIBRARIES( MeshKit
+  REQUIRED_HEADERS  MKUtils.hpp
+  REQUIRED_LIBS_NAMES MeshKit MKalgs MKutils
+  )
