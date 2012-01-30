@@ -262,21 +262,33 @@ void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
 						      0 );
 
     // 3) Evaluate the basis at the pre-image set in the reference frame.
-    MDArray basis_eval( d_dfunckernel->getBasis()->getCardinality(),
+    MDArray basis_eval( d_dfunckernel->getBasisCardinality(),
 			coords.dimension(0) );
-    d_dfunckernel->evaluateDF( basis_eval, reference_points );
+    d_dfunckernel->evaluateValueBasis( basis_eval, reference_points );
 
     // 4) Transform evaluated basis values to the physical frame.
     MDArray transformed_eval( 1, 
-			      d_dfunckernel->getBasis()->getCardinality(),
+			      d_dfunckernel->getBasisCardinality(),
 			      coords.dimension(0) );
     Intrepid::FunctionSpaceTools::HGRADtransformVALUE<Scalar,MDArray,MDArray>( 
 	transformed_eval, basis_eval );
 
     // 5) Evaluate the field using tensor components (the DOF for this entity).
+    iBase_EntityHandle *dof_entities = 0;
+    int adj_dof_entities_allocated = 0;
+    int adj_dof_entities_size = 0;
+    iMesh_getEntAdj( d_domain->getMesh(),
+		     entity,
+		     d_dfunckernel->getEntityType(),
+		     &dof_entities,
+		     &adj_dof_entities_allocated,
+		     &adj_dof_entities_size,
+		     &error );
+    assert( iBase_SUCCESS == error );
+
     Intrepid::FunctionSpaceTools::evaluate<Scalar,MDArray,MDArray>( 
 	dfunc_values,
-	getEntDF( entity, error), 
+	getEntArrDF( dof_entities, adj_dof_entities_size, error), 
 	transformed_eval );
     assert( iBase_SUCCESS == error );
 

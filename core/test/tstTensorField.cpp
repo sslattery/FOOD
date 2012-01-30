@@ -567,8 +567,9 @@ TEUCHOS_UNIT_TEST( TensorField, constructor_test )
     // Create a distribution function for this field.
     Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel =
 	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_QUADRILATERAL,
+						     FOOD::FOOD_CARTESIAN,
 						     FOOD::FOOD_FEM,
-						     FOOD::FOOD_GRADIENT,
+						     FOOD::FOOD_HGRAD,
 						     1 ) );
 
     // Create the field and check basic accessors.
@@ -631,8 +632,9 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_vertex_tag_test )
     // Create a distribution function kernel for the field.
     Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel =
 	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_HEXAHEDRON,
+						     FOOD::FOOD_CARTESIAN, 
 						     FOOD::FOOD_FEM,
-						     FOOD::FOOD_GRADIENT,
+						     FOOD::FOOD_HGRAD,
 						     1 ) );
 
     // Create the field.
@@ -718,8 +720,9 @@ TEUCHOS_UNIT_TEST( TensorField, dof_tet_mesh_region_tag_test )
     // Create a distribution function kernel for the field.
     Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel =
 	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_TETRAHEDRON,
+						     FOOD::FOOD_CARTESIAN,
 						     FOOD::FOOD_FEM,
-						     FOOD::FOOD_GRADIENT,
+						     FOOD::FOOD_HGRAD,
 						     1 ) );
 
     // Create the field.
@@ -824,8 +827,9 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_region_array_test )
     // Create a distribution function kernel for the field.
     Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel =
 	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_HEXAHEDRON,
+						     FOOD::FOOD_CARTESIAN,
 						     FOOD::FOOD_FEM,
-						     FOOD::FOOD_GRADIENT,
+						     FOOD::FOOD_HGRAD,
 						     1 ) );
 
     // Create the field.
@@ -999,8 +1003,9 @@ TEUCHOS_UNIT_TEST( TensorField, hex_evaluation_test )
     // Create a distribution function kernel for the field.
     Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel =
 	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_HEXAHEDRON,
+						     FOOD::FOOD_CARTESIAN, 
 						     FOOD::FOOD_FEM,
-						     FOOD::FOOD_GRADIENT,
+						     FOOD::FOOD_HGRAD,
 						     1 ) );
 
     // Create the field.

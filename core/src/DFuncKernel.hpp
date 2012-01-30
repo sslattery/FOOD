@@ -7,6 +7,9 @@
 #ifndef FOOD_DFUNCKERNEL_HPP
 #define FOOD_DFUNCKERNEL_HPP
 
+#include "Types.hpp"
+
+#include <iBase.h>
 #include <iMesh.h>
 
 #include <Teuchos_RCP.hpp>
@@ -33,14 +36,20 @@ class DFuncKernel
 
   private:
 
+    // Entity type for this kernel.
+    std::size_t d_entity_type;
+
     // Entity topology for this kernel.
     std::size_t d_entity_topology;
+
+    // The coordinate type for this kernel.
+    std::size_t d_coordinate_type;
 
     // Discretization type for this kernel.
     std::size_t d_discretization_type;
 
-    // Basis operator space for this kernel.
-    std::size_t d_basis_operator_type;
+    // Basis function space for this kernel.
+    std::size_t d_basis_function_space;
 
     // The basis for this kernel.
     RCP_Basis d_basis;
@@ -51,22 +60,36 @@ class DFuncKernel
   public:
 
     // Constructor.
-    DFuncKernel( const int entity_topology,
+    DFuncKernel( const int entity_type,
+	         const int entity_topology,
+		 const int coordinate_type,
 		 const int discretization_type,
-		 const int basis_operator_type,
+		 const int basis_function_space,
 	         const int basis_degree );
 
     // Destructor.
     ~DFuncKernel();
 
-    // Evaluate the degrees of freedom for this kernel at a specific
-    // location.
-    void evaluateDF( MDArray &values_at_coords, 
-		     const MDArray &coords );
+    // Evaluate the basis value for this kernel at a specific parametric
+    // location. 
+    void evaluateValueBasis( MDArray &values_at_coords, 
+			     const MDArray &coords );
 
-    // Evaluate the gradient of the degrees of freedom for this kernel at a
-    // specific location.
-    void evaluateGradDF( MDArray &dfunc_grad_values, const MDArray &coords );
+    // Evaluate the gradient of the basis for this kernel at a specific
+    // parametric location.
+    void evaluateGradBasis( MDArray &dfunc_grad_values, const MDArray &coords );
+
+    // Evaluate the divergence of the basis for this kernel at a specific
+    // parametric location.
+    void evaluateDivBasis( MDArray &dfunc_grad_values, const MDArray &coords );
+
+    // Evaluate the curl of the basis for this kernel at a specific parametric
+    // location. 
+    void evaluateCurlBasis( MDArray &dfunc_grad_values, const MDArray &coords );
+
+    //! Get the entity type for the kernel.
+    int getEntityType() const
+    { return d_entity_type; }
 
     //! Get the entity topology for the kernel.
     int getEntityTopology() const
@@ -76,13 +99,26 @@ class DFuncKernel
     int getDiscretizationType() const
     { return d_discretization_type; }
 
-    //! Get the basis operator type for this kernel.
-    int getBasisOperator() const
-    { return d_basis_operator_type; }
+    //! Get the basis function space for this kernel.
+    int getBasisFunctionSpace() const
+    { return d_basis_function_space; }
 
     //! Get the basis for this kernel.
     RCP_Basis getBasis() const
     { return d_basis; }
+
+    //! Get the basis cardinality.
+    int getBasisCardinality() const
+    { return d_basis->getCardinality(); }
+
+    //! Get the basis degree.
+    int getBasisDegree() const
+    { return d_basis->getDegree(); }
+
+    //! Get the reference cell coordinates for the degrees of freedom.
+    //! MDArray(F,D) defined for the basis.
+    void getBasisCoords( MDArray &coords )
+    { return d_basis->getDoFCoords( coords ); }
 
     //! Get the cell topology for this kernel.
     RCP_CellTopology getCellTopology() const

@@ -75,7 +75,7 @@ TEUCHOS_UNIT_TEST( BasisFactory, factory_test )
     Teuchos::RCP< Intrepid::Basis<double,DoubleContainer> > basis = 
 	basis_factory.create( iMesh_TETRAHEDRON,
 			      FOOD::FOOD_FEM,
-			      FOOD::FOOD_GRADIENT,
+			      FOOD::FOOD_HGRAD,
 			      1 );
     int num_fields = basis->getCardinality();
     TEST_ASSERT( num_fields == 4 );

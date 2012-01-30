@@ -566,8 +566,9 @@ TEUCHOS_UNIT_TEST( Rendezvous, constructor_test )
     // Create a distribution function kernel for this field.
     Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel = 
 	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_QUADRILATERAL,
+						     FOOD::FOOD_CARTESIAN, 
 						     FOOD::FOOD_FEM,
-						     FOOD::FOOD_GRADIENT,
+						     FOOD::FOOD_GRAD,
 						     1 ) );
 
     // Create the field domain and range and check basic accessors.

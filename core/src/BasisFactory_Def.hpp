@@ -33,16 +33,16 @@ template<class Scalar, class ArrayScalar>
 Teuchos::RCP< Intrepid::Basis<Scalar,ArrayScalar> > 
 BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 					  const int discretization_type,
-					  const int basis_operator_type,
+					  const int basis_function_space,
 					  const int basis_degree )
 
 {
     Teuchos::RCP< Intrepid::Basis<Scalar,ArrayScalar> > new_basis;
     
-    switch ( basis_operator_type )
+    switch ( basis_function_space )
     {
 	
-	case FOOD_GRADIENT:
+	case FOOD_HGRAD:
 
 	    switch ( entity_topology )
 	    {
@@ -152,7 +152,7 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 	
 	    break;
 
-	case FOOD_DIVERGENCE:
+	case FOOD_HDIV:
 
 	    switch ( entity_topology )
 	    {
@@ -228,7 +228,7 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 
 	    break;
 
-	case FOOD_CURL:
+	case FOOD_HCURL:
 
 	    switch ( entity_topology )
 	    {
