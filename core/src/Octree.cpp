@@ -14,6 +14,7 @@ namespace FOOD
  */
 Octree::Octree( RCP_Domain domain )
     : d_domain(domain)
+    , d_root_node(0)
 { /* ... */ }
 
 /*!
