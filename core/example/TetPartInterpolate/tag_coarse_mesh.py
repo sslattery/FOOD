@@ -21,4 +21,4 @@ for i in xrange(num_vert):
 
 fine_tag[vertices] = tag_data
 
-mesh.save("tagged_coarse_tet_part.vtk")
+mesh.save("tagged_coarse.vtk")

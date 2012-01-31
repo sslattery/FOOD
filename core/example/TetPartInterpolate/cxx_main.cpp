@@ -68,20 +68,18 @@ int main(int argc, char* argv[])
     iMesh_newMesh("", &fine_mesh, &error, 0);
     assert( iBase_SUCCESS == error );
 
-    std::string fine_mesh_filename = "tagged_fine_tet_part.vtk";
+    iBase_EntitySetHandle fine_root_set;
+    iMesh_getRootSet( fine_mesh, &fine_root_set, &error );
+    assert( iBase_SUCCESS == error );
+
+    std::string fine_mesh_filename = "tagged_fine.vtk";
     iMesh_load( fine_mesh, 
-		0, 
+		fine_root_set, 
 		&fine_mesh_filename[0], 
 		"", 
 		&error,
 		(int) fine_mesh_filename.size(),
 		0 );
-    assert( iBase_SUCCESS == error );
-
-    iBase_EntitySetHandle fine_root_set = 0;
-    iMesh_getRootSet( fine_mesh,
-		      &fine_root_set,
-		      &error );
     assert( iBase_SUCCESS == error );
 
     Teuchos::RCP<FOOD::Domain> fine_domain = Teuchos::rcp(
@@ -112,20 +110,18 @@ int main(int argc, char* argv[])
     iMesh_newMesh("", &coarse_mesh, &error, 0);
     assert( iBase_SUCCESS == error );
 
-    std::string coarse_mesh_filename = "tagged_coarse_tet_part.vtk";
+    iBase_EntitySetHandle coarse_root_set;
+    iMesh_getRootSet( coarse_mesh, &coarse_root_set, &error );
+    assert( iBase_SUCCESS == error );
+
+    std::string coarse_mesh_filename = "tagged_coarse.vtk";
     iMesh_load( coarse_mesh, 
-		0, 
+		coarse_root_set, 
 		&coarse_mesh_filename[0], 
 		"", 
 		&error,
 		(int) coarse_mesh_filename.size(),
 		0 );
-    assert( iBase_SUCCESS == error );
-
-    iBase_EntitySetHandle coarse_root_set = 0;
-    iMesh_getRootSet( coarse_mesh,
-		      &coarse_root_set,
-		      &error );
     assert( iBase_SUCCESS == error );
 
     Teuchos::RCP<FOOD::Domain> coarse_domain = Teuchos::rcp(
@@ -197,6 +193,7 @@ int main(int argc, char* argv[])
     int m = 0;
     for ( int n = 0; n < range_vertices_size; ++n )
     {
+	std::cout << "MAPPING " << n << std::endl;
 	point_mapped = false;
 	m = 0;
 	while ( m < domain_elements_size && !point_mapped )
@@ -213,6 +210,7 @@ int main(int argc, char* argv[])
 		    std::pair<iBase_EntityHandle,iBase_EntityHandle>( 
 			range_vertices[n], domain_elements[m] ) );
 		point_mapped = true;
+		std::cout << "MAPPING HIT" << std::endl;
 	    }
 	    ++m;
 	}
@@ -223,6 +221,7 @@ int main(int argc, char* argv[])
     MDArray local_vals(1,1);
     for ( int p = 0; p < range_vertices_size; ++p )
     {
+	std::cout << "INTERPOLATING " << p << std::endl;
 	local_coords(0,0) = coord_array[3*p];
 	local_coords(0,1) = coord_array[3*p+1];
 	local_coords(0,2) = coord_array[3*p+2];
