@@ -28,7 +28,7 @@ struct OctreeNode
     Teuchos::RCP<OctreeNode> child1 = 0;
     Teuchos::RCP<OctreeNode> child2 = 0;
     Teuchos::Tuple<double,6> bounding_box;
-    int cutting_plane = 0;
+    int cutting_axis = 0;
     bool is_leaf = false;
 };
 
@@ -47,6 +47,15 @@ class Octree
 
   private:
 
+    // Cutting axis enum.
+    enum CuttingAxis {
+	CuttingAxis_MIN = 0,
+	X_Axis = CuttingAxis_Min,
+	Y_Axis,
+	Z_Axis,
+	CuttingAxis_Max = Z_Axis 
+    };
+
     // The domain this octree is generated for.
     RCP_Domain d_domain;
 
@@ -56,13 +65,13 @@ class Octree
   public:
 
     // Constructor.
-    Octree( RCP_Domain domain );
+    Octree( RCP_Domain domain, const int entity_topology );
 
     // Destructor.
     ~Octree();
 
     // Build the tree for a specific entity topology.
-    void buildTree( const int entity_topology );
+    void buildTree( RCP_Node node );
 
     // Locate a point. Return false if we didnt find it.
     bool findPoint( iBase_EntityHandle *found_in_entity,
