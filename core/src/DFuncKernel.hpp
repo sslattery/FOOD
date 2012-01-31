@@ -36,11 +36,16 @@ class DFuncKernel
 
   private:
 
-    // Entity type for this kernel.
-    std::size_t d_entity_type;
+    // The topology of the cell for which the kernel is defined.
+    std::size_t d_eval_topology;
 
-    // Entity topology for this kernel.
-    std::size_t d_entity_topology;
+    // Entity type that the degrees of freedom are defined on for this
+    // kernel. 
+    std::size_t d_dof_entity_type;
+
+    // Entity topology that the degrees of freedom are define on for this
+    // kernel. 
+    std::size_t d_dof_entity_topology;
 
     // The coordinate type for this kernel.
     std::size_t d_coordinate_type;
@@ -60,8 +65,9 @@ class DFuncKernel
   public:
 
     // Constructor.
-    DFuncKernel( const int entity_type,
-	         const int entity_topology,
+    DFuncKernel( const int eval_topology, 
+		 const int dof_entity_type,
+	         const int dof_entity_topology,
 		 const int coordinate_type,
 		 const int discretization_type,
 		 const int basis_function_space,
@@ -87,13 +93,19 @@ class DFuncKernel
     // location. 
     void evaluateCurlBasis( MDArray &dfunc_grad_values, const MDArray &coords );
 
-    //! Get the entity type for the kernel.
-    int getEntityType() const
-    { return d_entity_type; }
+    //! Get the topology of the cell for which this kernel is defined.
+    int getEvalTopology() const
+    { return d_eval_topology; }
 
-    //! Get the entity topology for the kernel.
-    int getEntityTopology() const
-    { return d_entity_topology; }
+    //! Get the entity type the degrees of freedom are defined on for the
+    //! kernel. 
+    int getDFEntityType() const
+    { return d_dof_entity_type; }
+
+    //! Get the entity topology the degrees of freedom are defined for the
+    //! kernel. 
+    int getDFEntityTopology() const
+    { return d_dof_entity_topology; }
 
     //! Get the discretization type.
     int getDiscretizationType() const

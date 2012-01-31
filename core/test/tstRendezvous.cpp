@@ -566,6 +566,8 @@ TEUCHOS_UNIT_TEST( Rendezvous, constructor_test )
     // Create a distribution function kernel for this field.
     Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel = 
 	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_QUADRILATERAL,
+						     iBase_VERTEX,
+			                             iMesh_POINT,
 						     FOOD::FOOD_CARTESIAN, 
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_GRAD,
@@ -576,8 +578,6 @@ TEUCHOS_UNIT_TEST( Rendezvous, constructor_test )
 	= Teuchos::rcp( new FOOD::TensorField<double>( getDefaultComm<int>(),
 						       domain,
 						       dfunckernel,
-						       iBase_VERTEX,
-						       iMesh_POINT,
 						       FOOD::FOOD_CARTESIAN, 
 						       tensor_template,
 						       unit,
@@ -587,8 +587,6 @@ TEUCHOS_UNIT_TEST( Rendezvous, constructor_test )
 	= Teuchos::rcp( new FOOD::TensorField<double>( getDefaultComm<int>(),
 						       domain,
 						       dfunckernel,
-						       iBase_VERTEX,
-						       iMesh_POINT,
 						       FOOD::FOOD_CARTESIAN, 
 						       tensor_template,
 						       unit,

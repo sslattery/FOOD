@@ -19,14 +19,16 @@ namespace FOOD
  * \brief Constructor.
  */
 template<class Scalar>
-DFuncKernel<Scalar>::DFuncKernel( const int entity_type,
-				  const int entity_topology,
+DFuncKernel<Scalar>::DFuncKernel( const int eval_topology,
+				  const int dof_entity_type,
+				  const int dof_entity_topology,
 				  const int coordinate_type,
 				  const int discretization_type,
 				  const int basis_function_space,
 				  const int basis_degree )
-    : d_entity_type(entity_type)
-    , d_entity_topology(entity_topology)
+    : d_eval_topology(eval_topology)
+    , d_dof_entity_type(dof_entity_type)
+    , d_dof_entity_topology(dof_entity_topology)
     , d_coordinate_type(coordinate_type)
     , d_discretization_type(discretization_type)
     , d_basis_function_space(basis_function_space)
@@ -34,13 +36,13 @@ DFuncKernel<Scalar>::DFuncKernel( const int entity_type,
     , d_cell_topology(0)
 {
     BasisFactory<Scalar,MDArray> basis_factory;
-    d_basis = basis_factory.create( entity_topology,
+    d_basis = basis_factory.create( eval_topology,
 				    discretization_type,
 				    basis_function_space,
 				    basis_degree );
 
     CellTopologyFactory topo_factory;
-    d_cell_topology = topo_factory.create( entity_topology );
+    d_cell_topology = topo_factory.create( eval_topology );
 }
 
 /*!

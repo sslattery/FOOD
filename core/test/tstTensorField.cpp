@@ -566,7 +566,9 @@ TEUCHOS_UNIT_TEST( TensorField, constructor_test )
 
     // Create a distribution function for this field.
     Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel =
-	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_QUADRILATERAL,
+	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_HEXAHEDRON,
+			                             iBase_FACE,
+						     iMesh_QUADRILATERAL,
 						     FOOD::FOOD_CARTESIAN,
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_HGRAD,
@@ -576,8 +578,6 @@ TEUCHOS_UNIT_TEST( TensorField, constructor_test )
     FOOD::TensorField<double> field( getDefaultComm<int>(),
 				     domain,
 				     dfunckernel,
-				     iBase_VERTEX,
-				     iMesh_POINT,
 				     FOOD::FOOD_CARTESIAN, 
 				     tensor_template,
 				     unit,
@@ -585,8 +585,6 @@ TEUCHOS_UNIT_TEST( TensorField, constructor_test )
 
     TEST_ASSERT( field.getComm() == getDefaultComm<int>() );
     TEST_ASSERT( field.getDomain() == domain );
-    TEST_ASSERT( field.getEntityType() == iBase_VERTEX );
-    TEST_ASSERT( field.getEntityTopology() == iMesh_POINT );
     TEST_ASSERT( field.getCoordType() == FOOD::FOOD_CARTESIAN );
     TEST_ASSERT( field.getTensorTemplate() == tensor_template );
     TEST_ASSERT( field.getUnit() == unit );
@@ -632,6 +630,8 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_vertex_tag_test )
     // Create a distribution function kernel for the field.
     Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel =
 	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_HEXAHEDRON,
+						     iBase_VERTEX,
+						     iMesh_POINT,
 						     FOOD::FOOD_CARTESIAN, 
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_HGRAD,
@@ -641,8 +641,6 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_vertex_tag_test )
     FOOD::TensorField<double> field( getDefaultComm<int>(),
 				     domain,
 				     dfunckernel,
-				     iBase_VERTEX,
-				     iMesh_POINT,
 				     FOOD::FOOD_CARTESIAN, 
 				     tensor_template,
 				     unit,
@@ -720,6 +718,8 @@ TEUCHOS_UNIT_TEST( TensorField, dof_tet_mesh_region_tag_test )
     // Create a distribution function kernel for the field.
     Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel =
 	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_TETRAHEDRON,
+						     iBase_REGION,
+						     iMesh_TETRAHEDRON,
 						     FOOD::FOOD_CARTESIAN,
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_HGRAD,
@@ -729,8 +729,6 @@ TEUCHOS_UNIT_TEST( TensorField, dof_tet_mesh_region_tag_test )
     FOOD::TensorField<double> field( getDefaultComm<int>(),
 				     domain,
 				     dfunckernel,
-				     iBase_REGION,
-				     iMesh_TETRAHEDRON,
 				     FOOD::FOOD_CARTESIAN, 
 				     tensor_template,
 				     unit,
@@ -827,6 +825,8 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_region_array_test )
     // Create a distribution function kernel for the field.
     Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel =
 	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_HEXAHEDRON,
+						     iBase_REGION,
+						     iMesh_HEXAHEDRON,
 						     FOOD::FOOD_CARTESIAN,
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_HGRAD,
@@ -836,8 +836,6 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_region_array_test )
     FOOD::TensorField<double> field( getDefaultComm<int>(),
 				     domain,
 				     dfunckernel,
-				     iBase_REGION,
-				     iMesh_HEXAHEDRON,
 				     FOOD::FOOD_CARTESIAN, 
 				     tensor_template,
 				     unit,
@@ -917,17 +915,9 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_region_array_test )
     TEST_ASSERT( iBase_SUCCESS == error );
     TEST_ASSERT( tag_values_allocated == tag_values_size );
 
-    MDArray ent_arr_data = field.getEntArrDF( dof_entities, 
-					      entities_size,
-					      error );
-    TEST_ASSERT( iBase_SUCCESS == error );
-
     for (int i = 0; i < num_hex; ++i)
     {
 	TEST_ASSERT( field_tag_data[i] == dof_array[i] );
-	TEST_ASSERT( ent_arr_data[i] == dof_array[i] );
-	TEST_ASSERT( field.getEntDF( dof_entities[i], error)[0]
-		     == dof_array[i] );
 	TEST_ASSERT( iBase_SUCCESS == error );
     }
 }
@@ -998,11 +988,13 @@ TEUCHOS_UNIT_TEST( TensorField, hex_evaluation_test )
     // Create the tensor template for this field. The hex vertices are tagged
     // with a scalar field.
     Teuchos::RCP<FOOD::TensorTemplate> tensor_template = Teuchos::rcp(
-	new FOOD::TensorTemplate(0, 8, FOOD::FOOD_REAL, quantity) );
+	new FOOD::TensorTemplate(0, 1, FOOD::FOOD_REAL, quantity) );
 
     // Create a distribution function kernel for the field.
     Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel =
 	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_HEXAHEDRON,
+						     iBase_VERTEX,
+						     iMesh_POINT,
 						     FOOD::FOOD_CARTESIAN, 
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_HGRAD,
@@ -1012,8 +1004,6 @@ TEUCHOS_UNIT_TEST( TensorField, hex_evaluation_test )
     FOOD::TensorField<double> field( getDefaultComm<int>(),
 				     domain,
 				     dfunckernel,
-				     iBase_REGION,
-				     iMesh_HEXAHEDRON,
 				     FOOD::FOOD_CARTESIAN, 
 				     tensor_template,
 				     unit,
@@ -1025,15 +1015,25 @@ TEUCHOS_UNIT_TEST( TensorField, hex_evaluation_test )
     field.attachToArrayData( hex_dof1, iBase_INTERLEAVED, error );
     TEST_ASSERT( iBase_SUCCESS == error );
 
+    // Check that we can get the DOF on the hex.
+    MDArray dof_coeffs(1,8,1);
+    dof_coeffs = field.getEntDF( hex_element, error );
+    TEST_ASSERT( iBase_SUCCESS == error );
+    for ( int n = 0; n < dfunckernel->getBasisCardinality(); ++n )
+    {
+	TEST_ASSERT( dof_coeffs(0,n,0) == 6.54 );
+    }
+
     // Evaluate the basis at a set of coordinates in the hex element.
     MDArray eval_coords1(1,3);
     eval_coords1(0,0) = 0.5;
     eval_coords1(0,1) = 0.5;
     eval_coords1(0,2) = 0.5;
 
-    MDArray dfunc_values1(1,1);
+    MDArray dfunc_values1(1,1,1);
     field.evaluateDF( hex_element, eval_coords1, false, dfunc_values1 );
-    TEST_ASSERT( dfunc_values1(0,0) == 6.54 );
+    TEST_ASSERT( dfunc_values1(0,0,0) == 6.54 );
+
 
     // Creage new DOFs and attach again;
     Teuchos::ArrayRCP<double> hex_dof2(8, 0.0);
@@ -1054,10 +1054,10 @@ TEUCHOS_UNIT_TEST( TensorField, hex_evaluation_test )
     eval_coords2(1,1) = 0.75;
     eval_coords2(1,2) = 0.75;
 
-    MDArray dfunc_values2(1,2);
+    MDArray dfunc_values2(1,2,1);
     field.evaluateDF( hex_element, eval_coords2, false, dfunc_values2 );
-    TEST_ASSERT( dfunc_values2(0,0) == 0.5 );
-    TEST_ASSERT( dfunc_values2(0,1) == 0.75 );
+    TEST_ASSERT( dfunc_values2(0,0,0) == 0.5 );
+    TEST_ASSERT( dfunc_values2(0,1,0) == 0.75 );
 }
 
 //---------------------------------------------------------------------------//

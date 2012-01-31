@@ -22,8 +22,6 @@ template<class Scalar>
 TensorField<Scalar>::TensorField( RCP_Communicator comm,
 				  RCP_Domain domain,
 				  RCP_DFuncKernel dfunckernel,
-				  const int entity_type,
-				  const int entity_topology,
 				  const int coord_type,
 				  RCP_TensorTemplate tensor_template,
 				  RCP_Unit unit,
@@ -33,8 +31,6 @@ TensorField<Scalar>::TensorField( RCP_Communicator comm,
     , d_dof_map(0)
     , d_domain(domain)
     , d_dfunckernel(dfunckernel)
-    , d_entity_type(entity_type)
-    , d_entity_topology(entity_topology)
     , d_coord_type(coord_type)
     , d_tensor_template(tensor_template)
     , d_unit(unit)
@@ -69,7 +65,7 @@ void TensorField<Scalar>::attachToTagData( iBase_TagHandle dof_tag,
     int num_domain_entity = 0;
     iMesh_getNumOfTopo( d_domain->getMesh(),
 			d_domain->getMeshSet(),
-			d_entity_topology,
+			d_dfunckernel->getDFEntityTopology(),
 			&num_domain_entity,
 			&error );
     assert( iBase_SUCCESS == error );
@@ -95,14 +91,13 @@ void TensorField<Scalar>::attachToTagData( iBase_TagHandle dof_tag,
     int entities_size = 0;
     iMesh_getEntities( d_domain->getMesh(),
 		       d_domain->getMeshSet(),
-		       d_entity_type,
-		       d_entity_topology,
+		       d_dfunckernel->getDFEntityType(),
+		       d_dfunckernel->getDFEntityTopology(),
 		       &dof_entities,
 		       &entities_allocated,
 		       &entities_size,
 		       &error );
     assert( iBase_SUCCESS == error );
-    assert( num_domain_entity == entities_size );
 
     int dof_size = 
 	num_tensor_component*num_domain_entity*TypeTraits<Scalar>::tag_size;
@@ -161,7 +156,7 @@ void TensorField<Scalar>::attachToArrayData(
     int num_domain_entity = 0;
     iMesh_getNumOfTopo( d_domain->getMesh(),
 			d_domain->getMeshSet(),
-			d_entity_topology,
+			d_dfunckernel->getDFEntityTopology(),
 			&num_domain_entity,
 			&error );
     assert( iBase_SUCCESS == error );
@@ -175,8 +170,8 @@ void TensorField<Scalar>::attachToArrayData(
     int entities_size = 0;
     iMesh_getEntities( d_domain->getMesh(),
 		       d_domain->getMeshSet(),
-		       d_entity_type,
-		       d_entity_topology,
+		       d_dfunckernel->getDFEntityType(),
+		       d_dfunckernel->getDFEntityTopology(),
 		       &dof_entities,
 		       &entities_allocated,
 		       &entities_size,
@@ -210,7 +205,7 @@ void TensorField<Scalar>::attachToArrayData(
 
 /*!
  * \brief Evaluate the degrees of freedom of this field at a set of
- * coordinates in a particular entity. 
+ * coordinates in a particular entity. MDArray(C,P,component).
  */
 template<class Scalar>
 void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
@@ -222,23 +217,23 @@ void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
 
     // 1) Get the entity nodes and their coordinates.
     iBase_EntityHandle *element_nodes = 0;
-    int adj_entity_handles_allocated = 8;
-    int adj_entity_handles_size = 0;
+    int element_nodes_allocated = 0;
+    int element_nodes_size = 0;
     iMesh_getEntAdj( d_domain->getMesh(),
 		     entity,
 		     iBase_VERTEX,
 		     &element_nodes,
-		     &adj_entity_handles_allocated,
-		     &adj_entity_handles_size,
+		     &element_nodes_allocated,
+		     &element_nodes_size,
 		     &error );
     assert( iBase_SUCCESS == error );
 
-    int coords_allocated = adj_entity_handles_size*3;
+    int coords_allocated = element_nodes_size*3;
     int coords_size = 0;
     double *coord_array = 0;
     iMesh_getVtxArrCoords( d_domain->getMesh(),
 			   element_nodes,
-			   adj_entity_handles_size,
+			   element_nodes_size,
 			   iBase_INTERLEAVED,
 			   &coord_array,
 			   &coords_allocated,
@@ -248,18 +243,20 @@ void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
 
     Teuchos::Tuple<int,3> cell_node_dimensions;
     cell_node_dimensions[0] = 1;
-    cell_node_dimensions[1] = adj_entity_handles_size;
+    cell_node_dimensions[1] = element_nodes_size;
     cell_node_dimensions[2] = coords.dimension(1);
     MDArray cell_nodes( Teuchos::Array<int>(cell_node_dimensions), 
 			coord_array );
 
-    // 2) Obtain pre-images of the set of evaluation points in the reference frame.
+    // 2) Obtain pre-images of the set of evaluation points in the reference
+    // frame. 
     MDArray reference_points( coords.dimension(0), coords.dimension(1) );
-    Intrepid::CellTools<Scalar>::mapToReferenceFrame( reference_points,
-						      coords,
-						      cell_nodes,
-						      *d_dfunckernel->getCellTopology(),
-						      0 );
+    Intrepid::CellTools<Scalar>::mapToReferenceFrame( 
+	reference_points,
+	coords,
+	cell_nodes,
+	*d_dfunckernel->getCellTopology(),
+	0 );
 
     // 3) Evaluate the basis at the pre-image set in the reference frame.
     MDArray basis_eval( d_dfunckernel->getBasisCardinality(),
@@ -273,31 +270,38 @@ void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
     Intrepid::FunctionSpaceTools::HGRADtransformVALUE<Scalar,MDArray,MDArray>( 
 	transformed_eval, basis_eval );
 
-    // 5) Evaluate the field using tensor components (the DOF for this entity).
-    iBase_EntityHandle *dof_entities = 0;
-    int adj_dof_entities_allocated = 0;
-    int adj_dof_entities_size = 0;
-    iMesh_getEntAdj( d_domain->getMesh(),
-		     entity,
-		     d_dfunckernel->getEntityType(),
-		     &dof_entities,
-		     &adj_dof_entities_allocated,
-		     &adj_dof_entities_size,
-		     &error );
-    assert( iBase_SUCCESS == error );
+    // 5) Evaluate the field using tensor components (the DOF for this
+    // entity).
+    MDArray entity_dofs = getEntDF( entity, error );
 
-    Intrepid::FunctionSpaceTools::evaluate<Scalar,MDArray,MDArray>( 
-	dfunc_values,
-	getEntArrDF( dof_entities, adj_dof_entities_size, error), 
-	transformed_eval );
     assert( iBase_SUCCESS == error );
+    MDArray component_values(1, coords.dimension(0) );
+    MDArray component_coeffs( 1, d_dfunckernel->getBasisCardinality() );
+    for ( int n = 0; n < (int) d_tensor_template->getNumComponents(); ++n )
+    {
+	for ( int m = 0; m < (int) d_dfunckernel->getBasisCardinality(); ++m )
+	{
+	    component_coeffs(0,m) = entity_dofs(0,m,n);
+	}
+
+	Intrepid::FunctionSpaceTools::evaluate<Scalar,MDArray,MDArray>( 
+	    component_values,
+	    component_coeffs, 
+	    transformed_eval );
+
+	for ( int p = 0; p < coords.dimension(0); ++p )
+	{
+	    dfunc_values(0,p,n) = component_values(0,p);
+	}
+    }
 
     free( element_nodes );
     free( coord_array );
 }
 
 /*! 
- * \brief Get degrees of freedom for a particular entity in the domain.
+ * \brief Get all degrees of freedom for a particular entity in the domain.
+ *  MDArray(C,F,component).
  */
 template<class Scalar>
 typename TensorField<Scalar>::MDArray
@@ -306,64 +310,41 @@ TensorField<Scalar>::getEntDF( iBase_EntityHandle entity,
 {
     error = 0;
 
-    Teuchos::ArrayRCP<Scalar> entity_dofs( 
-	d_tensor_template->getNumComponents() );
+    int dof_size = d_dfunckernel->getBasisCardinality()*
+		   d_tensor_template->getNumComponents();
+
+    Teuchos::ArrayRCP<Scalar> entity_dofs( dof_size );
 
     int tag_values_allocated = entity_dofs.size()*sizeof(Scalar);
     int tag_values_size = 0;
 
+    iBase_EntityHandle *dof_entities = 0;
+    int dof_entities_allocated = 0;
+    int dof_entities_size = 0;
+    iMesh_getEntAdj( d_domain->getMesh(),
+		     entity,
+		     d_dfunckernel->getDFEntityTopology(),
+		     &dof_entities,
+		     &dof_entities_allocated,
+		     &dof_entities_size,
+		     &error );
+    assert( iBase_SUCCESS == error );
+
     iMesh_getArrData( d_domain->getMesh(),
-		      &entity,
-		      1,
+		      dof_entities,
+		      dof_entities_size,
 		      d_dof_tag,
 		      &entity_dofs,
 		      &tag_values_allocated,
 		      &tag_values_size,
 		      &error );
     assert( iBase_SUCCESS == error );
-    assert( tag_values_allocated == tag_values_size );
     
-    Teuchos::Tuple<int,2> array_dimensions;
+    Teuchos::Tuple<int,3> array_dimensions;
     array_dimensions[0] = 1;
-    array_dimensions[1] = d_tensor_template->getNumComponents();
+    array_dimensions[1] = d_dfunckernel->getBasisCardinality();
+    array_dimensions[2] = d_tensor_template->getNumComponents();
     MDArray dof_array( Teuchos::Array<int>(array_dimensions), entity_dofs );
-    
-    return dof_array;
-}
-
-/*! 
- * \brief Get degrees of freedom for an array of entities in the
- * domain. Returned implicitly interleaved.
- */
-template<class Scalar>
-typename TensorField<Scalar>::MDArray
-TensorField<Scalar>::getEntArrDF( iBase_EntityHandle *entities, 
-				  int num_entities,
-				  ErrorCode &error ) const
-{
-    error = 0;
-
-    Teuchos::ArrayRCP<Scalar> entities_dofs( 
-	num_entities*d_tensor_template->getNumComponents() );
-
-    int tag_values_allocated = entities_dofs.size()*sizeof(Scalar);
-    int tag_values_size = 0;
-
-    iMesh_getArrData( d_domain->getMesh(),
-		      entities,
-		      num_entities,
-		      d_dof_tag,
-		      &entities_dofs,
-		      &tag_values_allocated,
-		      &tag_values_size,
-		      &error );
-    assert( iBase_SUCCESS == error );
-    assert( tag_values_allocated == tag_values_size );
-
-    Teuchos::Tuple<int,2> array_dimensions;
-    array_dimensions[0] = num_entities;
-    array_dimensions[1] = d_tensor_template->getNumComponents();
-    MDArray dof_array( Teuchos::Array<int>(array_dimensions), entities_dofs );
     
     return dof_array;
 }

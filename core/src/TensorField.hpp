@@ -73,12 +73,6 @@ class TensorField
     // The distribution function kernel to be used to evaluate this field.
     RCP_DFuncKernel d_dfunckernel;
 
-    // The entity type this field is defined on.
-    std::size_t d_entity_type;
-
-    // The entity topology this field is defined on.
-    std::size_t d_entity_topology;
-
     // The coordinate system for physical field coordinates.
     std::size_t d_coord_type;
 
@@ -100,8 +94,6 @@ class TensorField
     TensorField( RCP_Communicator comm,
 		 RCP_Domain domain,
 		 RCP_DFuncKernel dfunckernel,
-		 const int entity_type,
-		 const int entity_topology,
 		 const int coord_type,
 		 RCP_TensorTemplate tensor_template,
 		 RCP_Unit unit,
@@ -177,14 +169,6 @@ class TensorField
     //! Get the domain this field is defined on.
     RCP_Domain getDomain() const
     { return d_domain; }
-
-    //! Get the entity type this field is defined on.
-    int getEntityType() const
-    { return d_entity_type; }
-
-    //! Get the entity topology this field is defined on.
-    int getEntityTopology() const
-    { return d_entity_topology; }
 
     //! Get the coordinate system for physics field coordinates.
     int getCoordType() const
