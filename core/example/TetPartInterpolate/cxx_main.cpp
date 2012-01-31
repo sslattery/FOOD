@@ -21,11 +21,31 @@
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ENull.hpp>
 #include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_DefaultComm.hpp>
+#include <Teuchos_CommHelpers.hpp>
 
 #include <Intrepid_FieldContainer.hpp>
 
+template<class Ordinal>
+Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
+{
+#ifdef HAVE_MPI
+    return Teuchos::DefaultComm<Ordinal>::getComm();
+#else
+    return Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
+#endif
+}
+
 int main(int argc, char* argv[])
 {
+    // Setup communication.
+    Teuchos::GlobalMPISession mpiSession(&argc,&argv);
+    Teuchos::RCP<const Teuchos::Comm<int> > comm = 
+	Teuchos::DefaultComm<int>::getComm();
+
+    if ( getDefaultComm<int>()->getRank() == 0 )
+    {
+
     typedef Intrepid::FieldContainer<double> MDArray;
 
     int error;
@@ -48,18 +68,21 @@ int main(int argc, char* argv[])
     iMesh_newMesh("", &fine_mesh, &error, 0);
     assert( iBase_SUCCESS == error );
 
-    iBase_EntitySetHandle fine_root_set;
-    iMesh_getRootSet( fine_mesh, &fine_root_set, &error );
-    assert( iBase_SUCCESS == error );
-
     std::string fine_mesh_filename = "tagged_fine_tet_part.vtk";
     iMesh_load( fine_mesh, 
-		fine_root_set, 
+		0, 
 		&fine_mesh_filename[0], 
 		"", 
 		&error,
 		(int) fine_mesh_filename.size(),
 		0 );
+    assert( iBase_SUCCESS == error );
+
+    iBase_EntitySetHandle fine_root_set = 0;
+    iMesh_getRootSet( fine_mesh,
+		      &fine_root_set,
+		      &error );
+    assert( iBase_SUCCESS == error );
 
     Teuchos::RCP<FOOD::Domain> fine_domain = Teuchos::rcp(
 	new FOOD::Domain(fine_mesh, fine_root_set) );
@@ -79,28 +102,31 @@ int main(int argc, char* argv[])
 			&fine_tag,
 			&error,
 			(int) fine_tag_name.size() );
-    TEST_ASSERT( iBase_SUCCESS == error );
+    assert( iBase_SUCCESS == error );
 
     fine_field.attachToTagData( fine_tag, error );
-    TEST_ASSERT( iBase_SUCCESS == error );
+    assert( iBase_SUCCESS == error );
 
     // Set up the coarse mesh.
     iMesh_Instance coarse_mesh;
     iMesh_newMesh("", &coarse_mesh, &error, 0);
     assert( iBase_SUCCESS == error );
 
-    iBase_EntitySetHandle coarse_root_set;
-    iMesh_getRootSet( coarse_mesh, &coarse_root_set, &error );
-    assert( iBase_SUCCESS == error );
-
     std::string coarse_mesh_filename = "tagged_coarse_tet_part.vtk";
     iMesh_load( coarse_mesh, 
-		coarse_root_set, 
+		0, 
 		&coarse_mesh_filename[0], 
 		"", 
 		&error,
 		(int) coarse_mesh_filename.size(),
 		0 );
+    assert( iBase_SUCCESS == error );
+
+    iBase_EntitySetHandle coarse_root_set = 0;
+    iMesh_getRootSet( coarse_mesh,
+		      &coarse_root_set,
+		      &error );
+    assert( iBase_SUCCESS == error );
 
     Teuchos::RCP<FOOD::Domain> coarse_domain = Teuchos::rcp(
 	new FOOD::Domain(coarse_mesh, coarse_root_set) );
@@ -120,10 +146,10 @@ int main(int argc, char* argv[])
 			&coarse_tag,
 			&error,
 			(int) coarse_tag_name.size() );
-    TEST_ASSERT( iBase_SUCCESS == error );
+    assert( iBase_SUCCESS == error );
 
     coarse_field.attachToTagData( coarse_tag, error );
-    TEST_ASSERT( iBase_SUCCESS == error );
+    assert( iBase_SUCCESS == error );
 
     // Generate the mapping for the interpolation.
     iBase_EntityHandle *domain_elements = 0;
@@ -137,7 +163,7 @@ int main(int argc, char* argv[])
 		       &domain_elements_allocated,
 		       &domain_elements_size,
 		       &error );
-    TEST_ASSERT( iBase_SUCCESS == error );
+    assert( iBase_SUCCESS == error );
 
     iBase_EntityHandle *range_vertices = 0;
     int range_vertices_allocated = 0;
@@ -150,7 +176,7 @@ int main(int argc, char* argv[])
 		       &range_vertices_allocated,
 		       &range_vertices_size,
 		       &error );
-    TEST_ASSERT( iBase_SUCCESS == error );
+    assert( iBase_SUCCESS == error );
 
     int coords_allocated = range_vertices_size*3;
     int coords_size = 0;
@@ -175,13 +201,13 @@ int main(int argc, char* argv[])
 	m = 0;
 	while ( m < domain_elements_size && !point_mapped )
 	{
-	    local_coords[0][0] = coord_array[3*n];
-	    local_coords[0][1] = coord_array[3*n+1];
-	    local_coords[0][2] = coord_array[3*n+2];
+	    local_coords(0,0) = coord_array[3*n];
+	    local_coords(0,1) = coord_array[3*n+1];
+	    local_coords(0,2) = coord_array[3*n+2];
 
-	    if ( point_in_ref_element( fine_domain->getMesh(),
-				       domain_elements[m],
-				       local_coords ) )
+	    if ( FOOD::PointQuery::point_in_ref_element( fine_domain->getMesh(),
+							 domain_elements[m],
+							 local_coords ) )
 	    {
 		range_to_domain.insert(
 		    std::pair<iBase_EntityHandle,iBase_EntityHandle>( 
@@ -197,13 +223,13 @@ int main(int argc, char* argv[])
     MDArray local_vals(1,1);
     for ( int p = 0; p < range_vertices_size; ++p )
     {
-	local_coords[0][0] = coord_array[3*p];
-	local_coords[0][1] = coord_array[3*p+1];
-	local_coords[0][2] = coord_array[3*p+2];
+	local_coords(0,0) = coord_array[3*p];
+	local_coords(0,1) = coord_array[3*p+1];
+	local_coords(0,2) = coord_array[3*p+2];
 
-	if ( range_to_domain( range_vertices[p] ) )
+	if ( range_to_domain[ range_vertices[p] ] )
 	{
-	    fine_field.evaluateDF( range_to_domain( range_vertices[p] ),
+	    fine_field.evaluateDF( range_to_domain[ range_vertices[p] ],
 				   local_coords,
 				   false,
 				   local_vals );
@@ -234,6 +260,8 @@ int main(int argc, char* argv[])
     free( domain_elements );
     free( range_vertices );
     free( coord_array );
+
+    } // end rank 0
 
     return 0;
 }
