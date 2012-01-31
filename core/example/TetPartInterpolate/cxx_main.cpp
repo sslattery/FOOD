@@ -24,7 +24,7 @@
 
 #include <Intrepid_FieldContainer.hpp>
 
-int main()
+int main(int argc, char* argv[])
 {
     typedef Intrepid::FieldContainer<double> MDArray;
 
