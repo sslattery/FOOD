@@ -27,6 +27,7 @@ APPEND_SET(HEADERS
   DFuncKernel_Def.hpp
   Domain.hpp
   KernelTraits.hpp
+  Octree.hpp
   PointQuery.hpp
   Quantity.hpp
   Rendezvous.hpp
@@ -45,6 +46,7 @@ APPEND_SET(SOURCES
   CellTopologyFactory.cpp
   Domain.cpp
   KernelTraits.cpp
+  Octree.cpp
   PointQuery.cpp
   Quantity.cpp
   TensorTemplate.cpp

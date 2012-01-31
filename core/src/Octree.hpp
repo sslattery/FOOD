@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------//
-// \file OctTree.hpp
+// \file Octree.hpp
 // \author Stuart Slattery
 // \breif Octree definition.
 //---------------------------------------------------------------------------//
@@ -11,6 +11,7 @@
 #include "Domain.hpp"
 
 #include <Teuchos_RCP.hpp>
+#include <Teuchos_Tuple.hpp>
 
 namespace FOOD
 {
