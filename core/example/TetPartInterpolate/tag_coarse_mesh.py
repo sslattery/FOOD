@@ -9,14 +9,16 @@ mesh.load("coarse_tet_part.vtk")
 
 fine_tag = mesh.createTag("range", 1, float)
 
+num_vert = mesh.getNumOfType( iBase.Type.vertex )
 vertices = mesh.getEntities( iBase.Type.vertex )
 coords = mesh.getVtxCoords(vertices)
 
 tag_data = []
 
-for i in xrange len(coords):
-    
+for i in xrange(num_vert):
     tag_data += [ 0.0 ]
 
 
 fine_tag[vertices] = tag_data
+
+mesh.save("tagged_coarse_tet_part.vtk")

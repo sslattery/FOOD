@@ -4,5 +4,5 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   TetPartInterpolateExample
   SOURCES cxx_main.cpp
   COMM serial
-  DEPLIBS teuchos food
+  DEPLIBS teuchos intrepid food iMesh
   )

@@ -58,7 +58,7 @@ void Rendezvous<Scalar>::createSecondaryDecompositions()
     // 1) Compute a global axis aligned bounding box that bounds the
     // intersection of the domain and range mesh sets. 
     Teuchos::Tuple<double,6> intersection_box 
-	= computeIntersectionBoundingBox();
+    	= computeIntersectionBoundingBox();
 
     // 2) Create a rendezvous decomposition by performing RCB on the
     // intersecting domain and range elements.
