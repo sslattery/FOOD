@@ -24,9 +24,9 @@ namespace FOOD
 /*!
  * \brief Constructor.
  */
-template<class ScalarType>
-Rendezvous<ScalarType>::Rendezvous(RCP_TensorField domain, 
-				   RCP_TensorField range )
+template<class Scalar>
+Rendezvous<Scalar>::Rendezvous(RCP_TensorField domain, 
+			       RCP_TensorField range )
     : d_domain_primary(domain)
     , d_range_primary(range)
     , d_domain_secondary(0)
@@ -43,15 +43,15 @@ Rendezvous<ScalarType>::Rendezvous(RCP_TensorField domain,
 /*!
  * \brief Destructor.
  */
-template<class ScalarType>
-Rendezvous<ScalarType>::~Rendezvous()
+template<class Scalar>
+Rendezvous<Scalar>::~Rendezvous()
 { /* ... */ }
 
 /*!
  * \brief Do parallel rendezvous to generate secondary decompositions.
  */
-template<class ScalarType>
-void Rendezvous<ScalarType>::createSecondaryDecompositions()
+template<class Scalar>
+void Rendezvous<Scalar>::createSecondaryDecompositions()
 {
     int error = 0;
 
@@ -71,16 +71,16 @@ void Rendezvous<ScalarType>::createSecondaryDecompositions()
 
 /*!
  * \brief Copy the domain degrees of freedom from the primary decomposition to
-    the secondary.
+ the secondary.
 */
-template<class ScalarType>
-void Rendezvous<ScalarType>::domainCopyPrimaryToSecondary()
+template<class Scalar>
+void Rendezvous<Scalar>::domainCopyPrimaryToSecondary()
 {
-    Tpetra::Vector<ScalarType> primary_vector( 
+    Tpetra::Vector<Scalar> primary_vector( 
 	d_domain_primary->getDFMap(),
 	d_domain_primary->getConstDFView() );
 
-    Tpetra::Vector<ScalarType> secondary_vector( 
+    Tpetra::Vector<Scalar> secondary_vector( 
 	d_domain_secondary->getDFMap() );
 
     secondary_vector.doExport( primary_vector, 
@@ -90,16 +90,16 @@ void Rendezvous<ScalarType>::domainCopyPrimaryToSecondary()
 
 /*!
  * \brief Copy the range degrees of freedom from the secondary decomposition
-    to the primary.
+ to the primary.
 */
-template<class ScalarType>
-void Rendezvous<ScalarType>::rangeCopySecondaryToPrimary()
+template<class Scalar>
+void Rendezvous<Scalar>::rangeCopySecondaryToPrimary()
 {
-    Tpetra::Vector<ScalarType> secondary_vector( 
+    Tpetra::Vector<Scalar> secondary_vector( 
 	d_range_secondary->getDFMap(),
 	d_range_secondary->getConstDFView() );
 
-    Tpetra::Vector<ScalarType> primary_vector( 
+    Tpetra::Vector<Scalar> primary_vector( 
 	d_range_primary->getDFMap() );
 
     primary_vector.doExport( secondary_vector, 
@@ -111,9 +111,9 @@ void Rendezvous<ScalarType>::rangeCopySecondaryToPrimary()
  * \brief Compute a global axis aligned bounding box that bounds the
  * intersection of the domain and range mesh sets. 
  */
-template<class ScalarType>
+template<class Scalar>
 Teuchos::Tuple<double,6> 
-Rendezvous<ScalarType>::computeIntersectionBoundingBox()
+Rendezvous<Scalar>::computeIntersectionBoundingBox()
 {
     int error = 0;
 
@@ -314,10 +314,10 @@ Rendezvous<ScalarType>::computeIntersectionBoundingBox()
  * \brief Intersection test for two axis aligned boxes. Return the resulting
  * intersecting axis aligned box. 
  */
-template<class ScalarType>
+template<class Scalar>
 Teuchos::Tuple<double,6> 
-Rendezvous<ScalarType>::boxIntersectionTest( Teuchos::Tuple<double,6> box_A,
-					     Teuchos::Tuple<double,6> box_B )
+Rendezvous<Scalar>::boxIntersectionTest( Teuchos::Tuple<double,6> box_A,
+					 Teuchos::Tuple<double,6> box_B )
 {
     Teuchos::Tuple<double,6> intersection_box;
     

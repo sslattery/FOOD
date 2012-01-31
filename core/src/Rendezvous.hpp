@@ -17,7 +17,7 @@
 namespace FOOD
 {
 
-template<class ScalarType_T>
+template<class Scalar>
 class Rendezvous
 {
     
@@ -25,9 +25,8 @@ class Rendezvous
 
     //@{
     //! Typedefs.
-    typedef ScalarType_T                                  ScalarType;
     typedef int                                           OrdinalType;
-    typedef TensorField<ScalarType>                       TensorField_t;
+    typedef TensorField<Scalar>                           TensorField_t;
     typedef Teuchos::RCP<TensorField_t>                   RCP_TensorField;
     typedef Tpetra::Export<OrdinalType>                   Export_t;
     typedef Teuchos::RCP<Export_t>                        RCP_Export;
