@@ -13,7 +13,7 @@
 #include <TensorTemplate.hpp>
 #include <DFuncKernel.hpp>
 #include <TensorField.hpp>
-#include <PointQuery.hpp>
+#include <Octree.hpp>
 
 #include <iBase.h>
 #include <iMesh.h>
@@ -147,20 +147,7 @@ int main(int argc, char* argv[])
     coarse_field.attachToTagData( coarse_tag, error );
     assert( iBase_SUCCESS == error );
 
-    // Generate the mapping for the interpolation.
-    iBase_EntityHandle *domain_elements = 0;
-    int domain_elements_allocated = 0;
-    int domain_elements_size = 0;
-    iMesh_getEntities( fine_domain->getMesh(),
-		       fine_domain->getMeshSet(),
-		       iBase_REGION,
-		       iMesh_TETRAHEDRON,
-		       &domain_elements,
-		       &domain_elements_allocated,
-		       &domain_elements_size,
-		       &error );
-    assert( iBase_SUCCESS == error );
-
+    // Get the range mesh vertices for interpolation.
     iBase_EntityHandle *range_vertices = 0;
     int range_vertices_allocated = 0;
     int range_vertices_size = 0;
@@ -187,32 +174,27 @@ int main(int argc, char* argv[])
 			   &error );
     assert( iBase_SUCCESS == error );
 
+    // Setup the octree to search the domain mesh with range vertices.
+    FOOD::Octree octree( fine_domain, iBase_REGION, iMesh_TETRAHEDRON );
+    octree.buildTree();
+    
+    // Generate a mapping for interpolation.
     std::map<iBase_EntityHandle,iBase_EntityHandle> range_to_domain;
-    bool point_mapped = false;
     MDArray local_coords(1,3);
-    int m = 0;
+    iBase_EntityHandle found_entity;
     for ( int n = 0; n < range_vertices_size; ++n )
     {
 	std::cout << "MAPPING " << n << std::endl;
-	point_mapped = false;
-	m = 0;
-	while ( m < domain_elements_size && !point_mapped )
-	{
-	    local_coords(0,0) = coord_array[3*n];
-	    local_coords(0,1) = coord_array[3*n+1];
-	    local_coords(0,2) = coord_array[3*n+2];
 
-	    if ( FOOD::PointQuery::point_in_ref_element( fine_domain->getMesh(),
-							 domain_elements[m],
-							 local_coords ) )
-	    {
-		range_to_domain.insert(
-		    std::pair<iBase_EntityHandle,iBase_EntityHandle>( 
-			range_vertices[n], domain_elements[m] ) );
-		point_mapped = true;
-		std::cout << "MAPPING HIT" << std::endl;
-	    }
-	    ++m;
+	local_coords(0,0) = coord_array[3*n];
+	local_coords(0,1) = coord_array[3*n+1];
+	local_coords(0,2) = coord_array[3*n+2];
+
+	if ( octree.findPoint( &found_entity, local_coords ) )
+	{
+	    range_to_domain.insert(
+		std::pair<iBase_EntityHandle,iBase_EntityHandle>( 
+		    range_vertices[n], found_entity ) );
 	}
     }
     
@@ -256,7 +238,6 @@ int main(int argc, char* argv[])
     assert( iBase_SUCCESS == error );
 
     // cleanup
-    free( domain_elements );
     free( range_vertices );
     free( coord_array );
 
