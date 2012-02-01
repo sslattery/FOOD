@@ -190,8 +190,9 @@ int main(int argc, char* argv[])
 	local_coords(0,1) = coord_array[3*n+1];
 	local_coords(0,2) = coord_array[3*n+2];
 
-	if ( octree.findPoint( &found_entity, local_coords ) )
+	if ( octree.findPoint( found_entity, local_coords ) )
 	{
+	    std::cout << "POINT HIT" << std::endl;
 	    range_to_domain.insert(
 		std::pair<iBase_EntityHandle,iBase_EntityHandle>( 
 		    range_vertices[n], found_entity ) );
