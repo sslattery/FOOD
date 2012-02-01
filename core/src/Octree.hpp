@@ -26,19 +26,12 @@ class OctreeNode
 {
   public:
     iBase_EntitySetHandle node_set;
-    Teuchos::RCP<OctreeNode> parent;
-    Teuchos::RCP<OctreeNode> child1;
-    Teuchos::RCP<OctreeNode> child2;
+    Teuchos::Tuple< Teuchos::RCP<OctreeNode>, 8 > children;
     Teuchos::Tuple<double,6> bounding_box;
-    int cutting_axis;
     bool is_leaf;
  
     OctreeNode()
        : node_set(0)
-       , parent(0)
-       , child1(0)
-       , child2(0)
-       , cutting_axis(0)
        , is_leaf(false)
     { /* ... */ }
 
@@ -60,15 +53,6 @@ class Octree
     //@}
 
   private:
-
-    // Cutting axis enum.
-    enum CuttingAxis {
-	CuttingAxis_MIN = 0,
-	X_Axis = CuttingAxis_MIN,
-	Y_Axis,
-	Z_Axis,
-	CuttingAxis_MAX = Z_Axis 
-    };
 
     // The domain this octree is generated for.
     RCP_Domain d_domain;
@@ -96,7 +80,7 @@ class Octree
     void buildTree();
 
     // Locate a point.
-    bool findPoint( iBase_EntityHandle *found_in_entity,
+    bool findPoint( iBase_EntityHandle found_in_entity,
 		    const MDArray &coords );
 
   private:
@@ -106,7 +90,7 @@ class Octree
 
     // Search a node for a point.
     bool findPointInNode( RCP_Node node,
-			  iBase_EntityHandle *found_in_entity,
+			  iBase_EntityHandle found_in_entity,
 			  const MDArray &coords );
 
     // Get the bounding box of a set of entities.
@@ -122,10 +106,7 @@ class Octree
 		     iBase_EntityHandle entity );
 
     // Slice a box along the specified axis and return the resulting boxes.
-    void sliceBox( const Box &parent_box,
-		   Box &child_box1,
-		   Box &child_box2,
-		   const int cutting_axis );
+    void sliceBox( RCP_Node node );
 };
 
 } // end namespace FOOD

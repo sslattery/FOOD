@@ -22,6 +22,8 @@
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_CommHelpers.hpp>
 
+#include <Intrepid_FieldContainer.hpp>
+
 //---------------------------------------------------------------------------//
 // HELPER FUNCTIONS
 //---------------------------------------------------------------------------//
@@ -141,6 +143,8 @@ void create_hex_mesh(iMesh_Instance &mesh)
 
 TEUCHOS_UNIT_TEST( Octree, tree_build_and_search_test )
 {
+    typedef Intrepid::FieldContainer<double> MDArray;
+
     int error;
     iMesh_Instance mesh;
     create_hex_mesh(mesh);
@@ -154,6 +158,22 @@ TEUCHOS_UNIT_TEST( Octree, tree_build_and_search_test )
 
     FOOD::Octree octree( domain, iBase_REGION, iMesh_HEXAHEDRON );
     octree.buildTree();
+
+    MDArray coords1(1,3);
+    coords1(0,0) = 1.5;
+    coords1(0,1) = 1.5;
+    coords1(0,2) = 1.5;
+
+    MDArray coords2(1,3);
+    coords1(0,0) = -1.4;
+    coords1(0,1) = 2.6;
+    coords1(0,2) = 7.34;
+
+    iBase_EntityHandle found_hex = 0;
+
+    TEST_ASSERT( octree.findPoint( found_hex, coords1 ) );
+
+    TEST_ASSERT( !octree.findPoint( found_hex, coords1 ) );
 }
 
 //---------------------------------------------------------------------------//

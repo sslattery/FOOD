@@ -24,7 +24,6 @@ Octree::Octree( RCP_Domain domain,
     , d_root_node( Teuchos::rcp(new OctreeNode) )
 {
     d_root_node->node_set = d_domain->getMeshSet();
-    d_root_node->cutting_axis = X_Axis;
     getEntSetBox( d_root_node->node_set, d_root_node->bounding_box );   
 }
 
@@ -45,7 +44,7 @@ void Octree::buildTree()
 /*!
  * \brief Locate a point. Return false if we didn't find it.
  */
-bool Octree::findPoint( iBase_EntityHandle *found_in_entity,
+bool Octree::findPoint( iBase_EntityHandle found_in_entity,
 			const MDArray &coords )
 {
     return findPointInNode( d_root_node, found_in_entity, coords );
@@ -58,101 +57,103 @@ void Octree::buildTreeNode( RCP_Node node )
 {
     int error = 0;
 
-    // See if we have more than 1 node. If not, we're at a leaf.
-    int num_node_elements = 0;
-    iMesh_getNumOfTopo( d_domain->getMesh(),
-			node->node_set,
-			d_entity_topology,
-			&num_node_elements,
-			&error );
+    // Create the children.
+    for ( int i = 0; i < 8; ++i )
+    {
+	node->children[i] = Teuchos::rcp( new OctreeNode );
+
+	iMesh_createEntSet( d_domain->getMesh(),
+			    1,
+			    &(node->children[i]->node_set),
+			    &error );
+	assert( iBase_SUCCESS == error );
+    }
+
+    // Create the new bounding boxes and assign them to the children.
+    sliceBox( node );
+
+    // Add the elements in the parent set to the child sets.
+    int node_elements_allocated = 0;
+    int node_elements_size = 0;
+    iBase_EntityHandle *node_elements;
+    iMesh_getEntities( d_domain->getMesh(),
+		       node->node_set,
+		       d_entity_type,
+		       d_entity_topology,
+		       &node_elements,
+		       &node_elements_allocated,
+		       &node_elements_size,
+		       &error );
     assert( iBase_SUCCESS == error );
 
-    if ( num_node_elements > 1 )
+    bool element_found = false;
+    for (int n = 0; n < node_elements_size; ++n )
     {
-	// Create the children.
-	RCP_Node child1 = Teuchos::rcp( new OctreeNode );
-	RCP_Node child2 = Teuchos::rcp( new OctreeNode );
+	element_found = false;
 
-	// Define the new cutting axis.
-	int cutting_axis = 0;
-	if ( node->cutting_axis == 0 )
+	for ( int m = 0; m < 8; ++m )
 	{
-	    cutting_axis = 1;
-	}
-	else if ( node->cutting_axis == 1 )
-	{
-	    cutting_axis = 2;
-	}
+	    if ( !element_found )
+	    {
+		if ( isEntInBox( node->children[m]->bounding_box, 
+				 node_elements[n] ) )
+		{
+		    iMesh_addEntToSet( d_domain->getMesh(),
+				       node_elements[n],
+				       node->children[m]->node_set,
+				       &error );
+		    assert( iBase_SUCCESS == error );
 
-	// Create the new bounding boxes and assign them to the children.
-	sliceBox( node->bounding_box,
-		  child1->bounding_box,
-		  child2->bounding_box,
-		  cutting_axis );
+		    element_found = true;
 
-	// Create the entity sets in the child nodes.
-	iMesh_createEntSet( d_domain->getMesh(),
-			    1,
-			    &(child1->node_set),
+		    if ( node != d_root_node )
+		    {
+			iMesh_rmvEntFromSet( d_domain->getMesh(),
+					     node_elements[n],
+					     node->node_set,
+					     &error );
+			assert( iBase_SUCCESS == error );
+		    }
+		}
+	    }
+	}
+    }
+
+    free( node_elements );
+
+    // See if we have any child entities.
+    Teuchos::Tuple<int,8> num_child_ents;
+    int total_child_ents = 0;
+    for (int i = 0; i < 8; ++i )
+    {
+	iMesh_getNumOfTopo( d_domain->getMesh(),
+			    node->children[i]->node_set,
+			    d_entity_topology,
+			    &num_child_ents[i],
 			    &error );
 	assert( iBase_SUCCESS == error );
 
-	iMesh_createEntSet( d_domain->getMesh(),
-			    1,
-			    &(child2->node_set),
-			    &error );
-	assert( iBase_SUCCESS == error );
-
-	// Add the elements in the parent set to the child sets.
-	int node_elements_allocated = 0;
-	int node_elements_size = 0;
-	iBase_EntityHandle *node_elements;
-	iMesh_getEntities( d_domain->getMesh(),
-			   node->node_set,
-			   d_entity_type,
-			   d_entity_topology,
-			   &node_elements,
-			   &node_elements_allocated,
-			   &node_elements_size,
-			   &error );
-	assert( iBase_SUCCESS == error );
-
-	for (int n = 0; n < node_elements_size; ++n )
-	{
-	    if ( isEntInBox( child1->bounding_box, node_elements[n] ) )
-	    {
-		iMesh_addEntToSet( d_domain->getMesh(),
-				   node_elements[n],
-				   child1->node_set,
-				   &error );
-		assert( iBase_SUCCESS == error );
-	    }
-	    else if ( isEntInBox( child2->bounding_box, node_elements[n] ) )
-	    {
-		iMesh_addEntToSet( d_domain->getMesh(),
-				   node_elements[n],
-				   child2->node_set,
-				   &error );
-		assert( iBase_SUCCESS == error );
-	    }
-	}
-
-	free( node_elements );
-
-	// Set relationships.
-	node->child1 = child1;
-	node->child2 = child2;
-	child1->parent = node;
-	child2->parent = node;
-
-	// Recurse.
-	buildTreeNode( node->child1 );
-	buildTreeNode( node->child2 );
+	total_child_ents += num_child_ents[i];
+    }
+    
+    // Recurse.
+    if ( total_child_ents == 0 )
+    {
+	node->is_leaf = true;
     }
     else
     {
-	std::cout << "FOUND A LEAF " << std::endl;
-	node->is_leaf = true;
+	for (int i = 0; i < 8; ++i)
+	{
+	    if ( num_child_ents[i] == 0 )
+	    {
+		node->children[i]->is_leaf = true;
+	    }
+	    else 
+	    {
+		buildTreeNode( node->children[i] );
+	    }
+	}
     }
 }
 
@@ -161,51 +162,58 @@ void Octree::buildTreeNode( RCP_Node node )
  * found it in.
  */
 bool Octree::findPointInNode( RCP_Node node,
-			      iBase_EntityHandle *found_in_entity,
+			      iBase_EntityHandle found_in_entity,
 			      const MDArray &coords )
 {
     int error = 0;
     bool return_val = false;
 
-    if ( !node->is_leaf )
-    {
-	// See which child the point is in.
-	if ( isPointInBox( node->child1->bounding_box, coords ) )
-	{
-	    return_val = findPointInNode( node->child1,
-					  found_in_entity,
-					  coords );
-	}
-	else if ( isPointInBox( node->child2->bounding_box, coords ) )
-	{
-	    return_val = findPointInNode( node->child2,
-					  found_in_entity,
-					  coords );
-	}
-    }
+    // First check at the node level. 
+    iBase_EntityHandle *node_elements = 0;
+    int node_elements_allocated = 0; 
+    int node_elements_size = 0; 
+    iMesh_getEntities( d_domain->getMesh(),
+		       node->node_set,
+		       d_entity_type,
+		       d_entity_topology,
+		       &node_elements,
+		       &node_elements_allocated,
+		       &node_elements_size,
+		       &error );
+    assert( iBase_SUCCESS == error );
 
-    else
+    int i = 0;
+    if ( node_elements_size > 0 )
     {
-	int node_elements_allocated = 0; 
-	int node_elements_size = 0; 
-	iMesh_getEntities( d_domain->getMesh(),
-			   node->node_set,
-			   d_entity_type,
-			   d_entity_topology,
-			   &found_in_entity,
-			   &node_elements_allocated,
-			   &node_elements_size,
-			   &error );
-	assert( iBase_SUCCESS == error );
-
-	if ( node_elements_size > 0 )
+	while ( i < node_elements_size && !return_val )
 	{
 	    if ( PointQuery::point_in_ref_element( d_domain->getMesh(),
-						   found_in_entity[0],
+						   node_elements[i],
 						   coords ) )
 	    {
 		return_val = true;
+		found_in_entity = node_elements[i];
 	    }
+	    ++i;
+	}
+    }
+
+    free( node_elements );
+
+    // If we found the element or we're at a leaf then we're done. Otherwise,
+    // recurse through the children if this point is in their bounding box.
+    if ( !return_val && !node->is_leaf )
+    {
+	int j = 0;
+	while ( j < 8 && !return_val )
+	{
+	    if ( isPointInBox( node->children[j]->bounding_box, coords ) )
+	    {
+		return_val = findPointInNode( node->children[j],
+					      found_in_entity,
+					      coords );
+	    }
+	    ++j;
 	}
     }
 
@@ -340,7 +348,7 @@ bool Octree::isEntInBox( const Box &box,
     assert( iBase_SUCCESS == error );
     
     int n = 0;
-    while ( n < element_nodes_size && !return_val )
+    while ( n < element_nodes_size && return_val )
     {
 	if ( !( coord_array[3*n]   >= box[0] &&
 		coord_array[3*n]   <= box[1] &&
@@ -363,59 +371,71 @@ bool Octree::isEntInBox( const Box &box,
 /*!
  * \brief Slice a box along the specified axis and return the resulting boxes.
  */
-void Octree::sliceBox( const Box &parent_box,
-		       Box &child_box1,
-		       Box &child_box2,
-		       const int cutting_axis )
+void Octree::sliceBox( RCP_Node node )
 {
-    if ( cutting_axis == X_Axis )
-    {
-	child_box1[0] = parent_box[0];
-	child_box1[1] = (parent_box[1] - parent_box[0]) / 2 + parent_box[0];
-	child_box1[2] = parent_box[2];
-	child_box1[3] = parent_box[3];
-	child_box1[4] = parent_box[4];
-	child_box1[5] = parent_box[5];
+    // child 0
+    node->children[0]->bounding_box[0] = node->bounding_box[0];
+    node->children[0]->bounding_box[1] = (node->bounding_box[1] - node->bounding_box[0]) / 2 + node->bounding_box[0];
+    node->children[0]->bounding_box[2] = node->bounding_box[2];
+    node->children[0]->bounding_box[3] = (node->bounding_box[3] - node->bounding_box[2]) / 2 + node->bounding_box[2];
+    node->children[0]->bounding_box[4] = node->bounding_box[4];
+    node->children[0]->bounding_box[5] = (node->bounding_box[5] - node->bounding_box[4]) / 2 + node->bounding_box[4];
 
-	child_box2[0] = (parent_box[1] - parent_box[0]) / 2 + parent_box[0];
-	child_box2[1] = parent_box[1];
-	child_box2[2] = parent_box[2];
-	child_box2[3] = parent_box[3];
-	child_box2[4] = parent_box[4];
-	child_box2[5] = parent_box[5];
-    }
-    else if ( cutting_axis == Y_Axis )
-    {
-	child_box1[0] = parent_box[0];
-	child_box1[1] = parent_box[1];
-	child_box1[2] = parent_box[2];
-	child_box1[3] = (parent_box[3] - parent_box[2]) / 2 + parent_box[2];
-	child_box1[4] = parent_box[4];
-	child_box1[5] = parent_box[5];
+    // child 1
+    node->children[1]->bounding_box[0] = (node->bounding_box[1] - node->bounding_box[0]) / 2 + node->bounding_box[0];
+    node->children[1]->bounding_box[1] = node->bounding_box[1];
+    node->children[1]->bounding_box[2] = node->bounding_box[2];
+    node->children[1]->bounding_box[3] = (node->bounding_box[3] - node->bounding_box[2]) / 2 + node->bounding_box[2];
+    node->children[1]->bounding_box[4] = node->bounding_box[4];
+    node->children[1]->bounding_box[5] = (node->bounding_box[5] - node->bounding_box[4]) / 2 + node->bounding_box[4];
 
-	child_box2[0] = parent_box[0];
-	child_box2[1] = parent_box[1];
-	child_box2[2] = (parent_box[3] - parent_box[2]) / 2 + parent_box[2];
-	child_box2[3] = parent_box[3];
-	child_box2[4] = parent_box[4];
-	child_box2[5] = parent_box[5];
-    }
-    else
-    {
-	child_box1[0] = parent_box[0];
-	child_box1[1] = parent_box[1];
-	child_box1[2] = parent_box[2];
-	child_box1[3] = parent_box[3];
-	child_box1[4] = parent_box[4];
-	child_box1[5] = (parent_box[5] - parent_box[4]) / 2 + parent_box[4];
+    // child 2
+    node->children[2]->bounding_box[0] = (node->bounding_box[1] - node->bounding_box[0]) / 2 + node->bounding_box[0];
+    node->children[2]->bounding_box[1] = node->bounding_box[1];
+    node->children[2]->bounding_box[2] = (node->bounding_box[3] - node->bounding_box[2]) / 2 + node->bounding_box[2];
+    node->children[2]->bounding_box[3] = node->bounding_box[3];
+    node->children[2]->bounding_box[4] = node->bounding_box[4];
+    node->children[2]->bounding_box[5] = (node->bounding_box[5] - node->bounding_box[4]) / 2 + node->bounding_box[4];
 
-	child_box2[0] = parent_box[0];
-	child_box2[1] = parent_box[1];
-	child_box2[2] = parent_box[2];
-	child_box2[3] = parent_box[3];
-	child_box2[4] = (parent_box[5] - parent_box[4]) / 2 + parent_box[4];
-	child_box2[5] = parent_box[5];
-    }
+    // child 3
+    node->children[3]->bounding_box[0] = node->bounding_box[0];
+    node->children[3]->bounding_box[1] = (node->bounding_box[1] - node->bounding_box[0]) / 2 + node->bounding_box[0];
+    node->children[3]->bounding_box[2] = (node->bounding_box[3] - node->bounding_box[2]) / 2 + node->bounding_box[2];
+    node->children[3]->bounding_box[3] = node->bounding_box[3];
+    node->children[3]->bounding_box[4] = node->bounding_box[4];
+    node->children[3]->bounding_box[5] = (node->bounding_box[5] - node->bounding_box[4]) / 2 + node->bounding_box[4];
+
+    // child 4
+    node->children[4]->bounding_box[0] = node->bounding_box[0];
+    node->children[4]->bounding_box[1] = (node->bounding_box[1] - node->bounding_box[0]) / 2 + node->bounding_box[0];
+    node->children[4]->bounding_box[2] = node->bounding_box[2];
+    node->children[4]->bounding_box[3] = (node->bounding_box[3] - node->bounding_box[2]) / 2 + node->bounding_box[2];
+    node->children[4]->bounding_box[4] = (node->bounding_box[5] - node->bounding_box[4]) / 2 + node->bounding_box[4];
+    node->children[4]->bounding_box[5] = node->bounding_box[5];
+
+    // child 5
+    node->children[5]->bounding_box[0] = (node->bounding_box[1] - node->bounding_box[0]) / 2 + node->bounding_box[0];
+    node->children[5]->bounding_box[1] = node->bounding_box[1];
+    node->children[5]->bounding_box[2] = node->bounding_box[2];
+    node->children[5]->bounding_box[3] = (node->bounding_box[3] - node->bounding_box[2]) / 2 + node->bounding_box[2];
+    node->children[5]->bounding_box[4] = (node->bounding_box[5] - node->bounding_box[4]) / 2 + node->bounding_box[4];
+    node->children[5]->bounding_box[5] = node->bounding_box[5];
+
+    // child 6
+    node->children[6]->bounding_box[0] = (node->bounding_box[1] - node->bounding_box[0]) / 2 + node->bounding_box[0];
+    node->children[6]->bounding_box[1] = node->bounding_box[1];
+    node->children[6]->bounding_box[2] = (node->bounding_box[3] - node->bounding_box[2]) / 2 + node->bounding_box[2];
+    node->children[6]->bounding_box[3] = node->bounding_box[3];
+    node->children[6]->bounding_box[4] = (node->bounding_box[5] - node->bounding_box[4]) / 2 + node->bounding_box[4];
+    node->children[6]->bounding_box[5] = node->bounding_box[5];
+
+    // child 7
+    node->children[7]->bounding_box[0] = node->bounding_box[0];
+    node->children[7]->bounding_box[1] = (node->bounding_box[1] - node->bounding_box[0]) / 2 + node->bounding_box[0];
+    node->children[7]->bounding_box[2] = (node->bounding_box[3] - node->bounding_box[2]) / 2 + node->bounding_box[2];
+    node->children[7]->bounding_box[3] = node->bounding_box[3];
+    node->children[7]->bounding_box[4] = (node->bounding_box[5] - node->bounding_box[4]) / 2 + node->bounding_box[4];
+    node->children[7]->bounding_box[5] = node->bounding_box[5];
 }
 
 
