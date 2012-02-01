@@ -46,9 +46,9 @@ void create_hex_mesh(iMesh_Instance &mesh)
     assert( iBase_SUCCESS == error );
 
     // Generate vertices.
-    int num_i = 4;
-    int num_j = 4;
-    int num_k = 4;
+    int num_i = 20;
+    int num_j = 20;
+    int num_k = 20;
     int dx = 1.0;
     int dy = 1.0;
     int dz = 1.0;
@@ -165,15 +165,15 @@ TEUCHOS_UNIT_TEST( Octree, tree_build_and_search_test )
     coords1(0,2) = 1.5;
 
     MDArray coords2(1,3);
-    coords1(0,0) = -1.4;
-    coords1(0,1) = 2.6;
-    coords1(0,2) = 7.34;
+    coords2(0,0) = -1.4;
+    coords2(0,1) = 2.6;
+    coords2(0,2) = 7.34;
 
     iBase_EntityHandle found_hex = 0;
 
     TEST_ASSERT( octree.findPoint( found_hex, coords1 ) );
 
-    TEST_ASSERT( !octree.findPoint( found_hex, coords1 ) );
+    TEST_ASSERT( !octree.findPoint( found_hex, coords2 ) );
 }
 
 //---------------------------------------------------------------------------//

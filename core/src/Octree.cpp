@@ -168,37 +168,40 @@ bool Octree::findPointInNode( RCP_Node node,
     int error = 0;
     bool return_val = false;
 
-    // First check at the node level. 
-    iBase_EntityHandle *node_elements = 0;
-    int node_elements_allocated = 0; 
-    int node_elements_size = 0; 
-    iMesh_getEntities( d_domain->getMesh(),
-		       node->node_set,
-		       d_entity_type,
-		       d_entity_topology,
-		       &node_elements,
-		       &node_elements_allocated,
-		       &node_elements_size,
-		       &error );
-    assert( iBase_SUCCESS == error );
-
-    int i = 0;
-    if ( node_elements_size > 0 )
+    // First check at the node level.
+    if ( node != d_root_node || node->is_leaf )
     {
-	while ( i < node_elements_size && !return_val )
-	{
-	    if ( PointQuery::point_in_ref_element( d_domain->getMesh(),
-						   node_elements[i],
-						   coords ) )
-	    {
-		return_val = true;
-		found_in_entity = node_elements[i];
-	    }
-	    ++i;
-	}
-    }
+	iBase_EntityHandle *node_elements = 0;
+	int node_elements_allocated = 0; 
+	int node_elements_size = 0; 
+	iMesh_getEntities( d_domain->getMesh(),
+			   node->node_set,
+			   d_entity_type,
+			   d_entity_topology,
+			   &node_elements,
+			   &node_elements_allocated,
+			   &node_elements_size,
+			   &error );
+	assert( iBase_SUCCESS == error );
 
-    free( node_elements );
+	int i = 0;
+	if ( node_elements_size > 0 )
+	{
+	    while ( i < node_elements_size && !return_val )
+	    {
+		if ( PointQuery::point_in_ref_element( d_domain->getMesh(),
+						       node_elements[i],
+						       coords ) )
+		{
+		    return_val = true;
+		    found_in_entity = node_elements[i];
+		}
+		++i;
+	    }
+	}
+
+	free( node_elements );
+    }
 
     // If we found the element or we're at a leaf then we're done. Otherwise,
     // recurse through the children if this point is in their bounding box.
