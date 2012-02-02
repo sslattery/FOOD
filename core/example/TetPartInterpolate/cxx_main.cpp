@@ -181,10 +181,11 @@ int main(int argc, char* argv[])
     // Generate a mapping for interpolation.
     std::map<iBase_EntityHandle,iBase_EntityHandle> range_to_domain;
     MDArray local_coords(1,3);
-    iBase_EntityHandle found_entity;
+    iBase_EntityHandle found_entity = 0;
+    int num_found = 0;
     for ( int n = 0; n < range_vertices_size; ++n )
     {
-	std::cout << "MAPPING " << n << std::endl;
+	found_entity = 0;
 
 	local_coords(0,0) = coord_array[3*n];
 	local_coords(0,1) = coord_array[3*n+1];
@@ -192,19 +193,19 @@ int main(int argc, char* argv[])
 
 	if ( octree.findPoint( found_entity, local_coords ) )
 	{
-	    std::cout << "POINT HIT" << std::endl;
 	    range_to_domain.insert(
 		std::pair<iBase_EntityHandle,iBase_EntityHandle>( 
 		    range_vertices[n], found_entity ) );
+	    ++num_found;
 	}
     }
     
     // perform the interpolation
     Teuchos::ArrayRCP<double> interpolated_vals(range_vertices_size);
     MDArray local_vals(1,1);
+    int num_interp = 0;
     for ( int p = 0; p < range_vertices_size; ++p )
     {
-	std::cout << "INTERPOLATING " << p << std::endl;
 	local_coords(0,0) = coord_array[3*p];
 	local_coords(0,1) = coord_array[3*p+1];
 	local_coords(0,2) = coord_array[3*p+2];
@@ -216,6 +217,7 @@ int main(int argc, char* argv[])
 				   false,
 				   local_vals );
 	    interpolated_vals[p] = local_vals(0,0);
+	    ++num_interp;
 	}
 	else
 	{
@@ -227,6 +229,13 @@ int main(int argc, char* argv[])
 				    iBase_INTERLEAVED,
 				    error );
     assert( iBase_SUCCESS == error );
+
+    std::cout << "PERCENT FOUND " 
+	      << (double) num_found / (double) range_vertices_size 
+	      << std::endl;
+    std::cout << "PERCENT INTERPOLATED " 
+	      << (double) num_interp / (double) range_vertices_size 
+	      << std::endl;
 
     std::string interp_file = "interpolated_coarse_part.vtk";
     iMesh_save( coarse_domain->getMesh(),

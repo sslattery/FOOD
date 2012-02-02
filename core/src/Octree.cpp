@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <algorithm>
+#include <vector>
 
 #include "Octree.hpp"
 
@@ -22,10 +23,7 @@ Octree::Octree( RCP_Domain domain,
     , d_entity_type(entity_type)
     , d_entity_topology(entity_topology)
     , d_root_node( Teuchos::rcp(new OctreeNode) )
-{
-    d_root_node->node_set = d_domain->getMeshSet();
-    getEntSetBox( d_root_node->node_set, d_root_node->bounding_box );   
-}
+{ /* ... */ }
 
 /*!
  * \brief Destructor.
@@ -38,13 +36,16 @@ Octree::~Octree()
  */
 void Octree::buildTree()
 {
+    d_root_node->node_set = d_domain->getMeshSet();
+    getEntSetBox( d_root_node->node_set, d_root_node->bounding_box );
+
     buildTreeNode( d_root_node );
 }
 
 /*!
  * \brief Locate a point. Return false if we didn't find it.
  */
-bool Octree::findPoint( iBase_EntityHandle found_in_entity,
+bool Octree::findPoint( iBase_EntityHandle &found_in_entity,
 			const MDArray &coords )
 {
     return findPointInNode( d_root_node, found_in_entity, coords );
@@ -73,6 +74,7 @@ void Octree::buildTreeNode( RCP_Node node )
     sliceBox( node );
 
     // Add the elements in the parent set to the child sets.
+    std::vector<iBase_EntityHandle> root_list;
     int node_elements_allocated = 0;
     int node_elements_size = 0;
     iBase_EntityHandle *node_elements;
@@ -104,8 +106,6 @@ void Octree::buildTreeNode( RCP_Node node )
 				       &error );
 		    assert( iBase_SUCCESS == error );
 
-		    element_found = true;
-
 		    if ( node != d_root_node )
 		    {
 			iMesh_rmvEntFromSet( d_domain->getMesh(),
@@ -114,12 +114,40 @@ void Octree::buildTreeNode( RCP_Node node )
 					     &error );
 			assert( iBase_SUCCESS == error );
 		    }
+
+		    element_found = true;
 		}
 	    }
+
+	}
+
+	if ( !element_found )
+	{
+	    root_list.push_back( node_elements[n] );
 	}
     }
 
     free( node_elements );
+
+    // Special case for the root node.
+    if ( node == d_root_node )
+    {
+	iBase_EntitySetHandle new_root_set;
+	iMesh_createEntSet( d_domain->getMesh(),
+			    1,
+			    &new_root_set,
+			    &error );
+	assert( iBase_SUCCESS == error );
+
+	iMesh_addEntArrToSet( d_domain->getMesh(),
+			      &root_list[0],
+			      (int) root_list.size(),
+			      new_root_set,
+			      &error );
+	assert( iBase_SUCCESS == error );
+
+	node->node_set = new_root_set;
+    }
 
     // See if we have any child entities.
     Teuchos::Tuple<int,8> num_child_ents;
@@ -162,46 +190,43 @@ void Octree::buildTreeNode( RCP_Node node )
  * found it in.
  */
 bool Octree::findPointInNode( RCP_Node node,
-			      iBase_EntityHandle found_in_entity,
+			      iBase_EntityHandle &found_in_entity,
 			      const MDArray &coords )
 {
     int error = 0;
     bool return_val = false;
 
     // First check at the node level.
-    if ( node != d_root_node || node->is_leaf )
+    iBase_EntityHandle *node_elements = 0;
+    int node_elements_allocated = 0; 
+    int node_elements_size = 0; 
+    iMesh_getEntities( d_domain->getMesh(),
+		       node->node_set,
+		       d_entity_type,
+		       d_entity_topology,
+		       &node_elements,
+		       &node_elements_allocated,
+		       &node_elements_size,
+		       &error );
+    assert( iBase_SUCCESS == error );
+
+    int i = 0;
+    if ( node_elements_size > 0 )
     {
-	iBase_EntityHandle *node_elements = 0;
-	int node_elements_allocated = 0; 
-	int node_elements_size = 0; 
-	iMesh_getEntities( d_domain->getMesh(),
-			   node->node_set,
-			   d_entity_type,
-			   d_entity_topology,
-			   &node_elements,
-			   &node_elements_allocated,
-			   &node_elements_size,
-			   &error );
-	assert( iBase_SUCCESS == error );
-
-	int i = 0;
-	if ( node_elements_size > 0 )
+	while ( i < node_elements_size && !return_val )
 	{
-	    while ( i < node_elements_size && !return_val )
+	    if ( PointQuery::point_in_ref_element( d_domain->getMesh(),
+						   node_elements[i],
+						   coords ) )
 	    {
-		if ( PointQuery::point_in_ref_element( d_domain->getMesh(),
-						       node_elements[i],
-						       coords ) )
-		{
-		    return_val = true;
-		    found_in_entity = node_elements[i];
-		}
-		++i;
+		return_val = true;
+		found_in_entity = node_elements[i];
 	    }
+	    ++i;
 	}
-
-	free( node_elements );
     }
+
+    free( node_elements );
 
     // If we found the element or we're at a leaf then we're done. Otherwise,
     // recurse through the children if this point is in their bounding box.
