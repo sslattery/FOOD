@@ -46,9 +46,9 @@ void create_hex_mesh(iMesh_Instance &mesh)
     assert( iBase_SUCCESS == error );
 
     // Generate vertices.
-    int num_i = 20;
-    int num_j = 20;
-    int num_k = 20;
+    int num_i = 4;
+    int num_j = 4;
+    int num_k = 4;
     int dx = 1.0;
     int dy = 1.0;
     int dz = 1.0;

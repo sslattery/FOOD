@@ -267,8 +267,7 @@ void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
     MDArray transformed_eval( 1, 
 			      d_dfunckernel->getBasisCardinality(),
 			      coords.dimension(0) );
-    Intrepid::FunctionSpaceTools::HGRADtransformVALUE<Scalar,MDArray,MDArray>( 
-	transformed_eval, basis_eval );
+    d_dfunckernel->transformValue( transformed_eval, basis_eval );
 
     // 5) Evaluate the field using tensor components (the DOF for this
     // entity).
@@ -363,8 +362,7 @@ void TensorField<Scalar>::evaluateGradDF( const iBase_EntityHandle entity,
     MDArray transformed_eval( 1, 
 			      d_dfunckernel->getBasisCardinality(),
 			      coords.dimension(0) );
-    Intrepid::FunctionSpaceTools::HGRADtransformVALUE<Scalar,MDArray,MDArray>( 
-	transformed_eval, basis_eval );
+    d_dfunckernel->transformOperator( transformed_eval, basis_eval );
 
     // 5) Evaluate the field using tensor components (the DOF for this
     // entity).

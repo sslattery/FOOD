@@ -93,6 +93,14 @@ class DFuncKernel
     // location. 
     void evaluateCurlBasis( MDArray &dfunc_grad_values, const MDArray &coords );
 
+    // Transform evaluated basis values to physical frame.
+    void transformValue( MDArray &transformed_eval,
+			 const MDArray &basis_eval );
+
+    // Transform evaluated basis operator values to physical frame.
+    void transformOperator( MDArray &transformed_eval,
+			    const MDArray &basis_eval );
+
     //! Get the topology of the cell for which this kernel is defined.
     int getEvalTopology() const
     { return d_eval_topology; }

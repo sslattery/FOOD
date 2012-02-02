@@ -100,7 +100,7 @@ void DFuncKernel<Scalar>::evaluateGradBasis( MDArray &values_at_coords,
  */
 template<class Scalar>
 void DFuncKernel<Scalar>::evaluateDivBasis( MDArray &values_at_coords, 
-					     const MDArray &coords )
+					    const MDArray &coords )
 {
     assert( FOOD_HDIV == d_basis_function_space );
     d_basis->getValues( values_at_coords, 
@@ -125,6 +125,54 @@ void DFuncKernel<Scalar>::evaluateCurlBasis( MDArray &values_at_coords,
     d_basis->getValues( values_at_coords, 
 			coords, 
 			Intrepid::OPERATOR_CURL );
+}
+
+/*!
+ * \brief Transform evaluated basis values to physical frame.
+ */
+template<class Scalar>
+void DFuncKernel<Scalar>::transformValue( MDArray &transformed_eval,
+					  const MDArray &basis_eval )
+{
+    if ( d_basis_function_space == FOOD_HGRAD )
+    {
+	Intrepid::FunctionSpaceTools::HGRADtransformVALUE<Scalar,MDArray,MDArray>( 
+	    transformed_eval, basis_eval );
+    }
+    else if ( d_basis_function_space == FOOD_HDIV )
+    {
+	// Intrepid::FunctionSpaceTools::HDIVtransformVALUE<Scalar,MDArray,MDArray>( 
+	//     transformed_eval, basis_eval );
+    }
+    else if ( d_basis_function_space == FOOD_HCURL )
+    {
+	// Intrepid::FunctionSpaceTools::HCURLtransformVALUE<Scalar,MDArray,MDArray>( 
+	// transformed_eval, basis_eval );
+    }
+}
+
+/*!
+ * \brief Transform evaluated basis operator values to physical frame.
+ */
+template<class Scalar>
+void DFuncKernel<Scalar>::transformOperator( MDArray &transformed_eval,
+					     const MDArray &basis_eval )
+{
+    // if ( d_basis_function_space == FOOD_HGRAD )
+    // {
+    // 	Intrepid::FunctionSpaceTools::HGRADtransformGRAD<Scalar,MDArray,MDArray>( 
+    // 	    transformed_eval, basis_eval );
+    // }
+    // else if ( d_basis_function_space == FOOD_HDIV )
+    // {
+    // 	Intrepid::FunctionSpaceTools::HDIVtransformDIV<Scalar,MDArray,MDArray>( 
+    // 	    transformed_eval, basis_eval );
+    // }
+    // else if ( d_basis_function_space == FOOD_HCURL )
+    // {
+    // 	Intrepid::FunctionSpaceTools::HCURLtransformCURL<Scalar,MDArray,MDArray>( 
+    // 	    transformed_eval, basis_eval );
+    // }
 }
 
 } // end namespace FOOD
