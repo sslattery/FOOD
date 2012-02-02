@@ -28,6 +28,7 @@ APPEND_SET(HEADERS
   Domain.hpp
   FEMInterpolate.hpp
   FEMInterpolate_Def.hpp
+  KDTree.hpp
   KernelTraits.hpp
   Octree.hpp
   PointQuery.hpp
@@ -47,6 +48,7 @@ APPEND_SET(HEADERS
 APPEND_SET(SOURCES
   CellTopologyFactory.cpp
   Domain.cpp
+  KDTree.cpp
   KernelTraits.cpp
   Octree.cpp
   PointQuery.cpp

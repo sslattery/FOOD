@@ -1,11 +1,11 @@
 //---------------------------------------------------------------------------//
-// \file Octree.hpp
+// \file KDTree.hpp
 // \author Stuart Slattery
-// \breif Octree definition.
+// \breif KDTree definition.
 //---------------------------------------------------------------------------//
 
-#ifndef FOOD_OCTREE_HPP
-#define FOOD_OCTREE_HPP
+#ifndef FOOD_KDTREE_HPP
+#define FOOD_KDTREE_HPP
 
 #include "PointQuery.hpp"
 #include "Domain.hpp"
@@ -22,35 +22,27 @@
 namespace FOOD
 {
 
-class OctreeNode
+class KDTreeNode
 {
-  public:
     iBase_EntitySetHandle node_set;
-    Teuchos::Tuple< Teuchos::RCP<OctreeNode>, 8 > children;
+    Teuchos::RCP<KDTreeNode> child1;
+    Teuchos::RCP<KDTreeNode> child2;
     Teuchos::Tuple<double,6> bounding_box;
     bool is_leaf;
  
-    OctreeNode()
+    KDTreeNode()
        : node_set(0)
+       , child1(0)
+       , child2(0)
        , is_leaf(false)
     { /* ... */ }
 
-    ~OctreeNode()
+    ~KDTreeNode()
     { /* ... */ }
 };
 
-class Octree
+class KDTree
 {
-
-  public:
-
-    //@{
-    //! Typedefs.
-    typedef Teuchos::RCP<Domain>                      RCP_Domain;
-    typedef Teuchos::RCP<OctreeNode>                  RCP_Node;
-    typedef Intrepid::FieldContainer<double>          MDArray;
-    typedef Teuchos::Tuple<double,6>                  Box;
-    //@}
 
   private:
 
@@ -69,12 +61,12 @@ class Octree
   public:
 
     // Constructor.
-    Octree( RCP_Domain domain, 
+    KDTree( RCP_Domain domain, 
 	    const int entity_type,
 	    const int entity_topology );
 
     // Destructor.
-    ~Octree();
+    ~KDTree();
 
     // Build the tree.
     void buildTree();
@@ -102,14 +94,14 @@ class Octree
     // Determine if an entity is inside a bounding box.
     bool isEntInBox( const Box &box, iBase_EntityHandle entity );
 
-    // Slice a node box into 8 children boxes.
-    void sliceBox( RCP_Node node );
+    // Slice a box along the specified axis and return the resulting boxes.
+    void sliceBox( RCP_Node node, const int axis, const double axis_coord );
 };
 
 } // end namespace FOOD
 
-#endif // end FOOD_OCTREE_HPP
+#endif // end FOOD_KDTREE_HPP
 
 //---------------------------------------------------------------------------//
-// end Octree.hpp
+// end KDTree.hpp
 //---------------------------------------------------------------------------//
