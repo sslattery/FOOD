@@ -299,6 +299,102 @@ void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
     free( coord_array );
 }
 
+/*!
+ * \brief Evaluate the gradient of the degrees of freedom of this field at a
+ * set of coordinates in a particular entity. MDArray(C,P,component).
+ */
+template<class Scalar>
+void TensorField<Scalar>::evaluateGradDF( const iBase_EntityHandle entity,
+					  const MDArray &coords,
+					  const int is_param,
+					  MDArray &dfunc_values )
+{
+    ErrorCode error = 0;
+
+    // 1) Get the entity nodes and their coordinates.
+    iBase_EntityHandle *element_nodes = 0;
+    int element_nodes_allocated = 0;
+    int element_nodes_size = 0;
+    iMesh_getEntAdj( d_domain->getMesh(),
+		     entity,
+		     iBase_VERTEX,
+		     &element_nodes,
+		     &element_nodes_allocated,
+		     &element_nodes_size,
+		     &error );
+    assert( iBase_SUCCESS == error );
+
+    int coords_allocated = element_nodes_size*3;
+    int coords_size = 0;
+    double *coord_array = 0;
+    iMesh_getVtxArrCoords( d_domain->getMesh(),
+			   element_nodes,
+			   element_nodes_size,
+			   iBase_INTERLEAVED,
+			   &coord_array,
+			   &coords_allocated,
+			   &coords_size,
+			   &error );
+    assert( iBase_SUCCESS == error );
+
+    Teuchos::Tuple<int,3> cell_node_dimensions;
+    cell_node_dimensions[0] = 1;
+    cell_node_dimensions[1] = element_nodes_size;
+    cell_node_dimensions[2] = coords.dimension(1);
+    MDArray cell_nodes( Teuchos::Array<int>(cell_node_dimensions), 
+			coord_array );
+
+    // 2) Obtain pre-images of the set of evaluation points in the reference
+    // frame. 
+    MDArray reference_points( coords.dimension(0), coords.dimension(1) );
+    Intrepid::CellTools<Scalar>::mapToReferenceFrame( 
+	reference_points,
+	coords,
+	cell_nodes,
+	*d_dfunckernel->getCellTopology(),
+	0 );
+
+    // 3) Evaluate the basis at the pre-image set in the reference frame.
+    MDArray basis_eval( d_dfunckernel->getBasisCardinality(),
+			coords.dimension(0) );
+    d_dfunckernel->evaluateGradBasis( basis_eval, reference_points );
+
+    // 4) Transform evaluated basis values to the physical frame.
+    MDArray transformed_eval( 1, 
+			      d_dfunckernel->getBasisCardinality(),
+			      coords.dimension(0) );
+    Intrepid::FunctionSpaceTools::HGRADtransformVALUE<Scalar,MDArray,MDArray>( 
+	transformed_eval, basis_eval );
+
+    // 5) Evaluate the field using tensor components (the DOF for this
+    // entity).
+    MDArray entity_dofs = getEntDF( entity, error );
+
+    assert( iBase_SUCCESS == error );
+    MDArray component_values(1, coords.dimension(0), coords.dimension(1) );
+    MDArray component_coeffs( 1, d_dfunckernel->getBasisCardinality() );
+    for ( int n = 0; n < (int) d_tensor_template->getNumComponents(); ++n )
+    {
+	for ( int m = 0; m < (int) d_dfunckernel->getBasisCardinality(); ++m )
+	{
+	    component_coeffs(0,m) = entity_dofs(0,m,n);
+	}
+
+	Intrepid::FunctionSpaceTools::evaluate<Scalar,MDArray,MDArray>( 
+	    component_values,
+	    component_coeffs, 
+	    transformed_eval );
+
+	for ( int p = 0; p < coords.dimension(0); ++p )
+	{
+		dfunc_values(0,p,n) = component_values(0,p,n);
+	}
+    }
+
+    free( element_nodes );
+    free( coord_array );
+}
+
 /*! 
  * \brief Get all degrees of freedom for a particular entity in the domain.
  *  MDArray(C,F,component).

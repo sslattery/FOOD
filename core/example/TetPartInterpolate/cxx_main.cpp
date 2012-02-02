@@ -50,7 +50,8 @@ int main(int argc, char* argv[])
 
     int error;
 
-    // The tensor template and dfunckernel can be shared by both fields.
+    // The tensor template and dfunckernel can be shared by both the range and
+    // domain. 
     Teuchos::RCP<FOOD::TensorTemplate> tensor_template = Teuchos::rcp(
 	new FOOD::TensorTemplate(0, 1, FOOD::FOOD_REAL, Teuchos::null) );
 
@@ -82,6 +83,7 @@ int main(int argc, char* argv[])
 		0 );
     assert( iBase_SUCCESS == error );
 
+    // Set up the fine mesh field.
     Teuchos::RCP<FOOD::Domain> fine_domain = Teuchos::rcp(
 	new FOOD::Domain(fine_mesh, fine_root_set) );
 
@@ -124,6 +126,7 @@ int main(int argc, char* argv[])
 		0 );
     assert( iBase_SUCCESS == error );
 
+    // Set up the coarse mesh field for function values.
     Teuchos::RCP<FOOD::Domain> coarse_domain = Teuchos::rcp(
 	new FOOD::Domain(coarse_mesh, coarse_root_set) );
 
@@ -179,7 +182,7 @@ int main(int argc, char* argv[])
     octree.buildTree();
     
     // Generate a mapping for interpolation.
-    std::map<iBase_EntityHandle,iBase_EntityHandle> range_to_domain;
+    std::map<iBase_EntityHandle,iBase_EntityHandle> range_to_domain_map;
     MDArray local_coords(1,3);
     iBase_EntityHandle found_entity = 0;
     int num_found = 0;
@@ -193,14 +196,14 @@ int main(int argc, char* argv[])
 
 	if ( octree.findPoint( found_entity, local_coords ) )
 	{
-	    range_to_domain.insert(
+	    range_to_domain_map.insert(
 		std::pair<iBase_EntityHandle,iBase_EntityHandle>( 
 		    range_vertices[n], found_entity ) );
 	    ++num_found;
 	}
     }
     
-    // perform the interpolation
+    // Perform the interpolation of the function values.
     Teuchos::ArrayRCP<double> interpolated_vals(range_vertices_size);
     MDArray local_vals(1,1);
     int num_interp = 0;
@@ -210,9 +213,9 @@ int main(int argc, char* argv[])
 	local_coords(0,1) = coord_array[3*p+1];
 	local_coords(0,2) = coord_array[3*p+2];
 
-	if ( range_to_domain[ range_vertices[p] ] )
+	if ( range_to_domain_map[ range_vertices[p] ] )
 	{
-	    fine_field.evaluateDF( range_to_domain[ range_vertices[p] ],
+	    fine_field.evaluateDF( range_to_domain_map[ range_vertices[p] ],
 				   local_coords,
 				   false,
 				   local_vals );
@@ -230,6 +233,7 @@ int main(int argc, char* argv[])
 				    error );
     assert( iBase_SUCCESS == error );
 
+    // Output and save.
     std::cout << "PERCENT FOUND " 
 	      << (double) num_found / (double) range_vertices_size 
 	      << std::endl;
@@ -237,7 +241,7 @@ int main(int argc, char* argv[])
 	      << (double) num_interp / (double) range_vertices_size 
 	      << std::endl;
 
-    std::string interp_file = "interpolated_coarse_part.vtk";
+    std::string interp_file = "interpolated_coarse_99.vtk";
     iMesh_save( coarse_domain->getMesh(),
 		coarse_domain->getMeshSet(),
 		&interp_file[0],
