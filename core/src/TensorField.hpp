@@ -146,11 +146,11 @@ class TensorField
 
     //! Get a view of all the degrees of freedom for this field.
     Teuchos::ArrayView<Scalar> getDFView()
-    { return Teuchos::ArrayView<Scalar>( d_dofs.getData() ); }
+    { return d_dofs.getData()(); }
 
     //! Get a const view of all the degrees of freedom for this field.
     Teuchos::ArrayView<const Scalar> getDFConstView() const
-    { return Teuchos::ArrayView<const Scalar>( d_dofs.getData() ); }
+    { return d_dofs.getData()(); }
 
     // Get degrees of freedom for a particular entity in the domain.
     MDArray getEntDF( iBase_EntityHandle entity, 
