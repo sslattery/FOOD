@@ -170,6 +170,10 @@ class TensorField
     RCP_Domain getDomain() const
     { return d_domain; }
 
+    //! Get the distribution function kernel this field is defined on.
+    RCP_DFuncKernel getDFuncKernel() const
+    { return d_dfunckernel; }
+
     //! Get the coordinate system for physics field coordinates.
     int getCoordType() const
     { return d_coord_type; }

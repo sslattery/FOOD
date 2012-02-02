@@ -19,7 +19,6 @@ FEMInterpolate<Scalar>::FEMInterpolate(RCP_TensorField dof_domain,
     : d_dof_domain( dof_domain )
     , d_dof_range( dof_range )
     , d_octree(0)
-    , d_num_range_verts
 { /* ... */ }
 
 /*!
@@ -40,22 +39,23 @@ void FEMInterpolate<Scalar>::setup()
     // Get the range mesh vertices for interpolation.
     iBase_EntityHandle *range_vertices = 0;
     int range_vertices_allocated = 0;
+    int range_vertices_size = 0;
     iMesh_getEntities( d_dof_range->getDomain()->getMesh(),
 		       d_dof_range->getDomain()->getMeshSet(),
 		       iBase_VERTEX,
 		       iMesh_POINT,
 		       &range_vertices,
 		       &range_vertices_allocated,
-		       &d_num_range_verts,
+		       &range_vertices_size,
 		       &error );
     assert( iBase_SUCCESS == error );
 
-    int coords_allocated = d_num_range_verts*3;
+    int coords_allocated = range_vertices_size*3;
     int coords_size = 0;
     double *coord_array = 0;
     iMesh_getVtxArrCoords( d_dof_range->getDomain()->getMesh(),
 			   range_vertices,
-			   d_num_range_verts,
+			   range_vertices_size,
 			   iBase_INTERLEAVED,
 			   &coord_array,
 			   &coords_allocated,
@@ -66,14 +66,14 @@ void FEMInterpolate<Scalar>::setup()
     // Setup the octree to search the domain mesh with range vertices.
     d_octree = Teuchos::rcp( 
 	new Octree( d_dof_domain->getDomain(),
-		    d_dof_domain->getDFuncKernel()->getEvalType() );
-		    d_dof_domain->getDFuncKernel()->getEvalTopology() );
-    octree.buildTree();
+		    d_dof_domain->getDFuncKernel()->getEvalType(),
+		    d_dof_domain->getDFuncKernel()->getEvalTopology() ) );
+    d_octree->buildTree();
 
     // Generate a mapping for interpolation.
     MDArray local_coords(1,3);
     iBase_EntityHandle found_entity = 0;
-    for ( int n = 0; n < d_num_range_verts; ++n )
+    for ( int n = 0; n < range_vertices_size; ++n )
     {
 	found_entity = 0;
 
@@ -81,7 +81,7 @@ void FEMInterpolate<Scalar>::setup()
 	local_coords(0,1) = coord_array[3*n+1];
 	local_coords(0,2) = coord_array[3*n+2];
 
-	if ( octree.findPoint( found_entity, local_coords ) )
+	if ( d_octree->findPoint( found_entity, local_coords ) )
 	{
 	    d_map.insert( std::pair<iBase_EntityHandle,iBase_EntityHandle>( 
 			      range_vertices[n], found_entity ) );
@@ -94,14 +94,46 @@ void FEMInterpolate<Scalar>::setup()
 }
 
 /*!
- * \brief Perform interpolation.
+ * \brief Perform value interpolation of the degrees of freedom from the
+ * domain to the range.
  */
 template<class Scalar>
-void FEMInterpolate<Scalar>::interpolate()
+void FEMInterpolate<Scalar>::interpolateValueDF()
 {
-    Teuchos::ArrayRCP<double> interpolated_vals(d_num_range_verts);
+    int error = 0;
+
+    // Get the range mesh vertices for interpolation.
+    iBase_EntityHandle *range_vertices = 0;
+    int range_vertices_allocated = 0;
+    int range_vertices_size = 0;
+    iMesh_getEntities( d_dof_range->getDomain()->getMesh(),
+		       d_dof_range->getDomain()->getMeshSet(),
+		       iBase_VERTEX,
+		       iMesh_POINT,
+		       &range_vertices,
+		       &range_vertices_allocated,
+		       &range_vertices_size,
+		       &error );
+    assert( iBase_SUCCESS == error );
+
+    int coords_allocated = range_vertices_size*3;
+    int coords_size = 0;
+    double *coord_array = 0;
+    iMesh_getVtxArrCoords( d_dof_range->getDomain()->getMesh(),
+			   range_vertices,
+			   range_vertices_size,
+			   iBase_INTERLEAVED,
+			   &coord_array,
+			   &coords_allocated,
+			   &coords_size,
+			   &error );
+    assert( iBase_SUCCESS == error );
+
+    // Do the interpolation.
+    Teuchos::ArrayRCP<double> interpolated_vals(range_vertices_size);
     MDArray local_vals(1,1);
-    for ( int p = 0; p < d_num_range_verts; ++p )
+    MDArray local_coords(1,3);
+    for ( int p = 0; p < range_vertices_size; ++p )
     {
 	local_coords(0,0) = coord_array[3*p];
 	local_coords(0,1) = coord_array[3*p+1];
@@ -109,10 +141,10 @@ void FEMInterpolate<Scalar>::interpolate()
 
 	if ( d_map[ range_vertices[p] ] )
 	{
-	    fine_field.evaluateDF( d_map[ range_vertices[p] ],
-				   local_coords,
-				   false,
-				   local_vals );
+	    d_dof_domain->evaluateDF( d_map[ range_vertices[p] ],
+				      local_coords,
+				      false,
+				      local_vals );
 	    interpolated_vals[p] = local_vals(0,0);
 	}
 	else
@@ -121,10 +153,14 @@ void FEMInterpolate<Scalar>::interpolate()
 	}
     }
 
-    coarse_field.attachToArrayData( interpolated_vals,
-				    iBase_INTERLEAVED,
-				    error );
+    d_dof_range->attachToArrayData( interpolated_vals,
+				   iBase_INTERLEAVED,
+				   error );
     assert( iBase_SUCCESS == error );
+
+    // Cleanup.
+    free( range_vertices );
+    free( coord_array );
 }
 
 

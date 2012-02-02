@@ -7,7 +7,7 @@
 #ifndef FOOD_FEMINTERPOLATE_HPP
 #define FOOD_FEMINTERPOLATE_HPP
 
-#include <Map>
+#include <map>
 
 #include "TensorField.hpp"
 #include "Octree.hpp"
@@ -51,9 +51,6 @@ class FEMInterpolate
     // Range to domain mapping.
     std::map<iBase_EntityHandle,iBase_EntityHandle> d_map;
 
-    // Number of vertices in the range.
-    int d_num_range_verts;
-
   public:
 
     // Constructor.
@@ -65,13 +62,14 @@ class FEMInterpolate
     // Setup for interpolation.
     void setup();
 
-    // Perform interpolation.
-    void interpolate();
+    // Perform value interpolation of the degrees of freedom from the domain
+    // to the range.
+    void interpolateValueDF();
 };
 
 } // end namespace FOOD
 
-#include "FEMInterpolation_Def.hpp"
+#include "FEMInterpolate_Def.hpp"
 
 #endif // end FOOD_FEMINTERPOLATE_HPP
 
