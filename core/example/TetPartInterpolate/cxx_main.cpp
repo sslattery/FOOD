@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
     iMesh_getRootSet( coarse_mesh, &coarse_root_set, &error );
     assert( iBase_SUCCESS == error );
 
-    std::string coarse_mesh_filename = "tagged_coarse.vtk";
+    std::string coarse_mesh_filename = "tagged_coarse_99.vtk";
     iMesh_load( coarse_mesh, 
 		coarse_root_set, 
 		&coarse_mesh_filename[0], 

@@ -16,9 +16,11 @@ coords = mesh.getVtxCoords(vertices)
 tag_data = []
 
 for i in xrange(num_vert):
-    tag_data += [ 0.0 ]
+    tag_data += [ math.sqrt( coords[i][0]*coords[i][0] + \
+                             coords[i][1]*coords[i][1] + \
+                             coords[i][2]*coords[i][2] ) ]
 
 
 fine_tag[vertices] = tag_data
 
-mesh.save("tagged_coarse_99.vtk")
+mesh.save("tagged_coarse_99_ref.vtk")
