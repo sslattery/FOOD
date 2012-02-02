@@ -36,6 +36,9 @@ class DFuncKernel
 
   private:
 
+    // The type of the cell for which the kernel is defined.
+    std::size_t d_eval_type;
+
     // The topology of the cell for which the kernel is defined.
     std::size_t d_eval_topology;
 
@@ -65,7 +68,8 @@ class DFuncKernel
   public:
 
     // Constructor.
-    DFuncKernel( const int eval_topology, 
+    DFuncKernel( const int eval_type,
+		 const int eval_topology, 
 		 const int dof_entity_type,
 	         const int dof_entity_topology,
 		 const int coordinate_type,
@@ -100,6 +104,10 @@ class DFuncKernel
     // Transform evaluated basis operator values to physical frame.
     void transformOperator( MDArray &transformed_eval,
 			    const MDArray &basis_eval );
+
+    //! Get the type of the cell for which this kernel is defined.
+    int getEvalType() const
+    { return d_eval_type; }
 
     //! Get the topology of the cell for which this kernel is defined.
     int getEvalTopology() const

@@ -26,6 +26,8 @@ APPEND_SET(HEADERS
   DFuncKernel.hpp
   DFuncKernel_Def.hpp
   Domain.hpp
+  FEMInterpolate.hpp
+  FEMInterpolate_Def.hpp
   KernelTraits.hpp
   Octree.hpp
   PointQuery.hpp

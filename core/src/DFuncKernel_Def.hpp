@@ -19,14 +19,16 @@ namespace FOOD
  * \brief Constructor.
  */
 template<class Scalar>
-DFuncKernel<Scalar>::DFuncKernel( const int eval_topology,
+DFuncKernel<Scalar>::DFuncKernel( const int eval_type,
+				  const int eval_topology,
 				  const int dof_entity_type,
 				  const int dof_entity_topology,
 				  const int coordinate_type,
 				  const int discretization_type,
 				  const int basis_function_space,
 				  const int basis_degree )
-    : d_eval_topology(eval_topology)
+    : d_eval_type(eval_type)
+    , d_eval_topology(eval_topology)
     , d_dof_entity_type(dof_entity_type)
     , d_dof_entity_topology(dof_entity_topology)
     , d_coordinate_type(coordinate_type)
