@@ -566,7 +566,8 @@ TEUCHOS_UNIT_TEST( TensorField, constructor_test )
 
     // Create a distribution function for this field.
     Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel =
-	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_HEXAHEDRON,
+	Teuchos::rcp( new FOOD::DFuncKernel<double>( iBase_REGION,
+						     iMesh_HEXAHEDRON,
 			                             iBase_FACE,
 						     iMesh_QUADRILATERAL,
 						     FOOD::FOOD_CARTESIAN,
@@ -629,7 +630,8 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_vertex_tag_test )
 
     // Create a distribution function kernel for the field.
     Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel =
-	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_HEXAHEDRON,
+	Teuchos::rcp( new FOOD::DFuncKernel<double>( iBase_REGION,
+						     iMesh_HEXAHEDRON,
 						     iBase_VERTEX,
 						     iMesh_POINT,
 						     FOOD::FOOD_CARTESIAN, 
@@ -717,7 +719,8 @@ TEUCHOS_UNIT_TEST( TensorField, dof_tet_mesh_region_tag_test )
 
     // Create a distribution function kernel for the field.
     Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel =
-	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_TETRAHEDRON,
+	Teuchos::rcp( new FOOD::DFuncKernel<double>( iBase_REGION,
+						     iMesh_TETRAHEDRON,
 						     iBase_REGION,
 						     iMesh_TETRAHEDRON,
 						     FOOD::FOOD_CARTESIAN,
@@ -824,7 +827,8 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_region_array_test )
 
     // Create a distribution function kernel for the field.
     Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel =
-	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_HEXAHEDRON,
+	Teuchos::rcp( new FOOD::DFuncKernel<double>( iBase_REGION,
+						     iMesh_HEXAHEDRON,
 						     iBase_REGION,
 						     iMesh_HEXAHEDRON,
 						     FOOD::FOOD_CARTESIAN,
@@ -992,7 +996,8 @@ TEUCHOS_UNIT_TEST( TensorField, hex_evaluation_test )
 
     // Create a distribution function kernel for the field.
     Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel =
-	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_HEXAHEDRON,
+	Teuchos::rcp( new FOOD::DFuncKernel<double>( iBase_REGION,
+						     iMesh_HEXAHEDRON,
 						     iBase_VERTEX,
 						     iMesh_POINT,
 						     FOOD::FOOD_CARTESIAN, 

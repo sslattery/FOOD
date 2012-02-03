@@ -45,7 +45,8 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 
 TEUCHOS_UNIT_TEST( DFuncKernel, constructor_test )
 {
-    FOOD::DFuncKernel<double> hex_fem_div_1_kernel( iMesh_HEXAHEDRON,
+    FOOD::DFuncKernel<double> hex_fem_div_1_kernel( iBase_REGION,
+						    iMesh_HEXAHEDRON,
 						    iBase_VERTEX,
 						    iMesh_POINT,
 						    FOOD::FOOD_CARTESIAN,
@@ -55,7 +56,8 @@ TEUCHOS_UNIT_TEST( DFuncKernel, constructor_test )
     TEST_ASSERT( hex_fem_div_1_kernel.getBasisCardinality() == 6 );
     TEST_ASSERT( hex_fem_div_1_kernel.getBasisDegree() == 1 );
 
-    FOOD::DFuncKernel<double> tet_fem_curl_1_kernel( iMesh_TETRAHEDRON,
+    FOOD::DFuncKernel<double> tet_fem_curl_1_kernel( iBase_REGION,
+						     iMesh_TETRAHEDRON,
 						     iBase_VERTEX,
 						     iMesh_POINT,
 						     FOOD::FOOD_CARTESIAN,
@@ -65,7 +67,8 @@ TEUCHOS_UNIT_TEST( DFuncKernel, constructor_test )
     TEST_ASSERT( tet_fem_curl_1_kernel.getBasisCardinality() == 6 );
     TEST_ASSERT( tet_fem_curl_1_kernel.getBasisDegree() == 1 );
 
-    FOOD::DFuncKernel<double> quad_fem_grad_2_kernel( iMesh_QUADRILATERAL,
+    FOOD::DFuncKernel<double> quad_fem_grad_2_kernel( iBase_FACE,
+						      iMesh_QUADRILATERAL,
 						      iBase_VERTEX,
 						      iMesh_POINT,
 						      FOOD::FOOD_CARTESIAN,
@@ -80,7 +83,8 @@ TEUCHOS_UNIT_TEST( DFuncKernel, hex_evaluation_test )
 {
     typedef Intrepid::FieldContainer<double> MDArray;
 
-    FOOD::DFuncKernel<double> hex_kernel( iMesh_HEXAHEDRON,
+    FOOD::DFuncKernel<double> hex_kernel( iBase_REGION,
+					  iMesh_HEXAHEDRON,
 					  iBase_VERTEX,
 					  iMesh_POINT,
 					  FOOD::FOOD_CARTESIAN,

@@ -23,7 +23,7 @@ KDTree::KDTree( RCP_Domain domain,
     : d_domain(domain)
     , d_entity_type(entity_type)
     , d_entity_topology(entity_topology)
-    , d_root_node( Teuchos::rcp(new KDTreeNode) )
+    , d_root_node( new KDTreeNode )
 { /* ... */ }
 
 /*!
@@ -49,20 +49,59 @@ void KDTree::buildTree()
 bool KDTree::findPoint( iBase_EntityHandle &found_in_entity,
 			const MDArray &coords )
 {
-    RCP_Node starting_node = findLeafNode( d_root_node, coords );
-    return findPointInNode( starting_node, found_in_entity, coords );
+    int error = 0;
+    bool return_val = false; 
+
+    iBase_EntityHandle nearest_neighbor;
+    KDTreeNode *starting_node = findLeafNode( d_root_node, 
+					      nearest_neighbor, 
+					      coords );
+    findPointInNode( starting_node, nearest_neighbor, coords );
+
+    iBase_EntityHandle *adj_elements = 0;
+    int adj_elements_allocated = 0; 
+    int adj_elements_size = 0; 
+    iMesh_getEntAdj( d_domain->getMesh(),
+		     nearest_neighbor,
+		     d_entity_type,
+		     &adj_elements,
+		     &adj_elements_allocated,
+		     &adj_elements_size,
+		     &error );
+    assert( iBase_SUCCESS == error );
+
+    int i = 0;
+    if ( adj_elements_size > 0 )
+    {
+	while ( i < adj_elements_size && !return_val )
+	{
+	    if ( PointQuery::point_in_ref_element( d_domain->getMesh(),
+						   adj_elements[i],
+						   coords ) )
+	    {
+		std::cout << "HIT IN TREE" << std::endl;
+		return_val = true;
+		found_in_entity = adj_elements[i];
+	    }
+	    ++i;
+	}
+    }
+ 
+    free( adj_elements );
+
+   return return_val;
 }
 
 /*! 
  * \brief Build a tree node.
  */
-void KDTree::buildTreeNode( RCP_Node node )
+void KDTree::buildTreeNode( KDTreeNode* node )
 {
     int error = 0;
 
     // Create the children.
-    node->child1 = Teuchos::rcp( new KDTreeNode );
-    node->child2 = Teuchos::rcp( new KDTreeNode );
+    node->child1 = new KDTreeNode;
+    node->child2 = new KDTreeNode;
     node->child1->parent = node;
     node->child2->parent = node;
     if ( node->axis == 0 )
@@ -89,7 +128,7 @@ void KDTree::buildTreeNode( RCP_Node node )
     assert( iBase_SUCCESS == error );
 
     // Create the new bounding boxes and assign them to the children.
-    double balance = sliceBox( node );
+    sliceBox( node );
 
     // Add the vertices in the parent set to the child sets.
     std::vector<iBase_EntityHandle> root_list;
@@ -98,8 +137,8 @@ void KDTree::buildTreeNode( RCP_Node node )
     iBase_EntityHandle *node_vertices;
     iMesh_getEntities( d_domain->getMesh(),
 		       node->node_set,
-		       d_entity_type,
-		       d_entity_topology,
+		       iBase_VERTEX,
+		       iMesh_POINT,
 		       &node_vertices,
 		       &node_vertices_allocated,
 		       &node_vertices_size,
@@ -112,7 +151,7 @@ void KDTree::buildTreeNode( RCP_Node node )
     iMesh_getVtxArrCoords( d_domain->getMesh(),
 			   node_vertices,
 			   node_vertices_size,
-			   iBase_BLOCKED,
+			   iBase_INTERLEAVED,
 			   &coords,
 			   &node_coords_allocated,
 			   &node_coords_size,
@@ -124,7 +163,7 @@ void KDTree::buildTreeNode( RCP_Node node )
     {
 	vertex_found = false;
 
-	if ( coords[3*n + node->axis] < balance )
+	if ( coords[3*n + node->axis] < node->median )
 	{
 	    iMesh_addEntToSet( d_domain->getMesh(),
 			       node_vertices[n],
@@ -134,7 +173,7 @@ void KDTree::buildTreeNode( RCP_Node node )
 
 	    vertex_found = true;
 	}
-	else if ( coords[3*n + node->axis] > balance )
+	else if ( coords[3*n + node->axis] > node->median )
 	{
 	    iMesh_addEntToSet( d_domain->getMesh(),
 			       node_vertices[n],
@@ -183,18 +222,18 @@ void KDTree::buildTreeNode( RCP_Node node )
 	node->node_set = new_root_set;
     }
 
-    // See if we have any child entities. If more than 2, recurse.
-    int total_child_ents = 0;
-    int num_child_ents = 0;
+    // See if we have any child vertices. If more than 2, recurse.
+    int total_child_verts = 0;
+    int num_child_verts = 0;
 
     iMesh_getNumOfTopo( d_domain->getMesh(),
 			node->child1->node_set,
-			d_entity_topology,
-			&num_child_ents,
+			iMesh_POINT,
+			&num_child_verts,
 			&error );
     assert( iBase_SUCCESS == error );
-    total_child_ents += num_child_ents;
-    if ( num_child_ents < 3 )
+    total_child_verts += num_child_verts;
+    if ( num_child_verts < 3 )
     {
 	node->child1->is_leaf = true;
     }
@@ -205,12 +244,12 @@ void KDTree::buildTreeNode( RCP_Node node )
 
     iMesh_getNumOfTopo( d_domain->getMesh(),
 			node->child2->node_set,
-			d_entity_topology,
-			&num_child_ents,
+			iMesh_POINT,
+			&num_child_verts,
 			&error );
     assert( iBase_SUCCESS == error );
-    total_child_ents += num_child_ents;
-    if ( num_child_ents < 3 )
+    total_child_verts += num_child_verts;
+    if ( num_child_verts < 3 )
     {
 	node->child2->is_leaf = true;
     }
@@ -219,7 +258,7 @@ void KDTree::buildTreeNode( RCP_Node node )
 	buildTreeNode( node->child2 );
     }
     
-    if ( total_child_ents == 0 )
+    if ( total_child_verts == 0 )
     {
 	node->is_leaf = true;
     }
@@ -228,32 +267,91 @@ void KDTree::buildTreeNode( RCP_Node node )
 /*!
  * \brief Given a point, find its leaf node in the tree.
  */
-KDTree::RCP_Node KDTree::findLeafNode( RCP_Node node, const MDArray &coords )
+KDTreeNode* KDTree::findLeafNode( KDTreeNode* node, 
+				  iBase_EntityHandle &nearest_neighbor,
+				  const MDArray &coords )
 {
-    RCP_Node return_node;
+    int error = 0;
+
+    KDTreeNode* return_node;
     if ( !node->is_leaf )
     {
-	if ( isPointInBox( node->child1->bounding_box, coords ) )
+	if ( coords(0,node->axis) < node->median )
 	{
-	    return_node = findLeafNode( node->child1, coords );
+	    return_node = findLeafNode( node->child1, nearest_neighbor, coords );
 	}
-	else if ( isPointInBox( node->child2->bounding_box, coords ) )
+	else if ( coords(0,node->axis) > node->median )
 	{
-	    return_node = findLeafNode( node->child2, coords );
+	    return_node = findLeafNode( node->child2, nearest_neighbor, coords );
+	}
+	else
+	{
+	    return_node = node;
 	}
     }
+    else
+    {
+	return_node = node;
+    }
+
+    if ( return_node == node )
+    {
+	double distance = 1.0e99;
+	int node_vertices_allocated = 0;
+	int node_vertices_size = 0;
+	iBase_EntityHandle *node_vertices;
+	iMesh_getEntities( d_domain->getMesh(),
+			   node->node_set,
+			   iBase_VERTEX,
+			   iMesh_POINT,
+			   &node_vertices,
+			   &node_vertices_allocated,
+			   &node_vertices_size,
+			   &error );
+	assert( iBase_SUCCESS == error );
+
+	if ( node_vertices_size > 0 )
+	{
+	    double local_distance = 0;
+	    double x = 0;
+	    double y = 0;
+	    double z = 0;
+	    for ( int i = 0; i < node_vertices_size; ++i )
+	    {
+		iMesh_getVtxCoord( d_domain->getMesh(),
+				   node_vertices[i],
+				   &x,
+				   &y,
+				   &z,
+				   &error );
+		assert( iBase_SUCCESS == error );
+
+		local_distance = (coords(0,0) - x)*(coords(0,0) - x) +
+				 (coords(0,1) - y)*(coords(0,1) - y) +
+				 (coords(0,2) - z)*(coords(0,2) - z);
+
+		if ( local_distance < distance )
+		{
+		    distance = local_distance;
+		    nearest_neighbor = node_vertices[i];
+		}
+	    }
+	}
+
+	free( node_vertices );
+    }
+
     return return_node;
 }
 
 /*!
  * \brief Search a node for a point. Return the element we found it in.
  */
-bool KDTree::findPointInNode( RCP_Node node,
-			      iBase_EntityHandle &found_in_entity,
+void KDTree::findPointInNode( KDTreeNode* node,
+			      iBase_EntityHandle &nearest_neighbor,
 			      const MDArray &coords )
 {
     int error = 0;
-    bool return_val = false;
 
     // First check at the local level.
     int node_vertices_allocated = 0;
@@ -261,62 +359,76 @@ bool KDTree::findPointInNode( RCP_Node node,
     iBase_EntityHandle *node_vertices;
     iMesh_getEntities( d_domain->getMesh(),
 		       node->node_set,
-		       d_entity_type,
-		       d_entity_topology,
+		       iBase_VERTEX,
+		       iMesh_POINT,
 		       &node_vertices,
 		       &node_vertices_allocated,
 		       &node_vertices_size,
 		       &error );
     assert( iBase_SUCCESS == error );
 
-    iBase_EntityHandle *node_adj_elements = 0;
-    int node_adj_elements_allocated = 0; 
-    int node_adj_elements_size = 0; 
-    int *offset = 0;
-    int offset_allocated = 0; 
-    int offset_size = 0; 
-    iMesh_getEntArrAdj( d_domain->getMesh(),
-			node_vertices,
-			d_entity_type,
-			d_entity_topology,
-			&node_adj_elements,
-			&node_adj_elements_allocated,
-			&node_adj_elements_size,
-			&offset,
-			&offset_allocated,
-			&offset_size,
-			&error );
+    double x = 0;
+    double y = 0;
+    double z = 0;
+    iMesh_getVtxCoord( d_domain->getMesh(),
+		       nearest_neighbor,
+		       &x,
+		       &y,
+		       &z,
+		       &error );
     assert( iBase_SUCCESS == error );
 
-    int i = 0;
-    if ( node_adj_elements_size > 0 )
+    double distance = (coords(0,0) - x)*(coords(0,0) - x) +
+		      (coords(0,1) - y)*(coords(0,1) - y) +
+		      (coords(0,2) - z)*(coords(0,2) - z);
+	
+    if ( node_vertices_size > 0 )
     {
-	while ( i < node_adj_elements_size && !return_val )
+	double local_distance = 0;
+	for ( int i = 0; i < node_vertices_size; ++i )
 	{
-	    if ( PointQuery::point_in_ref_element( d_domain->getMesh(),
-						   node_adj_elements[i],
-						   coords ) )
+	    iMesh_getVtxCoord( d_domain->getMesh(),
+			       node_vertices[i],
+			       &x,
+			       &y,
+			       &z,
+			       &error );
+	    assert( iBase_SUCCESS == error );
+
+	    local_distance = (coords(0,0) - x)*(coords(0,0) - x) +
+			     (coords(0,1) - y)*(coords(0,1) - y) +
+			     (coords(0,2) - z)*(coords(0,2) - z);
+
+	    if ( local_distance < distance )
 	    {
-		return_val = true;
-		found_in_entity = node_adj_elements[i];
+		distance = local_distance;
+		nearest_neighbor = node_vertices[i];
 	    }
-	    ++i;
 	}
     }
 
-    free( node_adj_elements );
     free( node_vertices );
 
-    // If we found an element then we're done, otherwise recurse back up the
-    // tree until we hit the root node. At that point we're done.
-    if ( !return_val && node != d_root_node )
+    // Check to see if their could be points on the other side of the
+    // splitting plane.
+    double distance_to_plane = (node->parent->median - coords(0,node->axis))*
+				(node->parent->median - coords(0,node->axis));
+    if ( distance > distance_to_plane )
     {
-	return_val = findPointInNode( node->parent,
-				      found_in_entity,
-				      coords );
+	if ( node == node->parent->child1 )
+	{
+	    findPointInNode( node->parent->child2, nearest_neighbor, coords );
+	}
+	else 
+	{
+	    findPointInNode( node->parent->child1, nearest_neighbor, coords );
+	}
     }
-
-    return return_val;
+    
+    if ( node != d_root_node )
+    {
+	findPointInNode( node->parent, nearest_neighbor, coords );
+    }
 }
 
 /*!
@@ -325,6 +437,7 @@ bool KDTree::findPointInNode( RCP_Node node,
 void KDTree::getEntSetBox( iBase_EntitySetHandle entity_set,
 			   Box &bounding_box )
 {
+    double grow = 1.0;
     int error = 0;
     
     int num_set_vertices = 0;
@@ -379,12 +492,12 @@ void KDTree::getEntSetBox( iBase_EntitySetHandle entity_set,
     Teuchos::ArrayView<double>::const_iterator set_z_it_end 
 	= set_z_it_begin + set_vertices_size;
 
-    bounding_box[0] = *(std::min_element( set_x_it_begin, set_x_it_end ));
-    bounding_box[1] = *(std::max_element( set_x_it_begin, set_x_it_end ));
-    bounding_box[2] = *(std::min_element( set_y_it_begin, set_y_it_end ));
-    bounding_box[3] = *(std::max_element( set_y_it_begin, set_y_it_end ));
-    bounding_box[4] = *(std::min_element( set_z_it_begin, set_z_it_end ));
-    bounding_box[5] = *(std::max_element( set_z_it_begin, set_z_it_end ));
+    bounding_box[0] = *(std::min_element( set_x_it_begin, set_x_it_end ))-grow;
+    bounding_box[1] = *(std::max_element( set_x_it_begin, set_x_it_end ))+grow;
+    bounding_box[2] = *(std::min_element( set_y_it_begin, set_y_it_end ))-grow;
+    bounding_box[3] = *(std::max_element( set_y_it_begin, set_y_it_end ))+grow;
+    bounding_box[4] = *(std::min_element( set_z_it_begin, set_z_it_end ))-grow;
+    bounding_box[5] = *(std::max_element( set_z_it_begin, set_z_it_end ))+grow;
 
     free( set_vertices );
     free( coords );
@@ -470,7 +583,7 @@ bool KDTree::isEntInBox( const Box &box,
 /*!
  * \brief Slice a box along the specified axis and return the resulting boxes.
  */
-double KDTree::sliceBox( RCP_Node node )
+void KDTree::sliceBox( KDTreeNode* node )
 {
     int error = 0;
 
@@ -480,15 +593,15 @@ double KDTree::sliceBox( RCP_Node node )
     iBase_EntityHandle *node_vertices;
     iMesh_getEntities( d_domain->getMesh(),
 		       node->node_set,
-		       d_entity_type,
-		       d_entity_topology,
+		       iBase_VERTEX,
+		       iMesh_POINT,
 		       &node_vertices,
 		       &node_vertices_allocated,
 		       &node_vertices_size,
 		       &error );
     assert( iBase_SUCCESS == error );
 
-    int node_coords_allocated = 3*node_vertices_size;
+    int node_coords_allocated = 0;
     int node_coords_size = 0;
     double *coords = 0;
     iMesh_getVtxArrCoords( d_domain->getMesh(),
@@ -503,24 +616,23 @@ double KDTree::sliceBox( RCP_Node node )
 
     // Find the median point in the cutting node->axis and make the new boxes.
     Teuchos::ArrayView<double> node_coords( coords, node_coords_size );
-    Teuchos::ArrayView<double>::const_iterator node_it_begin;
-    Teuchos::ArrayView<double>::const_iterator node_it_end;
-    double cutting_val = 0.0;
+    Teuchos::ArrayView<double>::iterator node_it_begin;
+    Teuchos::ArrayView<double>::iterator node_it_end;
     if ( node->axis == 0 )
     {
 	node_it_begin = node_coords.begin();
 	node_it_end = node_coords.begin() + node_vertices_size;
 	
-	cutting_val = median( node_it_begin, node_it_end );
+	node->median = median( node_it_begin, node_it_end );
 
 	node->child1->bounding_box[0] = node->bounding_box[0];
-	node->child1->bounding_box[1] = node->bounding_box[0] + cutting_val;
+	node->child1->bounding_box[1] = node->bounding_box[0] + node->median;
 	node->child1->bounding_box[2] = node->bounding_box[2];
 	node->child1->bounding_box[3] = node->bounding_box[3];
 	node->child1->bounding_box[4] = node->bounding_box[4];
 	node->child1->bounding_box[5] = node->bounding_box[5];
 
-	node->child2->bounding_box[0] = node->bounding_box[0] + cutting_val;
+	node->child2->bounding_box[0] = node->bounding_box[0] + node->median;
 	node->child2->bounding_box[1] = node->bounding_box[1];
 	node->child2->bounding_box[2] = node->bounding_box[2];
 	node->child2->bounding_box[3] = node->bounding_box[3];
@@ -532,18 +644,18 @@ double KDTree::sliceBox( RCP_Node node )
 	node_it_begin = node_coords.begin() + node_vertices_size;
 	node_it_end = node_coords.begin() + 2*node_vertices_size;
 
-	cutting_val = median( node_it_begin, node_it_end );
+	node->median = median( node_it_begin, node_it_end );
 
 	node->child1->bounding_box[0] = node->bounding_box[0];
 	node->child1->bounding_box[1] = node->bounding_box[1];
 	node->child1->bounding_box[2] = node->bounding_box[2];
-	node->child1->bounding_box[3] = node->bounding_box[2] + cutting_val;
+	node->child1->bounding_box[3] = node->bounding_box[2] + node->median;
 	node->child1->bounding_box[4] = node->bounding_box[4];
 	node->child1->bounding_box[5] = node->bounding_box[5];
 
 	node->child2->bounding_box[0] = node->bounding_box[0];
 	node->child2->bounding_box[1] = node->bounding_box[1];
-	node->child2->bounding_box[2] = node->bounding_box[2] + cutting_val;
+	node->child2->bounding_box[2] = node->bounding_box[2] + node->median;
 	node->child2->bounding_box[3] = node->bounding_box[3];
 	node->child2->bounding_box[4] = node->bounding_box[4];
 	node->child2->bounding_box[5] = node->bounding_box[5];
@@ -553,33 +665,33 @@ double KDTree::sliceBox( RCP_Node node )
 	node_it_begin = node_coords.begin() + 2*node_vertices_size;
 	node_it_end = node_coords.end();
 
-	cutting_val = median( node_it_begin, node_it_end );
+	node->median = median( node_it_begin, node_it_end );
 
 	node->child1->bounding_box[0] = node->bounding_box[0];
 	node->child1->bounding_box[1] = node->bounding_box[1];
 	node->child1->bounding_box[2] = node->bounding_box[2];
 	node->child1->bounding_box[3] = node->bounding_box[3];
 	node->child1->bounding_box[4] = node->bounding_box[4];
-	node->child1->bounding_box[5] = node->bounding_box[4] + cutting_val;
+	node->child1->bounding_box[5] = node->bounding_box[4] + node->median;
 
 	node->child2->bounding_box[0] = node->bounding_box[0];
 	node->child2->bounding_box[1] = node->bounding_box[1];
 	node->child2->bounding_box[2] = node->bounding_box[2];
 	node->child2->bounding_box[3] = node->bounding_box[3];
-	node->child2->bounding_box[4] = node->bounding_box[4] + cutting_val;
+	node->child2->bounding_box[4] = node->bounding_box[4] + node->median;
 	node->child2->bounding_box[5] = node->bounding_box[5];
     }
 
+    // Cleanup.
     free( node_vertices );
     free( coords );
-    return cutting_val;
 }
 
 /*
  * \brief Compute the median of a range of values.
  */
-double KDTree::median( Teuchos::ArrayView<double>::const_iterator begin,
-		       Teuchos::ArrayView<double>::const_iterator end )
+double KDTree::median( Teuchos::ArrayView<double>::iterator begin,
+		       Teuchos::ArrayView<double>::iterator end )
 {
     std::size_t middle = std::distance( begin , end ) / 2;
     std::nth_element( begin, begin+middle, end );

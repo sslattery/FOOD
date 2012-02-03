@@ -10,7 +10,7 @@
 #include <map>
 
 #include "TensorField.hpp"
-#include "Octree.hpp"
+#include "KDTree.hpp"
 
 #include <iBase.h>
 #include <iMesh.h>
@@ -33,7 +33,7 @@ class FEMInterpolate
     //! Typedefs.
     typedef TensorField<Scalar>                      TensorField_t;
     typedef Teuchos::RCP<TensorField_t>              RCP_TensorField;
-    typedef Teuchos::RCP<Octree>                     RCP_Octree;
+    typedef Teuchos::RCP<KDTree>                     RCP_KDTree;
     typedef Intrepid::FieldContainer<Scalar>         MDArray;
     //@}
 
@@ -45,8 +45,8 @@ class FEMInterpolate
     // Degrees of freedom range.
     RCP_TensorField d_dof_range;
 
-    // Octree
-    RCP_Octree d_octree;
+    // KDTree
+    RCP_KDTree d_kdtree;
 
     // Range to domain mapping.
     std::map<iBase_EntityHandle,iBase_EntityHandle> d_map;

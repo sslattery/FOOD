@@ -565,7 +565,8 @@ TEUCHOS_UNIT_TEST( Rendezvous, constructor_test )
 
     // Create a distribution function kernel for this field.
     Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel = 
-	Teuchos::rcp( new FOOD::DFuncKernel<double>( iMesh_QUADRILATERAL,
+	Teuchos::rcp( new FOOD::DFuncKernel<double>( iBase_FACE,
+						     iMesh_QUADRILATERAL,
 						     iBase_VERTEX,
 			                             iMesh_POINT,
 						     FOOD::FOOD_CARTESIAN, 

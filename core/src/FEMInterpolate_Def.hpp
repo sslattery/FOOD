@@ -18,7 +18,7 @@ FEMInterpolate<Scalar>::FEMInterpolate(RCP_TensorField dof_domain,
 				       RCP_TensorField dof_range )
     : d_dof_domain( dof_domain )
     , d_dof_range( dof_range )
-    , d_octree(0)
+    , d_kdtree(0)
 { /* ... */ }
 
 /*!
@@ -63,12 +63,12 @@ void FEMInterpolate<Scalar>::setup()
 			   &error );
     assert( iBase_SUCCESS == error );
 
-    // Setup the octree to search the domain mesh with range vertices.
-    d_octree = Teuchos::rcp( 
-	new Octree( d_dof_domain->getDomain(),
+    // Setup the kdtree to search the domain mesh with range vertices.
+    d_kdtree = Teuchos::rcp( 
+	new KDTree( d_dof_domain->getDomain(),
 		    d_dof_domain->getDFuncKernel()->getEvalType(),
 		    d_dof_domain->getDFuncKernel()->getEvalTopology() ) );
-    d_octree->buildTree();
+    d_kdtree->buildTree();
 
     // Generate a mapping for interpolation.
     MDArray local_coords(1,3);
@@ -81,8 +81,9 @@ void FEMInterpolate<Scalar>::setup()
 	local_coords(0,1) = coord_array[3*n+1];
 	local_coords(0,2) = coord_array[3*n+2];
 
-	if ( d_octree->findPoint( found_entity, local_coords ) )
+	if ( d_kdtree->findPoint( found_entity, local_coords ) )
 	{
+	    std::cout << "HIT ON " << n << std::endl;
 	    d_map.insert( std::pair<iBase_EntityHandle,iBase_EntityHandle>( 
 			      range_vertices[n], found_entity ) );
 	}

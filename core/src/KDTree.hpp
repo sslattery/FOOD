@@ -26,12 +26,13 @@ class KDTreeNode
 {
   public:
     iBase_EntitySetHandle node_set;
-    Teuchos::RCP<KDTreeNode> parent;
-    Teuchos::RCP<KDTreeNode> child1;
-    Teuchos::RCP<KDTreeNode> child2;
+    KDTreeNode* parent;
+    KDTreeNode* child1;
+    KDTreeNode* child2;
     Teuchos::Tuple<double,6> bounding_box;
     bool is_leaf;
     int axis;
+    double median;
  
     KDTreeNode()
        : node_set(0)
@@ -40,6 +41,7 @@ class KDTreeNode
        , child2(0)
        , is_leaf(false)
        , axis(0)
+       , median(0.0)
     { /* ... */ }
 
     ~KDTreeNode()
@@ -53,7 +55,6 @@ class KDTree
     //@{
     //! Typedefs.
     typedef Teuchos::RCP<Domain>                      RCP_Domain;
-    typedef Teuchos::RCP<KDTreeNode>                  RCP_Node;
     typedef Intrepid::FieldContainer<double>          MDArray;
     typedef Teuchos::Tuple<double,6>                  Box;
     //@}
@@ -70,7 +71,7 @@ class KDTree
     std::size_t d_entity_topology;
 
     // The root node of the tree.
-    RCP_Node d_root_node;
+    KDTreeNode* d_root_node;
 
   public:
 
@@ -92,14 +93,16 @@ class KDTree
   private:
 
     // Build a tree node.
-    void buildTreeNode( RCP_Node node );
+    void buildTreeNode( KDTreeNode* node );
 
     // Given a point, find its leaf node in the tree.
-    RCP_Node findLeafNode( RCP_Node node, const MDArray &coords );
+    KDTreeNode* findLeafNode( KDTreeNode* node, 
+			      iBase_EntityHandle &nearest_neighbor,
+			      const MDArray &coords );
 
     // Search a node for a point.
-    bool findPointInNode( RCP_Node node,
-			  iBase_EntityHandle &found_in_entity,
+    void findPointInNode( KDTreeNode* node,
+			  iBase_EntityHandle &nearest_neighbor,
 			  const MDArray &coords );
 
     // Get the bounding box of a set of entities.
@@ -112,11 +115,11 @@ class KDTree
     bool isEntInBox( const Box &box, iBase_EntityHandle entity );
 
     // Slice a box along the specified axis and return the value for slicing.
-    double sliceBox( RCP_Node node );
+    void sliceBox( KDTreeNode* node );
 
     // Compute the median of a range of values.
-    double median( Teuchos::ArrayView<double>::const_iterator begin,
-		   Teuchos::ArrayView<double>::const_iterator end );
+    double median( Teuchos::ArrayView<double>::iterator begin,
+		   Teuchos::ArrayView<double>::iterator end );
 };
 
 } // end namespace FOOD
