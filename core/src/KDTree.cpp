@@ -49,7 +49,8 @@ void KDTree::buildTree()
 bool KDTree::findPoint( iBase_EntityHandle &found_in_entity,
 			const MDArray &coords )
 {
-    return findPointInNode( d_root_node, found_in_entity, coords );
+    RCP_Node starting_node = findLeafNode( d_root_node, coords );
+    return findPointInNode( starting_node, found_in_entity, coords );
 }
 
 /*! 
@@ -62,6 +63,8 @@ void KDTree::buildTreeNode( RCP_Node node )
     // Create the children.
     node->child1 = Teuchos::rcp( new KDTreeNode );
     node->child2 = Teuchos::rcp( new KDTreeNode );
+    node->child1->parent = node;
+    node->child2->parent = node;
     if ( node->axis == 0 )
     {
 	node->child1->axis = 1;
@@ -107,8 +110,8 @@ void KDTree::buildTreeNode( RCP_Node node )
     int node_coords_size = 0;
     double *coords = 0;
     iMesh_getVtxArrCoords( d_domain->getMesh(),
-			   set_vertices,
-			   set_vertices_size,
+			   node_vertices,
+			   node_vertices_size,
 			   iBase_BLOCKED,
 			   &coords,
 			   &node_coords_allocated,
@@ -121,7 +124,7 @@ void KDTree::buildTreeNode( RCP_Node node )
     {
 	vertex_found = false;
 
-	if ( coords[3*i + node->axis] < balance )
+	if ( coords[3*n + node->axis] < balance )
 	{
 	    iMesh_addEntToSet( d_domain->getMesh(),
 			       node_vertices[n],
@@ -131,7 +134,7 @@ void KDTree::buildTreeNode( RCP_Node node )
 
 	    vertex_found = true;
 	}
-	else if ( coords[3*i + node->axis] > balance )
+	else if ( coords[3*n + node->axis] > balance )
 	{
 	    iMesh_addEntToSet( d_domain->getMesh(),
 			       node_vertices[n],
@@ -223,8 +226,27 @@ void KDTree::buildTreeNode( RCP_Node node )
 }
 
 /*!
- * \brief Search a node for a point. If its a leaf node, return the element we
- * found it in.
+ * \brief Given a point, find its leaf node in the tree.
+ */
+KDTree::RCP_Node KDTree::findLeafNode( RCP_Node node, const MDArray &coords )
+{
+    RCP_Node return_node;
+    if ( !node->is_leaf )
+    {
+	if ( isPointInBox( node->child1->bounding_box, coords ) )
+	{
+	    return_node = findLeafNode( node->child1, coords );
+	}
+	else if ( isPointInBox( node->child2->bounding_box, coords ) )
+	{
+	    return_node = findLeafNode( node->child2, coords );
+	}
+    }
+    return return_node;
+}
+
+/*!
+ * \brief Search a node for a point. Return the element we found it in.
  */
 bool KDTree::findPointInNode( RCP_Node node,
 			      iBase_EntityHandle &found_in_entity,
@@ -233,53 +255,65 @@ bool KDTree::findPointInNode( RCP_Node node,
     int error = 0;
     bool return_val = false;
 
-    // First check at the node level.
-    iBase_EntityHandle *node_elements = 0;
-    int node_elements_allocated = 0; 
-    int node_elements_size = 0; 
+    // First check at the local level.
+    int node_vertices_allocated = 0;
+    int node_vertices_size = 0;
+    iBase_EntityHandle *node_vertices;
     iMesh_getEntities( d_domain->getMesh(),
 		       node->node_set,
 		       d_entity_type,
 		       d_entity_topology,
-		       &node_elements,
-		       &node_elements_allocated,
-		       &node_elements_size,
+		       &node_vertices,
+		       &node_vertices_allocated,
+		       &node_vertices_size,
 		       &error );
     assert( iBase_SUCCESS == error );
 
+    iBase_EntityHandle *node_adj_elements = 0;
+    int node_adj_elements_allocated = 0; 
+    int node_adj_elements_size = 0; 
+    int *offset = 0;
+    int offset_allocated = 0; 
+    int offset_size = 0; 
+    iMesh_getEntArrAdj( d_domain->getMesh(),
+			node_vertices,
+			d_entity_type,
+			d_entity_topology,
+			&node_adj_elements,
+			&node_adj_elements_allocated,
+			&node_adj_elements_size,
+			&offset,
+			&offset_allocated,
+			&offset_size,
+			&error );
+    assert( iBase_SUCCESS == error );
+
     int i = 0;
-    if ( node_elements_size > 0 )
+    if ( node_adj_elements_size > 0 )
     {
-	while ( i < node_elements_size && !return_val )
+	while ( i < node_adj_elements_size && !return_val )
 	{
 	    if ( PointQuery::point_in_ref_element( d_domain->getMesh(),
-						   node_elements[i],
+						   node_adj_elements[i],
 						   coords ) )
 	    {
 		return_val = true;
-		found_in_entity = node_elements[i];
+		found_in_entity = node_adj_elements[i];
 	    }
 	    ++i;
 	}
     }
 
-    free( node_elements );
+    free( node_adj_elements );
+    free( node_vertices );
 
-    // If we found the element or we're at a leaf then we're done. Otherwise,
-    // recurse through the children if this point is in their bounding box.
-    if ( !return_val && !node->is_leaf )
+    // If we found an element then we're done, otherwise recurse back up the
+    // tree until we hit the root node. At that point we're done.
+    if ( !return_val && node != d_root_node )
     {
-	int j = 0;
-	while ( j < 8 && !return_val )
-	{
-	    if ( isPointInBox( node->children[j]->bounding_box, coords ) )
-	    {
-		return_val = findPointInNode( node->children[j],
-					      found_in_entity,
-					      coords );
-	    }
-	    ++j;
-	}
+	return_val = findPointInNode( node->parent,
+				      found_in_entity,
+				      coords );
     }
 
     return return_val;
@@ -438,6 +472,8 @@ bool KDTree::isEntInBox( const Box &box,
  */
 double KDTree::sliceBox( RCP_Node node )
 {
+    int error = 0;
+
     // Get the node vertices.
     int node_vertices_allocated = 0;
     int node_vertices_size = 0;
@@ -456,8 +492,8 @@ double KDTree::sliceBox( RCP_Node node )
     int node_coords_size = 0;
     double *coords = 0;
     iMesh_getVtxArrCoords( d_domain->getMesh(),
-			   set_vertices,
-			   set_vertices_size,
+			   node_vertices,
+			   node_vertices_size,
 			   iBase_BLOCKED,
 			   &coords,
 			   &node_coords_allocated,
@@ -515,7 +551,7 @@ double KDTree::sliceBox( RCP_Node node )
     else 
     {
 	node_it_begin = node_coords.begin() + 2*node_vertices_size;
-	node_it_end = node_coords.begin() + node_coords.end();
+	node_it_end = node_coords.end();
 
 	cutting_val = median( node_it_begin, node_it_end );
 
@@ -547,7 +583,7 @@ double KDTree::median( Teuchos::ArrayView<double>::const_iterator begin,
 {
     std::size_t middle = std::distance( begin , end ) / 2;
     std::nth_element( begin, begin+middle, end );
-    return node_coords[ cutting_index ];
+    return *(begin + middle);
 }
 
 } // end namespace food

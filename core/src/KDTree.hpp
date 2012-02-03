@@ -24,7 +24,9 @@ namespace FOOD
 
 class KDTreeNode
 {
+  public:
     iBase_EntitySetHandle node_set;
+    Teuchos::RCP<KDTreeNode> parent;
     Teuchos::RCP<KDTreeNode> child1;
     Teuchos::RCP<KDTreeNode> child2;
     Teuchos::Tuple<double,6> bounding_box;
@@ -33,6 +35,7 @@ class KDTreeNode
  
     KDTreeNode()
        : node_set(0)
+       , parent(0)
        , child1(0)
        , child2(0)
        , is_leaf(false)
@@ -45,6 +48,15 @@ class KDTreeNode
 
 class KDTree
 {
+  public:
+
+    //@{
+    //! Typedefs.
+    typedef Teuchos::RCP<Domain>                      RCP_Domain;
+    typedef Teuchos::RCP<KDTreeNode>                  RCP_Node;
+    typedef Intrepid::FieldContainer<double>          MDArray;
+    typedef Teuchos::Tuple<double,6>                  Box;
+    //@}
 
   private:
 
@@ -81,6 +93,9 @@ class KDTree
 
     // Build a tree node.
     void buildTreeNode( RCP_Node node );
+
+    // Given a point, find its leaf node in the tree.
+    RCP_Node findLeafNode( RCP_Node node, const MDArray &coords );
 
     // Search a node for a point.
     bool findPointInNode( RCP_Node node,
