@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------//
 // \file Octree.hpp
 // \author Stuart Slattery
-// \breif Octree definition.
+// \brief Octree definition.
 //---------------------------------------------------------------------------//
 
 #ifndef FOOD_OCTREE_HPP

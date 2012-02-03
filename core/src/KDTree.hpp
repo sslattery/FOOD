@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------//
 // \file KDTree.hpp
 // \author Stuart Slattery
-// \breif KDTree definition.
+// \brief KDTree definition.
 //---------------------------------------------------------------------------//
 
 #ifndef FOOD_KDTREE_HPP
@@ -29,12 +29,14 @@ class KDTreeNode
     Teuchos::RCP<KDTreeNode> child2;
     Teuchos::Tuple<double,6> bounding_box;
     bool is_leaf;
+    int axis;
  
     KDTreeNode()
        : node_set(0)
        , child1(0)
        , child2(0)
        , is_leaf(false)
+       , axis(0)
     { /* ... */ }
 
     ~KDTreeNode()
@@ -94,8 +96,12 @@ class KDTree
     // Determine if an entity is inside a bounding box.
     bool isEntInBox( const Box &box, iBase_EntityHandle entity );
 
-    // Slice a box along the specified axis and return the resulting boxes.
-    void sliceBox( RCP_Node node, const int axis, const double axis_coord );
+    // Slice a box along the specified axis and return the value for slicing.
+    double sliceBox( RCP_Node node );
+
+    // Compute the median of a range of values.
+    double median( Teuchos::ArrayView<double>::const_iterator begin,
+		   Teuchos::ArrayView<double>::const_iterator end );
 };
 
 } // end namespace FOOD
