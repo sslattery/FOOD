@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------//
 // \file KDTree.cpp
 // \author Stuart Slattery
-// \brief KDTree declaration.
+// \brief KDTree definition.
 //---------------------------------------------------------------------------//
 
 #include <cassert>
@@ -23,7 +23,7 @@ KDTree::KDTree( RCP_Domain domain,
     : d_domain(domain)
     , d_entity_type(entity_type)
     , d_entity_topology(entity_topology)
-    , d_root_node( new KDTreeNode )
+    , d_root_node( Teuchos::rcp(new KDTreeNode) )
 { /* ... */ }
 
 /*!
@@ -53,9 +53,9 @@ bool KDTree::findPoint( iBase_EntityHandle &found_in_entity,
     bool return_val = false; 
 
     iBase_EntityHandle nearest_neighbor;
-    KDTreeNode *starting_node = findLeafNode( d_root_node, 
-					      nearest_neighbor, 
-					      coords );
+    RCP_Node starting_node = findLeafNode( d_root_node, 
+					   nearest_neighbor, 
+					   coords );
     findPointInNode( starting_node, nearest_neighbor, coords );
 
     iBase_EntityHandle *adj_elements = 0;
@@ -95,13 +95,13 @@ bool KDTree::findPoint( iBase_EntityHandle &found_in_entity,
 /*! 
  * \brief Build a tree node.
  */
-void KDTree::buildTreeNode( KDTreeNode* node )
+void KDTree::buildTreeNode( RCP_Node node )
 {
     int error = 0;
 
     // Create the children.
-    node->child1 = new KDTreeNode;
-    node->child2 = new KDTreeNode;
+    node->child1 = Teuchos::rcp( new KDTreeNode );
+    node->child2 = Teuchos::rcp( new KDTreeNode );
     node->child1->parent = node;
     node->child2->parent = node;
     if ( node->axis == 0 )
@@ -267,13 +267,13 @@ void KDTree::buildTreeNode( KDTreeNode* node )
 /*!
  * \brief Given a point, find its leaf node in the tree.
  */
-KDTreeNode* KDTree::findLeafNode( KDTreeNode* node, 
-				  iBase_EntityHandle &nearest_neighbor,
-				  const MDArray &coords )
+KDTree::RCP_Node KDTree::findLeafNode( RCP_Node node, 
+				       iBase_EntityHandle &nearest_neighbor,
+				       const MDArray &coords )
 {
     int error = 0;
 
-    KDTreeNode* return_node;
+    RCP_Node return_node;
     if ( !node->is_leaf )
     {
 	if ( coords(0,node->axis) < node->median )
@@ -347,7 +347,7 @@ KDTreeNode* KDTree::findLeafNode( KDTreeNode* node,
 /*!
  * \brief Search a node for a point. Return the element we found it in.
  */
-void KDTree::findPointInNode( KDTreeNode* node,
+void KDTree::findPointInNode( RCP_Node node,
 			      iBase_EntityHandle &nearest_neighbor,
 			      const MDArray &coords )
 {
@@ -583,7 +583,7 @@ bool KDTree::isEntInBox( const Box &box,
 /*!
  * \brief Slice a box along the specified axis and return the resulting boxes.
  */
-void KDTree::sliceBox( KDTreeNode* node )
+void KDTree::sliceBox( RCP_Node node )
 {
     int error = 0;
 

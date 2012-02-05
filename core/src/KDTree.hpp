@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------//
 // \file KDTree.hpp
 // \author Stuart Slattery
-// \brief KDTree definition.
+// \brief KDTree declaration.
 //---------------------------------------------------------------------------//
 
 #ifndef FOOD_KDTREE_HPP
@@ -9,6 +9,7 @@
 
 #include "PointQuery.hpp"
 #include "Domain.hpp"
+#include "BSPTree.hpp"
 
 #include <iBase.h>
 #include <iMesh.h>
@@ -26,9 +27,9 @@ class KDTreeNode
 {
   public:
     iBase_EntitySetHandle node_set;
-    KDTreeNode* parent;
-    KDTreeNode* child1;
-    KDTreeNode* child2;
+    Teuchos::RCP<KDTreeNode> parent;
+    Teuchos::RCP<KDTreeNode> child1;
+    Teuchos::RCP<KDTreeNode> child2;
     Teuchos::Tuple<double,6> bounding_box;
     bool is_leaf;
     int axis;
@@ -48,12 +49,13 @@ class KDTreeNode
     { /* ... */ }
 };
 
-class KDTree
+class KDTree : public BSPTree
 {
   public:
 
     //@{
     //! Typedefs.
+    typedef Teuchos::RCP<KDTreeNode>                  RCP_Node;
     typedef Teuchos::RCP<Domain>                      RCP_Domain;
     typedef Intrepid::FieldContainer<double>          MDArray;
     typedef Teuchos::Tuple<double,6>                  Box;
@@ -71,7 +73,7 @@ class KDTree
     std::size_t d_entity_topology;
 
     // The root node of the tree.
-    KDTreeNode* d_root_node;
+    RCP_Node d_root_node;
 
   public:
 
@@ -93,15 +95,15 @@ class KDTree
   private:
 
     // Build a tree node.
-    void buildTreeNode( KDTreeNode* node );
+    void buildTreeNode( RCP_Node node );
 
     // Given a point, find its leaf node in the tree.
-    KDTreeNode* findLeafNode( KDTreeNode* node, 
-			      iBase_EntityHandle &nearest_neighbor,
-			      const MDArray &coords );
+    RCP_Node findLeafNode( RCP_Node node, 
+			   iBase_EntityHandle &nearest_neighbor,
+			   const MDArray &coords );
 
     // Search a node for a point.
-    void findPointInNode( KDTreeNode* node,
+    void findPointInNode( RCP_Node node,
 			  iBase_EntityHandle &nearest_neighbor,
 			  const MDArray &coords );
 
@@ -115,7 +117,7 @@ class KDTree
     bool isEntInBox( const Box &box, iBase_EntityHandle entity );
 
     // Slice a box along the specified axis and return the value for slicing.
-    void sliceBox( KDTreeNode* node );
+    void sliceBox( RCP_Node node );
 
     // Compute the median of a range of values.
     double median( Teuchos::ArrayView<double>::iterator begin,

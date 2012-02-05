@@ -7,6 +7,8 @@
 #ifndef FOOD_TENSORFIELD_DEF_HPP
 #define FOOD_TENSORFIELD_DEF_HPP
 
+#include <vector>
+
 #include <Teuchos_CommHelpers.hpp>
 
 #include <Intrepid_CellTools.hpp>

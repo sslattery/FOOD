@@ -22,6 +22,8 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 APPEND_SET(HEADERS
   BasisFactory.hpp
   BasisFactory_Def.hpp
+  BSPTree.hpp
+  BSPTreeFactory.hpp
   CellTopologyFactory.hpp
   DFuncKernel.hpp
   DFuncKernel_Def.hpp

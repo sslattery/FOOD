@@ -8,7 +8,6 @@
 #define FOOD_TENSORFIELD_HPP
  
 #include <string>
-#include <vector>
 
 #include "Types.hpp"
 #include "TypeTraits.hpp"

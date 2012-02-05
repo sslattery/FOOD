@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------//
 // \file Octree.cpp
 // \author Stuart Slattery
-// \brief Octree declaration.
+// \brief Octree defintion.
 //---------------------------------------------------------------------------//
 
 #include <cassert>

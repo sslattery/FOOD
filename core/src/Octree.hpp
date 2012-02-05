@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------//
 // \file Octree.hpp
 // \author Stuart Slattery
-// \brief Octree definition.
+// \brief Octree declaration.
 //---------------------------------------------------------------------------//
 
 #ifndef FOOD_OCTREE_HPP
@@ -9,6 +9,7 @@
 
 #include "PointQuery.hpp"
 #include "Domain.hpp"
+#include "BSPTree.hpp"
 
 #include <iBase.h>
 #include <iMesh.h>
@@ -39,7 +40,7 @@ class OctreeNode
     { /* ... */ }
 };
 
-class Octree
+class Octree : public BSPTree
 {
 
   public:
