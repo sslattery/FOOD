@@ -12,7 +12,8 @@
 #include <sstream>
 
 #include <Domain.hpp>
-#include <KDTree.hpp>
+#include <BSPTree.hpp>
+#include <BSPTreeFactory.hpp>
 
 #include <iMesh.h>
 #include <iBase.h>
@@ -46,9 +47,9 @@ void create_hex_mesh(iMesh_Instance &mesh)
     assert( iBase_SUCCESS == error );
 
     // Generate vertices.
-    int num_i = 1;
-    int num_j = 1;
-    int num_k = 1;
+    int num_i = 3;
+    int num_j = 3;
+    int num_k = 3;
     int dx = 1.0;
     int dy = 1.0;
     int dz = 1.0;
@@ -156,23 +157,29 @@ TEUCHOS_UNIT_TEST( KDTree, tree_build_and_search_test )
     Teuchos::RCP<FOOD::Domain> domain = 
 	Teuchos::rcp( new FOOD::Domain(mesh, root_set) );
 
-    FOOD::KDTree kdtree( domain, iBase_REGION, iMesh_HEXAHEDRON );
-    kdtree.buildTree();
+    FOOD::BSPTreeFactory tree_factory;
+    Teuchos::RCP<FOOD::BSPTree> tree = 
+	tree_factory.create( FOOD::BSPTree::KDTREE, 
+			     domain, 
+			     iBase_REGION, 
+			     iMesh_HEXAHEDRON );
 
- //    MDArray coords1(1,3);
-//     coords1(0,0) = 0.5;
-//     coords1(0,1) = 0.5;
-//     coords1(0,2) = 0.5;
+    tree->buildTree();
 
-//     MDArray coords2(1,3);
-//     coords2(0,0) = -1.4;
-//     coords2(0,1) = 2.6;
-//     coords2(0,2) = 7.34;
+    MDArray coords1(1,3);
+    coords1(0,0) = 0.5;
+    coords1(0,1) = 0.5;
+    coords1(0,2) = 0.5;
 
-//     iBase_EntityHandle found_hex = 0;
+    MDArray coords2(1,3);
+    coords2(0,0) = -1.4;
+    coords2(0,1) = 2.6;
+    coords2(0,2) = 7.34;
 
-//     TEST_ASSERT( kdtree.findPoint( found_hex, coords1 ) );
-//     TEST_ASSERT( !kdtree.findPoint( found_hex, coords2 ) );
+    iBase_EntityHandle found_hex = 0;
+
+    TEST_ASSERT( tree->findPoint( found_hex, coords1 ) );
+    TEST_ASSERT( !tree->findPoint( found_hex, coords2 ) );
 }
 
 //---------------------------------------------------------------------------//

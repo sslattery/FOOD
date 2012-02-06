@@ -33,13 +33,13 @@ BSPTreeFactory::RCP_BSPTree BSPTreeFactory::create( const int tree_type,
 
     switch( tree_type )
     {
-	case OCTREE:
+	case BSPTree::OCTREE:
 
 	    new_tree = Teuchos::rcp( 
 		new Octree( domain, entity_type, entity_topology ) );
 	    break;
 
-	case KDTREE:
+	case BSPTree::KDTREE:
 	    new_tree = Teuchos::rcp( 
 		new KDTree( domain, entity_type, entity_topology ) );
 	    break;

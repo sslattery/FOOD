@@ -48,6 +48,7 @@ APPEND_SET(HEADERS
 # Set sources
 
 APPEND_SET(SOURCES
+  BSPTreeFactory.cpp
   CellTopologyFactory.cpp
   Domain.cpp
   KDTree.cpp

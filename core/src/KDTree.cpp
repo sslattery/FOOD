@@ -23,7 +23,7 @@ KDTree::KDTree( RCP_Domain domain,
     : d_domain(domain)
     , d_entity_type(entity_type)
     , d_entity_topology(entity_topology)
-    , d_root_node( Teuchos::rcp(new KDTreeNode) )
+    , d_root_node( new KDTreeNode )
 { /* ... */ }
 
 /*!
@@ -49,59 +49,34 @@ void KDTree::buildTree()
 bool KDTree::findPoint( iBase_EntityHandle &found_in_entity,
 			const MDArray &coords )
 {
-    int error = 0;
-    bool return_val = false; 
+    bool return_val = false;
 
-    iBase_EntityHandle nearest_neighbor;
-    RCP_Node starting_node = findLeafNode( d_root_node, 
-					   nearest_neighbor, 
-					   coords );
-    findPointInNode( starting_node, nearest_neighbor, coords );
-
-    iBase_EntityHandle *adj_elements = 0;
-    int adj_elements_allocated = 0; 
-    int adj_elements_size = 0; 
-    iMesh_getEntAdj( d_domain->getMesh(),
-		     nearest_neighbor,
-		     d_entity_type,
-		     &adj_elements,
-		     &adj_elements_allocated,
-		     &adj_elements_size,
-		     &error );
-    assert( iBase_SUCCESS == error );
-
-    int i = 0;
-    if ( adj_elements_size > 0 )
+    if ( isPointInBox( d_root_node->bounding_box, coords ) )
     {
-	while ( i < adj_elements_size && !return_val )
-	{
-	    if ( PointQuery::point_in_ref_element( d_domain->getMesh(),
-						   adj_elements[i],
-						   coords ) )
-	    {
-		std::cout << "HIT IN TREE" << std::endl;
-		return_val = true;
-		found_in_entity = adj_elements[i];
-	    }
-	    ++i;
-	}
-    }
- 
-    free( adj_elements );
+	iBase_EntityHandle nearest_neighbor;
+	KDTreeNode* starting_node = findLeafNode( d_root_node, 
+						  nearest_neighbor, 
+						  coords );
 
-   return return_val;
+	return_val = findPointInNode( starting_node, 
+				      nearest_neighbor, 
+				      coords,
+				      found_in_entity );
+    }
+
+    return return_val;
 }
 
 /*! 
  * \brief Build a tree node.
  */
-void KDTree::buildTreeNode( RCP_Node node )
+void KDTree::buildTreeNode( KDTreeNode* node )
 {
     int error = 0;
 
     // Create the children.
-    node->child1 = Teuchos::rcp( new KDTreeNode );
-    node->child2 = Teuchos::rcp( new KDTreeNode );
+    node->child1 = new KDTreeNode;
+    node->child2 = new KDTreeNode;
     node->child1->parent = node;
     node->child2->parent = node;
     if ( node->axis == 0 )
@@ -267,13 +242,13 @@ void KDTree::buildTreeNode( RCP_Node node )
 /*!
  * \brief Given a point, find its leaf node in the tree.
  */
-KDTree::RCP_Node KDTree::findLeafNode( RCP_Node node, 
-				       iBase_EntityHandle &nearest_neighbor,
-				       const MDArray &coords )
+KDTreeNode* KDTree::findLeafNode( KDTreeNode* node, 
+				  iBase_EntityHandle &nearest_neighbor,
+				  const MDArray &coords )
 {
     int error = 0;
 
-    RCP_Node return_node;
+    KDTreeNode* return_node;
     if ( !node->is_leaf )
     {
 	if ( coords(0,node->axis) < node->median )
@@ -347,11 +322,13 @@ KDTree::RCP_Node KDTree::findLeafNode( RCP_Node node,
 /*!
  * \brief Search a node for a point. Return the element we found it in.
  */
-void KDTree::findPointInNode( RCP_Node node,
+bool KDTree::findPointInNode( KDTreeNode* node,
 			      iBase_EntityHandle &nearest_neighbor,
-			      const MDArray &coords )
+			      const MDArray &coords,
+			      iBase_EntityHandle &found_in_entity )
 {
     int error = 0;
+    bool entity_found = false;
 
     // First check at the local level.
     int node_vertices_allocated = 0;
@@ -387,55 +364,70 @@ void KDTree::findPointInNode( RCP_Node node,
 	double local_distance = 0;
 	for ( int i = 0; i < node_vertices_size; ++i )
 	{
-	    iMesh_getVtxCoord( d_domain->getMesh(),
-			       node_vertices[i],
-			       &x,
-			       &y,
-			       &z,
-			       &error );
-	    assert( iBase_SUCCESS == error );
-
-	    local_distance = (coords(0,0) - x)*(coords(0,0) - x) +
-			     (coords(0,1) - y)*(coords(0,1) - y) +
-			     (coords(0,2) - z)*(coords(0,2) - z);
-
-	    if ( local_distance < distance )
+	    entity_found = isPointInAdj( node_vertices[i],
+					 coords,
+					 found_in_entity );
+	    
+	    if ( !entity_found )
 	    {
-		distance = local_distance;
-		nearest_neighbor = node_vertices[i];
+		iMesh_getVtxCoord( d_domain->getMesh(),
+				   node_vertices[i],
+				   &x,
+				   &y,
+				   &z,
+				   &error );
+		assert( iBase_SUCCESS == error );
+
+		local_distance = (coords(0,0) - x)*(coords(0,0) - x) +
+				 (coords(0,1) - y)*(coords(0,1) - y) +
+				 (coords(0,2) - z)*(coords(0,2) - z);
+
+		if ( local_distance < distance )
+		{
+		    distance = local_distance;
+		    nearest_neighbor = node_vertices[i];
+		}
 	    }
 	}
     }
 
     free( node_vertices );
 
-    // Check to see if their could be points on the other side of the
-    // splitting plane.
-    double distance_to_plane = (node->parent->median - coords(0,node->axis))*
-				(node->parent->median - coords(0,node->axis));
-    if ( distance > distance_to_plane )
+    // Check to see if there could be points on the other side of the
+    // splitting plane. If we're at the root node then we're done
+    if ( node != d_root_node && !entity_found)
     {
-	if ( node == node->parent->child1 )
+	double distance_to_plane = (node->parent->median - coords(0,node->parent->axis))*
+				   (node->parent->median - coords(0,node->parent->axis));
+	if ( distance > distance_to_plane )
 	{
-	    findPointInNode( node->parent->child2, nearest_neighbor, coords );
+	    if ( node == node->parent->child1 )
+	    {
+		findPointInNode( node->parent->child2, 
+				 nearest_neighbor, 
+				 coords,
+				 found_in_entity );
+	    }
+	    else 
+	    {
+		findPointInNode( node->parent->child1, 
+				 nearest_neighbor, 
+				 coords,
+				 found_in_entity);
+	    }
 	}
-	else 
-	{
-	    findPointInNode( node->parent->child1, nearest_neighbor, coords );
-	}
-    }
     
-    if ( node != d_root_node )
-    {
-	findPointInNode( node->parent, nearest_neighbor, coords );
+	findPointInNode( node->parent, nearest_neighbor, coords, found_in_entity );
     }
+
+    return entity_found;
 }
 
 /*!
  * \brief Get the bounding box of a set of entities.
  */
 void KDTree::getEntSetBox( iBase_EntitySetHandle entity_set,
-			   Box &bounding_box )
+			   double bounding_box[6] )
 {
     double grow = 1.0;
     int error = 0;
@@ -504,9 +496,53 @@ void KDTree::getEntSetBox( iBase_EntitySetHandle entity_set,
 }
 
 /*!
+ * \brief Determine if a point is inside the entities adjacent to another
+ * point. 
+ */
+bool KDTree::isPointInAdj( iBase_EntityHandle point, 
+			   const MDArray &coords,
+			   iBase_EntityHandle &found_in_entity )
+{
+    bool return_val = false;
+    int error = 0;
+
+    iBase_EntityHandle *adj_elements = 0;
+    int adj_elements_allocated = 0; 
+    int adj_elements_size = 0; 
+    iMesh_getEntAdj( d_domain->getMesh(),
+    		     point,
+    		     d_entity_type,
+    		     &adj_elements,
+    		     &adj_elements_allocated,
+    		     &adj_elements_size,
+    		     &error );
+    assert( iBase_SUCCESS == error );
+
+    int i = 0;
+    if ( adj_elements_size > 0 )
+    {
+    	while ( i < adj_elements_size && !return_val )
+    	{
+    	    if ( PointQuery::point_in_ref_element( d_domain->getMesh(),
+    						   adj_elements[i],
+    						   coords ) )
+    	    {
+    		return_val = true;
+    		found_in_entity = adj_elements[i];
+    	    }
+    	    ++i;
+    	}
+    }
+ 
+    free( adj_elements );
+
+    return return_val;
+}
+
+/*!
  * \brief Determine if a point is inside a bounding box.
  */
-bool KDTree::isPointInBox( const Box &box,
+bool KDTree::isPointInBox( const double box[6],
 			   const MDArray &coords )
 {
     bool return_val = false;
@@ -528,7 +564,7 @@ bool KDTree::isPointInBox( const Box &box,
  * \brief Determine if an entity is inside a bounding box. The entire element
  * must be in the box.
  */
-bool KDTree::isEntInBox( const Box &box,
+bool KDTree::isEntInBox( const double box[6],
 			 iBase_EntityHandle entity )
 {
     int error = 0;
@@ -583,7 +619,7 @@ bool KDTree::isEntInBox( const Box &box,
 /*!
  * \brief Slice a box along the specified axis and return the resulting boxes.
  */
-void KDTree::sliceBox( RCP_Node node )
+void KDTree::sliceBox( KDTreeNode* node )
 {
     int error = 0;
 

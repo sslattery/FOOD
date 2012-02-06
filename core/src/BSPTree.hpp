@@ -26,6 +26,14 @@ class BSPTree : public Teuchos::Describable
     typedef Intrepid::FieldContainer<double>          MDArray;
     //@}
 
+    //! Tree type enumerations.
+    enum TreeType {
+	TreeType_MIN = 0,
+	OCTREE = TreeType_MIN,
+	KDTREE,
+	TreeType_MAX = KDTREE
+    };
+
     //! Constructor.
     BSPTree()
     { /* ... */ }

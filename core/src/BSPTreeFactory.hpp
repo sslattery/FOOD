@@ -27,21 +27,11 @@ class BSPTreeFactory
     typedef Teuchos::RCP<BSPTree>              RCP_BSPTree;
     //@}
 
-    //! Tree type enumerations.
-    enum TreeType {
-	TreeType_MIN = 0,
-	OCTREE = TreeType_Min,
-	KDTREE,
-	TreeType_MAX = KDTREE
-    };
-
     //! Constructor.
-    BSPTreeFactory()
-    { /* ... */ }
+    BSPTreeFactory();
 
     //! Destructor.
-    ~BSPTreeFactory()
-    { /* ... */ }
+    ~BSPTreeFactory();
 
     //! Factory method.
     RCP_BSPTree create( const int tree_type,

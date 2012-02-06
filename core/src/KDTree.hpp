@@ -15,7 +15,6 @@
 #include <iMesh.h>
 
 #include <Teuchos_RCP.hpp>
-#include <Teuchos_Tuple.hpp>
 #include <Teuchos_ArrayView.hpp>
 
 #include <Intrepid_FieldContainer.hpp>
@@ -27,10 +26,10 @@ class KDTreeNode
 {
   public:
     iBase_EntitySetHandle node_set;
-    Teuchos::RCP<KDTreeNode> parent;
-    Teuchos::RCP<KDTreeNode> child1;
-    Teuchos::RCP<KDTreeNode> child2;
-    Teuchos::Tuple<double,6> bounding_box;
+    KDTreeNode* parent;
+    KDTreeNode* child1;
+    KDTreeNode* child2;
+    double bounding_box[6];
     bool is_leaf;
     int axis;
     double median;
@@ -55,10 +54,8 @@ class KDTree : public BSPTree
 
     //@{
     //! Typedefs.
-    typedef Teuchos::RCP<KDTreeNode>                  RCP_Node;
     typedef Teuchos::RCP<Domain>                      RCP_Domain;
     typedef Intrepid::FieldContainer<double>          MDArray;
-    typedef Teuchos::Tuple<double,6>                  Box;
     //@}
 
   private:
@@ -73,7 +70,7 @@ class KDTree : public BSPTree
     std::size_t d_entity_topology;
 
     // The root node of the tree.
-    RCP_Node d_root_node;
+    KDTreeNode* d_root_node;
 
   public:
 
@@ -95,29 +92,36 @@ class KDTree : public BSPTree
   private:
 
     // Build a tree node.
-    void buildTreeNode( RCP_Node node );
+    void buildTreeNode( KDTreeNode* node );
 
     // Given a point, find its leaf node in the tree.
-    RCP_Node findLeafNode( RCP_Node node, 
-			   iBase_EntityHandle &nearest_neighbor,
-			   const MDArray &coords );
+    KDTreeNode* findLeafNode( KDTreeNode* node, 
+			      iBase_EntityHandle &nearest_neighbor,
+			      const MDArray &coords );
 
     // Search a node for a point.
-    void findPointInNode( RCP_Node node,
+    bool findPointInNode( KDTreeNode* node,
 			  iBase_EntityHandle &nearest_neighbor,
-			  const MDArray &coords );
+			  const MDArray &coords,
+			  iBase_EntityHandle &found_in_entity );
 
     // Get the bounding box of a set of entities.
-    void getEntSetBox( iBase_EntitySetHandle entity_set, Box &bounding_box );
+    void getEntSetBox( iBase_EntitySetHandle entity_set, 
+		       double bounding_box[6] );
 
     // Determine if a point is inside a bounding box.
-    bool isPointInBox( const Box &box, const MDArray &coords );
+    bool isPointInBox( const double box[6], const MDArray &coords );
+
+    // Determine if a point is inside the entities adjacent to another point.
+    bool isPointInAdj( iBase_EntityHandle point, 
+		       const MDArray &coords,
+		       iBase_EntityHandle &found_in_entity );
 
     // Determine if an entity is inside a bounding box.
-    bool isEntInBox( const Box &box, iBase_EntityHandle entity );
+    bool isEntInBox( const double box[6], iBase_EntityHandle entity );
 
     // Slice a box along the specified axis and return the value for slicing.
-    void sliceBox( RCP_Node node );
+    void sliceBox( KDTreeNode* node );
 
     // Compute the median of a range of values.
     double median( Teuchos::ArrayView<double>::iterator begin,
