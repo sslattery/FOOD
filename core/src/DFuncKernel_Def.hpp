@@ -44,7 +44,7 @@ DFuncKernel<Scalar>::DFuncKernel( const int eval_type,
 				    basis_degree );
 
     CellTopologyFactory topo_factory;
-    d_cell_topology = topo_factory.create( eval_topology, 0 );
+    d_cell_topology = topo_factory.create( eval_topology, d_basis->getCardinality() );
 }
 
 /*!

@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------//
 // \file cxx_main.cpp
 // \author Stuart Slattery
-// \brief Driver for tet part interpolation example.
+// \brief FEMInterpolation Example 1.
 //---------------------------------------------------------------------------//
 
 #include <cassert>
@@ -36,6 +36,8 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 #endif
 }
 
+// This example loads a fine tetrahedron mesh tagged with a 3-vector and
+// interpolates it onto a coarse hexahedron mesh.
 int main(int argc, char* argv[])
 {
     // Setup communication.

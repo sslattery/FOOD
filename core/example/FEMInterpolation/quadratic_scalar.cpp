@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------//
 // \file cxx_main.cpp
 // \author Stuart Slattery
-// \brief Driver for tet part interpolation example.
+// \brief FEMInterpolation example 2.
 //---------------------------------------------------------------------------//
 
 #include <cassert>
@@ -36,6 +36,8 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 #endif
 }
 
+// This FEMInterpolation example loads a quadratic hexahedron mesh tagged with
+// a scalar and interpolates it onto a coarse linear tet mesh.
 int main(int argc, char* argv[])
 {
     // Setup communication.
@@ -86,7 +88,7 @@ int main(int argc, char* argv[])
 						     FOOD::FOOD_CARTESIAN,
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_HGRAD,
-						     1 ) );
+						     2 ) );
 
     Teuchos::RCP< FOOD::TensorField<double> > func_dmn_field = Teuchos::rcp(
 	new FOOD::TensorField<double>( getDefaultComm<int>(),

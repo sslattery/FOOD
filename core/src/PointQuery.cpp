@@ -26,9 +26,6 @@ bool PointQuery::pointInRefElement( const iMesh_Instance mesh,
 		      &error );
     assert( iBase_SUCCESS == error );
 
-    CellTopologyFactory topo_factory;
-    RCP_CellTopology cell_topo = topo_factory.create( topology, 0 );
-
     iBase_EntityHandle *element_nodes = 0;
     int element_nodes_allocated = 0;
     int element_nodes_size = 0;
@@ -40,6 +37,10 @@ bool PointQuery::pointInRefElement( const iMesh_Instance mesh,
 		     &element_nodes_size,
 		     &error );
     assert( iBase_SUCCESS == error );
+
+    CellTopologyFactory topo_factory;
+    RCP_CellTopology cell_topo = topo_factory.create( topology, 
+						      element_nodes_size );
 
     int coords_allocated = element_nodes_size*3;
     int coords_size = 0;
