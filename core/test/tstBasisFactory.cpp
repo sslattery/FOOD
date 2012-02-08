@@ -56,7 +56,7 @@ TEUCHOS_UNIT_TEST( BasisFactory, factory_test )
     // Select a cell topology.
     FOOD::CellTopologyFactory cell_topo_factory;
     Teuchos::RCP<shards::CellTopology> cell_topo = 
-	cell_topo_factory.create( iMesh_TETRAHEDRON );
+	cell_topo_factory.create( iMesh_TETRAHEDRON, 0 );
     int dimension = cell_topo->getDimension();
     int node_count = cell_topo->getNodeCount();
     TEST_ASSERT( dimension == 3 );
