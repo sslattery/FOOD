@@ -86,6 +86,7 @@ CellTopologyFactory::create( const int entity_topology,
 	    break;
 
 	case iMesh_QUADRILATERAL:
+
 	    if ( num_entity_nodes == 4 )
 	    {
 		new_topology = Teuchos::rcp( 
