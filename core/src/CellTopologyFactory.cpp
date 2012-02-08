@@ -4,6 +4,8 @@
 // \brief Factory method defintion for cell topology data.
 //---------------------------------------------------------------------------//
 
+#include <cassert>
+
 #include "CellTopologyFactory.hpp"
 
 #include <iMesh.h>
@@ -33,13 +35,6 @@ CellTopologyFactory::create( const int entity_topology )
 
     switch( entity_topology )
     {
-	// case iMesh_POINT:
-	    
-	//     new_topology = Teuchos::rcp( 
-	// 	new shards::CellTopology(
-	// 	    shards::getCellTopologyData< shards::Node<> >() ) );
-	//     break;
-
 	case iMesh_LINE_SEGMENT:
 	    
 	    new_topology = Teuchos::rcp( 
@@ -74,6 +69,14 @@ CellTopologyFactory::create( const int entity_topology )
 		new shards::CellTopology(
 		    shards::getCellTopologyData< shards::Hexahedron<> >() ) );
 	    break;
+
+	default:
+	    
+	    assert( iMesh_LINE_SEGMENT  == entity_topology ||
+		    iMesh_TRIANGLE      == entity_topology ||
+		    iMesh_QUADRILATERAL == entity_topology ||
+		    iMesh_TETRAHEDRON   == entity_topology ||
+		    iMesh_HEXAHEDRON    == entity_topology );
     }
 
     return new_topology;

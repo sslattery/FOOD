@@ -57,8 +57,16 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HGRAD_LINE_C1_FEM<Scalar,ArrayScalar>() );
 			    }
+			    else
+			    {
+				assert( basis_degree == 1 );
+			    }
 
 			    break;
+
+			default:
+
+			    assert ( FOOD_FEM == discretization_type );
 		    }
 
 		case iMesh_TRIANGLE:
@@ -77,8 +85,17 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HGRAD_TRI_C2_FEM<Scalar,ArrayScalar>() );
 			    }
+			    else
+			    {
+				assert( basis_degree == 1 ||
+					basis_degree == 2 );
+			    }
 
 			    break;
+
+			default:
+
+			    assert ( FOOD_FEM == discretization_type );
 		    }
 
 		    break;
@@ -99,8 +116,17 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HGRAD_QUAD_C2_FEM<Scalar,ArrayScalar>() );
 			    }
+			    else
+			    {
+				assert( basis_degree == 1 ||
+					basis_degree == 2 );
+			    }
 
 			    break;
+
+			default:
+
+			    assert ( FOOD_FEM == discretization_type );
 		    }
 
 		    break;
@@ -121,8 +147,17 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HGRAD_TET_C2_FEM<Scalar,ArrayScalar>() );
 			    }
+			    else
+			    {
+				assert( basis_degree == 1 ||
+					basis_degree == 2 );
+			    }
 
 			    break;
+
+			default:
+
+			    assert ( FOOD_FEM == discretization_type );
 		    }
 
 		    break;
@@ -143,11 +178,28 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HGRAD_HEX_C2_FEM<Scalar,ArrayScalar>() );
 			    }
+			    else
+			    {
+				assert( basis_degree == 1 ||
+					basis_degree == 2 );
+			    }
 
 			    break;
+
+			default:
+
+			    assert ( FOOD_FEM == discretization_type );
 		    }
 
 		    break;
+
+		default:
+
+		    assert( iMesh_LINE_SEGMENT  == entity_topology ||
+			    iMesh_TRIANGLE      == entity_topology ||
+			    iMesh_QUADRILATERAL == entity_topology ||
+			    iMesh_TETRAHEDRON   == entity_topology ||
+			    iMesh_HEXAHEDRON    == entity_topology );
 	    }
 	
 	    break;
@@ -168,8 +220,16 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HDIV_TRI_I1_FEM<Scalar,ArrayScalar>() );
 			    }
+			    else
+			    {
+				assert( basis_degree == 1 );
+			    }
 
 			    break;
+
+			default:
+
+			    assert ( FOOD_FEM == discretization_type );
 		    }
 
 		    break;
@@ -185,8 +245,16 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HDIV_QUAD_I1_FEM<Scalar,ArrayScalar>() );
 			    }
+			    else
+			    {
+				assert( basis_degree == 1 );
+			    }
 
 			    break;
+
+			default:
+
+			    assert ( FOOD_FEM == discretization_type );
 		    }
 
 		    break;
@@ -202,8 +270,16 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HDIV_TET_I1_FEM<Scalar,ArrayScalar>() );
 			    }
+			    else
+			    {
+				assert( basis_degree == 1 );
+			    }
 
 			    break;
+
+			default:
+
+			    assert ( FOOD_FEM == discretization_type );
 		    }
 
 		    break;
@@ -219,11 +295,26 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HDIV_HEX_I1_FEM<Scalar,ArrayScalar>() );
 			    }
+			    else
+			    {
+				assert( basis_degree == 1 );
+			    }
 
 			    break;
+
+			default:
+
+			    assert ( FOOD_FEM == discretization_type );
 		    }
 
 		    break;
+
+		default:
+
+		    assert( iMesh_TRIANGLE      == entity_topology ||
+			    iMesh_QUADRILATERAL == entity_topology ||
+			    iMesh_TETRAHEDRON   == entity_topology ||
+			    iMesh_HEXAHEDRON    == entity_topology );
 	    }
 
 	    break;
@@ -243,8 +334,16 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HCURL_TRI_I1_FEM<Scalar,ArrayScalar>() );
 			    }
+			    else
+			    {
+				assert( basis_degree == 1 );
+			    }
 
 			    break;
+
+			default:
+
+			    assert ( FOOD_FEM == discretization_type );
 		    }
 
 		    break;
@@ -260,8 +359,16 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HCURL_QUAD_I1_FEM<Scalar,ArrayScalar>() );
 			    }
+			    else
+			    {
+				assert( basis_degree == 1 );
+			    }
 
 			    break;
+
+			default:
+
+			    assert ( FOOD_FEM == discretization_type );
 		    }
 
 		    break;
@@ -277,8 +384,16 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HCURL_TET_I1_FEM<Scalar,ArrayScalar>() );
 			    }
+			    else
+			    {
+				assert( basis_degree == 1 );
+			    }
 
 			    break;
+
+			default:
+
+			    assert ( FOOD_FEM == discretization_type );
 		    }
 
 		    break;
@@ -294,14 +409,35 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HCURL_HEX_I1_FEM<Scalar,ArrayScalar>() );
 			    }
+			    else
+			    {
+				assert( basis_degree == 1 );
+			    }
 
 			    break;
+
+			default:
+
+			    assert ( FOOD_FEM == discretization_type );
 		    }
 
 		    break;
+
+		default:
+
+		    assert( iMesh_TRIANGLE      == entity_topology ||
+			    iMesh_QUADRILATERAL == entity_topology ||
+			    iMesh_TETRAHEDRON   == entity_topology ||
+			    iMesh_HEXAHEDRON    == entity_topology );
 	    }
 
 	    break;
+
+	default:
+
+	    assert( FOOD_GRAD == basis_function_space ||
+		    FOOD_DIV  == basis_function_space ||
+		    FOOD_CURL == basis_function_space );
     }
 
     return new_basis;

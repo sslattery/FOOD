@@ -24,7 +24,7 @@ class CellTopologyFactory
     // Destructor.
     ~CellTopologyFactory();
 
-    // Factor method.
+    // Factory method.
     Teuchos::RCP<shards::CellTopology> create( const int entity_topology );
 };
 
