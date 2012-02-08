@@ -87,14 +87,14 @@ TEUCHOS_UNIT_TEST( PointQuery, hex_query )
     point1(0,0) = 0.5;
     point1(0,1) = 0.5;
     point1(0,2) = 0.5;
-    TEST_ASSERT( FOOD::PointQuery::point_in_ref_element( 
+    TEST_ASSERT( FOOD::PointQuery::pointInRefElement( 
 		     mesh, hex_element, point1 ) == true );
 
     MDArray point2(1,3);
     point2(0,0) = 0.25;
     point2(0,1) = 1.5;
     point2(0,2) = -0.5;
-    TEST_ASSERT( FOOD::PointQuery::point_in_ref_element( 
+    TEST_ASSERT( FOOD::PointQuery::pointInRefElement( 
 		     mesh, hex_element, point2 ) == false );
 }
 

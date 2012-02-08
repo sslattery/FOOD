@@ -7,9 +7,10 @@
 #ifndef FOOD_KDTREE_HPP
 #define FOOD_KDTREE_HPP
 
+#include <vector>
+
 #include "PointQuery.hpp"
 #include "Domain.hpp"
-#include "BSPTree.hpp"
 
 #include <iBase.h>
 #include <iMesh.h>
@@ -22,38 +23,111 @@
 namespace FOOD
 {
 
-class KDTreeNode
+template<int DIM>
+class Point
 {
   public:
-    iBase_EntitySetHandle node_set;
-    KDTreeNode* parent;
-    KDTreeNode* child1;
-    KDTreeNode* child2;
-    double bounding_box[6];
-    bool is_leaf;
-    int axis;
-    double median;
+
+    // Coordinates.
+    double x[DIM];
+
+    // Copy constructor.
+    Point( const Point &p )
+    {
+	for ( int i = 0; i < DIM; ++i) x[i] = p.x[i];
+    }
+    
+    // Assignment operator.
+    Point& operator= ( const Point &p )
+    {
+	for ( int i = 0; i < DIM; ++i ) x[i] = p.x[i];
+	return *this;
+    }
+
+    // Comparison operator.
+    bool operator== ( const Point &p ) const
+    {
+	for ( int i = 0; i < DIM; ++i )
+	{
+	    if ( x[i] != p.x[i] ) return false;
+	}
+	return true;
+    }
+
+    // Coordinate Constructor.
+    Point( double x0 = 0.0, double x1 = 0.0, double x2 = 0.0 )
+    {
+	x[0] = x0;
+	if (DIM > 3) x[1] = x1;
+	if (DIM > 3) x[2] = x2;
+    }
+};
+
+template<int DIM>
+class Box
+{
+  public:
+
+    Point<DIM> lo;
+    Point<DIM> hi;
+    
+    Box()
+    { /* ... */ }
+
+    Box( const Point<DIM> &_lo, const Point<DIM> &_hi)
+	: lo(_lo)
+	, hi(_hi)
+    { /* ... */ }
+
+    ~Box()
+    { /* ... */ }
+};
+
+template<int DIM>    
+class KDTreeNode : public Box<DIM>
+{
+  public:
+    int parent;
+    int child1;
+    int child2;
+    int ptlo;
+    int pthi;
  
     KDTreeNode()
-       : node_set(0)
-       , parent(0)
-       , child1(0)
-       , child2(0)
-       , is_leaf(false)
-       , axis(0)
-       , median(0.0)
+	: parent(0)
+	, child1(0)
+	, child2(0)
+	, ptlo(0)
+	, pthi(0)
+    { /* ... */ }
+
+    KDTreeNode( Point<DIM> _lo,
+		Point<DIM> _hi,
+		int _parent,
+		int _child1,
+		int _child2,
+		int _ptlo,
+		int _pthi )
+	: Box<DIM>( _lo, _hi )
+	, parent(_parent)
+	, child1(_child1)
+	, child2(_child2)
+	, ptlo(_ptlo)
+	, pthi(_pthi)
     { /* ... */ }
 
     ~KDTreeNode()
     { /* ... */ }
 };
 
-class KDTree : public BSPTree
+template<int DIM>
+class KDTree
 {
   public:
 
     //@{
     //! Typedefs.
+    typedef Teuchos::RCP< KDTreeNode<DIM> >           RCP_Node;
     typedef Teuchos::RCP<Domain>                      RCP_Domain;
     typedef Intrepid::FieldContainer<double>          MDArray;
     //@}
@@ -69,8 +143,23 @@ class KDTree : public BSPTree
     // The entity topology this tree is built on.
     std::size_t d_entity_topology;
 
-    // The root node of the tree.
-    KDTreeNode* d_root_node;
+    // Large value to get the tree started.
+    double d_large;
+
+    // Number of points in the domain.
+    int d_num_points;
+
+    // Points in the domain.
+    iBase_EntityHandle *d_points;
+
+    // Point indices.
+    std::vector<int> d_ptindx;
+
+    // Reverse point indices.
+    std::vector<int> d_rptindx;
+
+    // Tree nodes.
+    std::vector<RCP_Node> d_nodes;
 
   public:
 
@@ -85,50 +174,50 @@ class KDTree : public BSPTree
     // Build the tree.
     void buildTree();
 
-    // Locate a point.
-    bool findPoint( iBase_EntityHandle &found_in_entity,
-		    const MDArray &coords );
+    // Locate the nearest neighbor in the mesh.
+    void nearestNeighbor( const MDArray &coords,
+			  iBase_EntityHandle &nearest_neighbor );
+
+    // Get the element a point is located in.
+    bool getElement( const MDArray &coords,
+		     iBase_EntityHandle &element);
 
   private:
 
-    // Build a tree node.
-    void buildTreeNode( KDTreeNode* node );
+    // Calculate the distance between two points.
+    double dist( const Point<DIM> &p1, const Point<DIM> &p2 );
 
-    // Given a point, find its leaf node in the tree.
-    KDTreeNode* findLeafNode( KDTreeNode* node, 
-			      iBase_EntityHandle &nearest_neighbor,
-			      const MDArray &coords );
+    // Calculate the distance between a point and an iMesh Point.
+    double dist( iBase_EntityHandle p1, const Point<DIM> &p2 );
 
-    // Search a node for a point.
-    bool findPointInNode( KDTreeNode* node,
-			  iBase_EntityHandle &nearest_neighbor,
-			  const MDArray &coords,
-			  iBase_EntityHandle &found_in_entity );
+    // Calculate the distance between a point and a box.
+    double dist( const Box<DIM> &b, const Point<DIM> &p );
 
-    // Get the bounding box of a set of entities.
-    void getEntSetBox( iBase_EntitySetHandle entity_set, 
-		       double bounding_box[6] );
+    // Partition an array by index.
+    int partition( const int k, int *indx, int n, double *arr );
 
-    // Determine if a point is inside a bounding box.
-    bool isPointInBox( const double box[6], const MDArray &coords );
+    // Locate the node a point is in.
+    int locate( Point<DIM> p );
 
-    // Determine if a point is inside the entities adjacent to another point.
-    bool isPointInAdj( iBase_EntityHandle point, 
-		       const MDArray &coords,
-		       iBase_EntityHandle &found_in_entity );
+    // Locate the node a point is in based on index.
+    int locate( int ip );
 
-    // Determine if an entity is inside a bounding box.
-    bool isEntInBox( const double box[6], iBase_EntityHandle entity );
+    // Return the index of the point that is nearest neighbor to a given
+    // point. 
+    int nearest( Point<DIM> p );
 
-    // Slice a box along the specified axis and return the value for slicing.
-    void sliceBox( KDTreeNode* node );
+    // Determine if a point is inside the elements adjacent to a point.
+    bool pointInAdjElements( Point<DIM> p,
+			     iBase_EntityHandle point,
+			     iBase_EntityHandle &element );
 
-    // Compute the median of a range of values.
-    double median( Teuchos::ArrayView<double>::iterator begin,
-		   Teuchos::ArrayView<double>::iterator end );
+    // Find the element a point resides in.
+    bool findElement( Point<DIM> p, iBase_EntityHandle &element );
 };
 
 } // end namespace FOOD
+
+#include "KDTree_Def.hpp"
 
 #endif // end FOOD_KDTREE_HPP
 

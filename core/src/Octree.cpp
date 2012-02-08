@@ -215,9 +215,9 @@ bool Octree::findPointInNode( RCP_Node node,
     {
 	while ( i < node_elements_size && !return_val )
 	{
-	    if ( PointQuery::point_in_ref_element( d_domain->getMesh(),
-						   node_elements[i],
-						   coords ) )
+	    if ( PointQuery::pointInRefElement( d_domain->getMesh(),
+						node_elements[i],
+						coords ) )
 	    {
 		return_val = true;
 		found_in_entity = node_elements[i];

@@ -9,7 +9,6 @@
 
 #include "PointQuery.hpp"
 #include "Domain.hpp"
-#include "BSPTree.hpp"
 
 #include <iBase.h>
 #include <iMesh.h>
@@ -40,7 +39,7 @@ class OctreeNode
     { /* ... */ }
 };
 
-class Octree : public BSPTree
+class Octree
 {
 
   public:

@@ -22,8 +22,6 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 APPEND_SET(HEADERS
   BasisFactory.hpp
   BasisFactory_Def.hpp
-  BSPTree.hpp
-  BSPTreeFactory.hpp
   CellTopologyFactory.hpp
   DFuncKernel.hpp
   DFuncKernel_Def.hpp
@@ -31,6 +29,7 @@ APPEND_SET(HEADERS
   FEMInterpolate.hpp
   FEMInterpolate_Def.hpp
   KDTree.hpp
+  KDTree_Def.hpp
   KernelTraits.hpp
   Octree.hpp
   PointQuery.hpp
@@ -48,10 +47,8 @@ APPEND_SET(HEADERS
 # Set sources
 
 APPEND_SET(SOURCES
-  BSPTreeFactory.cpp
   CellTopologyFactory.cpp
   Domain.cpp
-  KDTree.cpp
   KernelTraits.cpp
   Octree.cpp
   PointQuery.cpp

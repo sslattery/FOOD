@@ -14,9 +14,9 @@
 namespace FOOD
 {
 
-bool PointQuery::point_in_ref_element( const iMesh_Instance mesh,
-				       const iBase_EntityHandle entity,
-				       const MDArray &coords)
+bool PointQuery::pointInRefElement( const iMesh_Instance mesh,
+				    const iBase_EntityHandle entity,
+				    const MDArray &coords)
 {
     int error = 0;
     int topology = 0;

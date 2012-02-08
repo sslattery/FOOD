@@ -27,9 +27,9 @@ namespace PointQuery
 typedef Intrepid::FieldContainer<double>          MDArray;
 typedef Teuchos::RCP<shards::CellTopology>        RCP_CellTopology;
 
-bool point_in_ref_element( const iMesh_Instance mesh,
-			   const iBase_EntityHandle entity,
-			   const MDArray &coords );
+bool pointInRefElement( const iMesh_Instance mesh,
+			const iBase_EntityHandle entity,
+			const MDArray &coords );
 		      
 } // end namespace PointQuery
 
