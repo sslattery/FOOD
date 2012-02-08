@@ -58,8 +58,8 @@ class Point
     Point( double x0 = 0.0, double x1 = 0.0, double x2 = 0.0 )
     {
 	x[0] = x0;
-	if (DIM > 3) x[1] = x1;
-	if (DIM > 3) x[2] = x2;
+	if (DIM > 1) x[1] = x1;
+	if (DIM > 2) x[2] = x2;
     }
 };
 

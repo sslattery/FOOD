@@ -179,6 +179,32 @@ TEUCHOS_UNIT_TEST( KDTree, tree_build_and_search_test )
     TEST_ASSERT( kdtree.getElement( coords1, found_hex ) );
     TEST_ASSERT( !kdtree.getElement( coords2, found_hex ) );
     TEST_ASSERT( kdtree.getElement( coords3, found_hex ) );
+    iBase_EntityHandle *adj_elements = 0;
+    int adj_elements_allocated = 0;
+    int adj_elements_size = 0;
+    iMesh_getEntAdj( domain->getMesh(),
+		     found_hex,
+		     iBase_VERTEX,
+		     &adj_elements,
+		     &adj_elements_allocated,
+		     &adj_elements_size,
+		     &error );
+    assert( iBase_SUCCESS == error );
+    double *coords = 0;
+    int coords_allocated = 0;
+    int coords_size = 0;
+    iMesh_getVtxArrCoords( domain->getMesh(),
+			   adj_elements,
+			   adj_elements_size,
+			   iBase_INTERLEAVED,
+			   &coords,
+			   &coords_allocated,
+			   &coords_size,
+			   &error );
+    assert( iBase_SUCCESS == error );
+
+    free( adj_elements );
+    free( coords );
 }
 
 //---------------------------------------------------------------------------//
