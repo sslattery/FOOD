@@ -1,8 +1,0 @@
-INCLUDE(TribitsAddExecutableAndTest)
-
-TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  ScalarFEMInterpolationExample
-  SOURCES cxx_main.cpp
-  COMM serial mpi
-  DEPLIBS teuchos intrepid food
-  )
