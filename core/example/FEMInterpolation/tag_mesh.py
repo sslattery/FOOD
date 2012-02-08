@@ -18,7 +18,7 @@ coords = mesh.getVtxCoords(vertices)
 tag_data = []
 
 for i in xrange(num_vert):
-    tag_data += [ coords[i][0], coords[i][1], coords[i][2] ]
+    tag_data += [ [coords[i][0], coords[i][1], coords[i][2]] ]
 
 tag[vertices] = tag_data
 
@@ -73,7 +73,7 @@ coords = mesh.getVtxCoords(vertices)
 tag_data = []
 
 for i in xrange(num_vert):
-    tag_data += [ 0.0, 0.0, 0.0 ]
+    tag_data += [ [0.0, 0.0, 0.0] ]
 
 tag[vertices] = tag_data
 
