@@ -2,5 +2,6 @@ INCLUDE(TribitsAddExecutableAndTest)
 INCLUDE(AddSubdirectories)
 
 ADD_SUBDIRECTORIES(
-  TetPartInterpolate
+  ScalarFEMInterpolation
+  VectorFEMInterpolation
   )

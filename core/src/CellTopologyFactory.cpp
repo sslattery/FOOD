@@ -29,7 +29,8 @@ CellTopologyFactory::~CellTopologyFactory()
  * \brief Factory method.
  */
 Teuchos::RCP<shards::CellTopology> 
-CellTopologyFactory::create( const int entity_topology )
+CellTopologyFactory::create( const int entity_topology,
+			     const int num_entity_nodes )
 {
     Teuchos::RCP<shards::CellTopology> new_topology;
 
@@ -37,37 +38,140 @@ CellTopologyFactory::create( const int entity_topology )
     {
 	case iMesh_LINE_SEGMENT:
 	    
-	    new_topology = Teuchos::rcp( 
-		new shards::CellTopology(
-		    shards::getCellTopologyData< shards::Line<> >() ) );
+	    if ( num_entity_nodes == 2 )
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Line<2> >() ) );
+	    }
+	    else if ( num_entity_nodes == 3 )
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Line<3> >() ) );
+	    }
+	    else {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Line<> >() ) );
+	    }
 	    break;
 
 	case iMesh_TRIANGLE:
 	    
-	    new_topology = Teuchos::rcp( 
-		new shards::CellTopology(
-		    shards::getCellTopologyData< shards::Triangle<> >() ) );
+	    if ( num_entity_nodes == 3 )
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Triangle<3> >() ) );
+	    }
+	    else if ( num_entity_nodes == 4 )
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Triangle<4> >() ) );
+	    }
+	    else if ( num_entity_nodes == 6 )
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Triangle<6> >() ) );
+	    }
+	    else
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Triangle<> >() ) );
+	    }
 	    break;
 
 	case iMesh_QUADRILATERAL:
-	    
-	    new_topology = Teuchos::rcp( 
-		new shards::CellTopology(
-		    shards::getCellTopologyData< shards::Quadrilateral<> >() ) );
+	    if ( num_entity_nodes == 4 )
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Quadrilateral<4> >() ) );
+	    }
+	    else if ( num_entity_nodes == 8 )
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Quadrilateral<8> >() ) );
+	    }
+	    else if ( num_entity_nodes == 9 )
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Quadrilateral<9> >() ) );
+	    }
+	    else
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Quadrilateral<> >() ) );
+	    }
 	    break;
 
 	case iMesh_TETRAHEDRON:
 	    
-	    new_topology = Teuchos::rcp( 
-		new shards::CellTopology(
-		    shards::getCellTopologyData< shards::Tetrahedron<> >() ) );
+	    if ( num_entity_nodes == 4 )
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Tetrahedron<4> >() ) );
+	    }
+	    else if ( num_entity_nodes == 8 )
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Tetrahedron<8> >() ) );
+	    }
+	    else if ( num_entity_nodes == 10 )
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Tetrahedron<10> >() ) );
+	    }
+	    else if ( num_entity_nodes == 11 )
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Tetrahedron<11> >() ) );
+	    }
+	    else 
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Tetrahedron<> >() ) );
+	    }
 	    break;
 
 	case iMesh_HEXAHEDRON:
 	    
-	    new_topology = Teuchos::rcp( 
-		new shards::CellTopology(
-		    shards::getCellTopologyData< shards::Hexahedron<> >() ) );
+	    if ( num_entity_nodes == 8 )
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Hexahedron<8> >() ) );
+	    }
+	    if ( num_entity_nodes == 20 )
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Hexahedron<20> >() ) );
+	    }
+	    if ( num_entity_nodes == 27 )
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Hexahedron<27> >() ) );
+	    }
+	    else 
+	    {
+		new_topology = Teuchos::rcp( 
+		    new shards::CellTopology(
+			shards::getCellTopologyData< shards::Hexahedron<> >() ) );
+	    }
 	    break;
 
 	default:

@@ -25,7 +25,8 @@ class CellTopologyFactory
     ~CellTopologyFactory();
 
     // Factory method.
-    Teuchos::RCP<shards::CellTopology> create( const int entity_topology );
+    Teuchos::RCP<shards::CellTopology> create( const int entity_topology,
+					       const int num_entity_nodes );
 };
 
 } // end namespace FOOD
