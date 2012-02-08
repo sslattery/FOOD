@@ -274,12 +274,17 @@ void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
     // 5) Evaluate the field using tensor components (the DOF for this
     // entity).
     MDArray entity_dofs = getEntDF( entity, error );
-
     assert( iBase_SUCCESS == error );
-    MDArray component_values(1, coords.dimension(0) );
+
+    MDArray component_values( 1, coords.dimension(0) );
     MDArray component_coeffs( 1, d_dfunckernel->getBasisCardinality() );
     for ( int n = 0; n < (int) d_tensor_template->getNumComponents(); ++n )
     {
+	for ( int p = 0; p < coords.dimension(0); ++p )
+	{
+	    component_values(0,p) = 0.0;
+	}
+
 	for ( int m = 0; m < (int) d_dfunckernel->getBasisCardinality(); ++m )
 	{
 	    component_coeffs(0,m) = entity_dofs(0,m,n);
@@ -369,11 +374,12 @@ void TensorField<Scalar>::evaluateGradDF( const iBase_EntityHandle entity,
     // 5) Evaluate the field using tensor components (the DOF for this
     // entity).
     MDArray entity_dofs = getEntDF( entity, error );
-
     assert( iBase_SUCCESS == error );
-    MDArray component_values(1, coords.dimension(0), coords.dimension(1) );
+
+    int num_components = d_tensor_template->getNumComponents();
+    MDArray component_values( 1, coords.dimension(0) );
     MDArray component_coeffs( 1, d_dfunckernel->getBasisCardinality() );
-    for ( int n = 0; n < (int) d_tensor_template->getNumComponents(); ++n )
+    for ( int n = 0; n < num_components; ++n )
     {
 	for ( int m = 0; m < (int) d_dfunckernel->getBasisCardinality(); ++m )
 	{
@@ -387,7 +393,7 @@ void TensorField<Scalar>::evaluateGradDF( const iBase_EntityHandle entity,
 
 	for ( int p = 0; p < coords.dimension(0); ++p )
 	{
-		dfunc_values(0,p,n) = component_values(0,p,n);
+		dfunc_values(0,p,n) = component_values(0,p);
 	}
     }
 

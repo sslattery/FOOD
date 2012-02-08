@@ -130,9 +130,11 @@ void FEMInterpolate<Scalar>::interpolateValueDF()
     assert( iBase_SUCCESS == error );
 
     // Do the interpolation.
-    Teuchos::ArrayRCP<double> interpolated_vals(range_vertices_size);
-    MDArray local_vals(1,1);
-    MDArray local_coords(1,3);
+    int num_components = d_dof_domain->getTensorTemplate()->getNumComponents();
+    int dof_size = range_vertices_size*num_components;
+    Teuchos::ArrayRCP<double> interpolated_vals(dof_size);
+    MDArray local_vals( 1, 1, num_components );
+    MDArray local_coords( 1, 3 );
     for ( int p = 0; p < range_vertices_size; ++p )
     {
 	local_coords(0,0) = coord_array[3*p];
@@ -145,11 +147,18 @@ void FEMInterpolate<Scalar>::interpolateValueDF()
 				      local_coords,
 				      false,
 				      local_vals );
-	    interpolated_vals[p] = local_vals(0,0);
+
+	    for ( int n = 0; n < num_components; ++n )
+	    {
+		interpolated_vals[p*num_components + n] = local_vals(0,0,n);
+	    }
 	}
 	else
 	{
-	    interpolated_vals[p] = 0.0;
+	    for ( int n = 0; n < num_components; ++n )
+	    {
+		interpolated_vals[p*num_components + n] = 0.0;
+	    }
 	}
     }
     d_dof_range->attachToArrayData( interpolated_vals,
