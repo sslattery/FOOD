@@ -249,14 +249,6 @@ void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
 			   &error );
     assert( iBase_SUCCESS == error );
 
-    for ( int i = 0; i < element_nodes_size; ++i )
-    {
-	std::cout << i << " " << coord_array[3*i]   << " "
-		  << coord_array[3*i+1] << " "
-		  << coord_array[3*i+2] << std::endl;
-    }
-    std::cout << std::endl;
-
     Teuchos::Tuple<int,3> cell_node_dimensions;
     cell_node_dimensions[0] = 1;
     cell_node_dimensions[1] = element_nodes_size;

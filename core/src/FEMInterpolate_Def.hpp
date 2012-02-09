@@ -73,7 +73,6 @@ void FEMInterpolate<Scalar>::setup()
     // Generate a mapping for interpolation.
     MDArray local_coords(1,3);
     iBase_EntityHandle found_entity = 0;
-    int num_found = 0;
     for ( int n = 0; n < range_vertices_size; ++n )
     {
 	found_entity = 0;
@@ -84,13 +83,11 @@ void FEMInterpolate<Scalar>::setup()
 
 	if ( d_kdtree->getElement( local_coords, found_entity ) )
 	{
-	    ++num_found;
 	    d_map.insert( std::pair<iBase_EntityHandle,iBase_EntityHandle>( 
 			      range_vertices[n], found_entity ) );
 	}
     }
     
-    std::cout << " PERCENT FOUND " << (double) num_found / range_vertices_size << std::endl;
     // Cleanup.
     free( range_vertices );
     free( coord_array );
