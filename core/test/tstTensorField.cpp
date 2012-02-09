@@ -1201,7 +1201,7 @@ TEUCHOS_UNIT_TEST( TensorField, quadratic_hex_evaluation_test )
 {
     typedef Intrepid::FieldContainer<double> MDArray;
 
-    // Create a hex-27 element.
+    // Create a hex-27 element. MBCN ordering.
     int error;
     iMesh_Instance mesh;
     iMesh_newMesh( "", &mesh, &error, 0);
@@ -1211,10 +1211,13 @@ TEUCHOS_UNIT_TEST( TensorField, quadratic_hex_evaluation_test )
 			      0,0,1, 1,0,1, 1,1,1, 0,1,1, // linear nodes
 			      0.5,0,0, 1,0.5,0, 0.5,1,0, 0,0.5,0,
 			      0,0,0.5, 1,0,0.5, 1,1,0.5, 0,1,0.5,
-			      0.5,0,1, 1,0.5,1, 0.5,1,1, 0,0.5,1, // quad 1
-			      0.5,0.5,0.5, // centroid
-			      0.5,0.5,0, 0.5,0.5,1, 0,0.5,0.5, 1,0.5,0.5,
-			      0.5,0,0.5, 0.5,1,0.5 }; // quad 2
+			      0.5,0,1, 1,0.5,1, 0.5,1,1, 0,0.5,1, // 20
+			      0.5,0,0.5, 1,0.5,0.5, 0.5,1,0.5, 0,0.5,0.5,
+			      0.5,0.5,0, 0.5,0.5,1, 0.5,0.5,0.5 };
+
+			      // 0.5,0.5,0.5, // centroid
+			      // 0.5,0.5,0, 0.5,0.5,1, 0,0.5,0.5, 1,0.5,0.5,
+			      // 0.5,0,0.5, 0.5,1,0.5 }; // quad 2
     int num_verts = 27;
     int new_coords_size = 81;
     int new_vertex_handles_allocated = 27;
