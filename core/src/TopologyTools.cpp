@@ -4,6 +4,8 @@
 // \brief TopologyTools definition
 //---------------------------------------------------------------------------//
 
+#include <vector>
+
 #include "TopologyTools.hpp"
 
 namespace FOOD
@@ -47,6 +49,82 @@ int TopologyTools::numLinearNodes( const int entity_topology )
     }
 
     return num_nodes;
+}
+
+/*!
+ * \brief Reorder a list of element nodes from MBCN ordering to Shards
+ * ordering. 
+ */
+void TopologyTools::MBCN2Shards( iBase_EntityHandle *element_nodes, 
+				 const int num_nodes,
+				 const int element_topology )
+{
+    std::vector<iBase_EntityHandle> temp_nodes( num_nodes );
+
+    switch( element_topology )
+    {
+	case iMesh_LINE_SEGMENT:
+
+	    break;
+
+	case iMesh_TRIANGLE:
+
+	    break;
+
+	case iMesh_QUADRILATERAL:
+
+	    break;
+
+	case iMesh_TETRAHEDRON:
+
+	    break;
+
+	case iMesh_HEXAHEDRON:
+
+	    switch( num_nodes )
+	    {
+		case 8:
+
+		    for ( int n = 0; n < num_nodes; ++n )
+		    {
+			temp_nodes[n] = element_nodes[n];
+		    }
+		    break;
+
+		case 20:
+
+		    break;
+
+		case 27:
+
+		    for ( int n = 0; n < 20; ++n )
+		    {
+			temp_nodes[n] = element_nodes[n];
+		    }
+		    temp_nodes[20] = element_nodes[26];
+		    temp_nodes[21] = element_nodes[24];
+		    temp_nodes[22] = element_nodes[25];
+		    temp_nodes[23] = element_nodes[23];
+		    temp_nodes[24] = element_nodes[21];
+		    temp_nodes[25] = element_nodes[20];
+		    temp_nodes[26] = element_nodes[22];
+		    break;
+	    }
+	    
+	    break;
+
+	default:
+
+	    for ( int n = 0; n < num_nodes; ++n )
+	    {
+		temp_nodes[n] = element_nodes[n];
+	    }
+    }
+
+    for ( int n = 0; n < num_nodes; ++n )
+    {
+	element_nodes[n] = temp_nodes[n];
+    }
 }
 
 } // end namespace FOOD

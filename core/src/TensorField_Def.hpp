@@ -9,6 +9,8 @@
 
 #include <vector>
 
+#include "TopologyTools.hpp"
+
 #include <Teuchos_CommHelpers.hpp>
 
 #include <Intrepid_CellTools.hpp>
@@ -230,6 +232,10 @@ void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
 		     &error );
     assert( iBase_SUCCESS == error );
 
+    TopologyTools::MBCN2Shards( element_nodes, 
+				element_nodes_size,
+				d_dfunckernel->getEvalTopology() );
+
     int coords_allocated = element_nodes_size*3;
     int coords_size = 0;
     double *coord_array = 0;
@@ -242,6 +248,14 @@ void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
 			   &coords_size,
 			   &error );
     assert( iBase_SUCCESS == error );
+
+    for ( int i = 0; i < element_nodes_size; ++i )
+    {
+	std::cout << i << " " << coord_array[3*i]   << " "
+		  << coord_array[3*i+1] << " "
+		  << coord_array[3*i+2] << std::endl;
+    }
+    std::cout << std::endl;
 
     Teuchos::Tuple<int,3> cell_node_dimensions;
     cell_node_dimensions[0] = 1;

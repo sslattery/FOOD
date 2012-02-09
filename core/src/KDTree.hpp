@@ -130,6 +130,7 @@ class KDTree
     typedef Teuchos::RCP< KDTreeNode<DIM> >           RCP_Node;
     typedef Teuchos::RCP<Domain>                      RCP_Domain;
     typedef Intrepid::FieldContainer<double>          MDArray;
+    typedef iBase_EntityHandle                        EntityHandle;
     //@}
 
   private:
@@ -150,7 +151,7 @@ class KDTree
     int d_num_points;
 
     // Points in the domain.
-    std::vector<iBase_EntityHandle> d_points;
+    std::vector<EntityHandle> d_points;
 
     // Point indices.
     std::vector<int> d_ptindx;
@@ -176,11 +177,11 @@ class KDTree
 
     // Locate the nearest neighbor in the mesh.
     void nearestNeighbor( const MDArray &coords,
-			  iBase_EntityHandle &nearest_neighbor );
+			  EntityHandle &nearest_neighbor );
 
     // Get the element a point is located in.
     bool getElement( const MDArray &coords,
-		     iBase_EntityHandle &element);
+		     EntityHandle &element);
 
   private:
 
@@ -188,7 +189,7 @@ class KDTree
     double dist( const Point<DIM> &p1, const Point<DIM> &p2 );
 
     // Calculate the distance between a point and an iMesh Point.
-    double dist( iBase_EntityHandle p1, const Point<DIM> &p2 );
+    double dist( EntityHandle p1, const Point<DIM> &p2 );
 
     // Calculate the distance between a point and a box.
     double dist( const Box<DIM> &b, const Point<DIM> &p );
@@ -208,11 +209,11 @@ class KDTree
 
     // Determine if a point is inside the elements adjacent to a point.
     bool pointInAdjElements( Point<DIM> p,
-			     iBase_EntityHandle point,
-			     iBase_EntityHandle &element );
+			     EntityHandle point,
+			     EntityHandle &element );
 
     // Find the element a point resides in.
-    bool findElement( Point<DIM> p, iBase_EntityHandle &element );
+    bool findElement( Point<DIM> p, EntityHandle &element );
 };
 
 } // end namespace FOOD
