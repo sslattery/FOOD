@@ -65,17 +65,57 @@ void TopologyTools::MBCN2Shards( iBase_EntityHandle *element_nodes,
     {
 	case iMesh_LINE_SEGMENT:
 
+	    switch( num_nodes )
+	    {
+		case 2:
+		    for ( int n = 0; n < num_nodes; ++n )
+		    {
+			temp_nodes[n] = element_nodes[n];
+		    }
+		    break;
+	    }
+
 	    break;
 
 	case iMesh_TRIANGLE:
+
+	    switch( num_nodes )
+	    {
+		case 3:
+		    for ( int n = 0; n < num_nodes; ++n )
+		    {
+			temp_nodes[n] = element_nodes[n];
+		    }
+		    break;
+	    }
 
 	    break;
 
 	case iMesh_QUADRILATERAL:
 
+	    switch( num_nodes )
+	    {
+		case 4:
+		    for ( int n = 0; n < num_nodes; ++n )
+		    {
+			temp_nodes[n] = element_nodes[n];
+		    }
+		    break;
+	    }
+
 	    break;
 
 	case iMesh_TETRAHEDRON:
+
+	    switch( num_nodes )
+	    {
+		case 4:
+		    for ( int n = 0; n < num_nodes; ++n )
+		    {
+			temp_nodes[n] = element_nodes[n];
+		    }
+		    break;
+	    }
 
 	    break;
 
@@ -110,7 +150,6 @@ void TopologyTools::MBCN2Shards( iBase_EntityHandle *element_nodes,
 		    temp_nodes[26] = element_nodes[22];
 		    break;
 	    }
-	    
 	    break;
 
 	default:
