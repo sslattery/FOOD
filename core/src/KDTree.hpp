@@ -150,7 +150,7 @@ class KDTree
     int d_num_points;
 
     // Points in the domain.
-    iBase_EntityHandle *d_points;
+    std::vector<iBase_EntityHandle> d_points;
 
     // Point indices.
     std::vector<int> d_ptindx;

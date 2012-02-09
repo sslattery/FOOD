@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
     iMesh_getRootSet( func_rng_mesh, &func_rng_root_set, &error );
     assert( iBase_SUCCESS == error );
 
-    std::string func_rng_mesh_filename = "tagged_small_linear_tet.vtk";
+    std::string func_rng_mesh_filename = "tagged_small_99_linear_tet.vtk";
     iMesh_load( func_rng_mesh, 
 		func_rng_root_set, 
 		&func_rng_mesh_filename[0], 

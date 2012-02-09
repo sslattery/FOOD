@@ -14,6 +14,7 @@
 #include <iterator>
 
 #include "KDTree.hpp"
+#include "TopologyTools.hpp"
 #include "PointQuery.hpp"
 
 namespace FOOD
@@ -42,9 +43,7 @@ KDTree<DIM>::KDTree( RCP_Domain domain,
  */
 template<int DIM>
 KDTree<DIM>::~KDTree()
-{
-    free( d_points );
-}
+{ /* ... */ }
 
 /*! 
  * \brief Build the tree.
@@ -54,23 +53,52 @@ void KDTree<DIM>::buildTree()
 {
     int error = 0;
 
-    // Get the domain vertices and their coordinates.
-    int points_allocated = 0;
+    // Get the domain linear element vertices and their coordinates.
+    iBase_EntityHandle *elements = 0;
+    int elements_allocated = 0;
+    int elements_size = 0;
     iMesh_getEntities( d_domain->getMesh(),
 		       d_domain->getMeshSet(),
-		       iBase_VERTEX,
-		       iMesh_POINT,
-		       &d_points,
-		       &points_allocated,
-		       &d_num_points,
+		       d_entity_type,
+		       d_entity_topology,
+		       &elements,
+		       &elements_allocated,
+		       &elements_size,
 		       &error );
     assert( iBase_SUCCESS == error );
+
+    for ( int n = 0; n < elements_size; ++n )
+    {
+	iBase_EntityHandle *element_nodes = 0;
+	int element_nodes_allocated = 0;
+	int element_nodes_size = 0;
+	iMesh_getEntAdj( d_domain->getMesh(),
+			 elements[n],
+			 iBase_VERTEX,
+			 &element_nodes,
+			 &element_nodes_allocated,
+			 &element_nodes_size,
+			 &error );
+	assert( iBase_SUCCESS == error );
+
+	for ( int i = 0;
+	      i < TopologyTools::numLinearNodes( d_entity_topology ); 
+	      ++i )
+	{
+	    d_points.push_back( element_nodes[i] );
+	    ++d_num_points;
+	}
+
+	free( element_nodes );
+    }
+
+    free( elements );
 
     int coords_allocated = 0;
     int coords_size = 0;
     double *coords;
     iMesh_getVtxArrCoords( d_domain->getMesh(),
-			   d_points,
+			   &d_points[0],
 			   d_num_points,
 			   iBase_BLOCKED,
 			   &coords,

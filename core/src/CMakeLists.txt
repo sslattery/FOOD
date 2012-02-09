@@ -39,6 +39,7 @@ APPEND_SET(HEADERS
   TensorField.hpp
   TensorField_Def.hpp
   TensorTemplate.hpp
+  TopologyTools.hpp
   Types.hpp
   TypeTraits.hpp
   Unit.hpp
