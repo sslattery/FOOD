@@ -55,6 +55,7 @@ APPEND_SET(SOURCES
   PointQuery.cpp
   Quantity.cpp
   TensorTemplate.cpp
+  TopologyTools.cpp
   Unit.cpp
   )
 

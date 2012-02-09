@@ -111,3 +111,59 @@ del tag
 del vertices
 del coords
 del tag_data
+
+##---------------------------------------------------------------------------##
+## Small quadratic hex mesh - tagged with a scalar domain of coordinate 
+## distance from origin
+mesh = iMesh.Mesh()
+mesh.load("small_hex27_box.vtk")
+
+tag = mesh.createTag("domain", 1, float)
+
+num_vert = mesh.getNumOfType( iBase.Type.vertex )
+vertices = mesh.getEntities( iBase.Type.vertex )
+coords = mesh.getVtxCoords(vertices)
+
+tag_data = []
+
+for i in xrange(num_vert):
+    tag_data += [ math.sqrt( coords[i][0]*coords[i][0] + \
+                             coords[i][1]*coords[i][1] + \
+                             coords[i][2]*coords[i][2] ) ]
+
+tag[vertices] = tag_data
+
+mesh.save("tagged_small_hex27_box.vtk")
+
+del mesh
+del tag
+del vertices
+del coords
+del tag_data
+
+##---------------------------------------------------------------------------##
+## Small linear tet box mesh - tagged with a scalar range.
+## from origin
+mesh = iMesh.Mesh()
+mesh.load("small_tet4_box.vtk")
+
+tag = mesh.createTag("range", 1, float)
+
+num_vert = mesh.getNumOfType( iBase.Type.vertex )
+vertices = mesh.getEntities( iBase.Type.vertex )
+coords = mesh.getVtxCoords(vertices)
+
+tag_data = []
+
+for i in xrange(num_vert):
+    tag_data += [ 0.0 ];
+
+tag[vertices] = tag_data
+
+mesh.save("tagged_small_tet4_box.vtk")
+
+del mesh
+del tag
+del vertices
+del coords
+del tag_data

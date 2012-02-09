@@ -81,9 +81,9 @@ void KDTree<DIM>::buildTree()
 			 &error );
 	assert( iBase_SUCCESS == error );
 
-	for ( int i = 0;
-	      i < TopologyTools::numLinearNodes( d_entity_topology ); 
-	      ++i )
+	int num_linear_nodes = 
+	    TopologyTools::numLinearNodes( d_entity_topology );
+	for ( int i = 0; i < num_linear_nodes; ++i )
 	{
 	    d_points.push_back( element_nodes[i] );
 	    ++d_num_points;
