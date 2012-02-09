@@ -259,7 +259,7 @@ void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
     // 2) Obtain pre-images of the set of evaluation points in the reference
     // frame. 
     MDArray reference_points( coords.dimension(0), coords.dimension(1) );
-    Intrepid::CellTools<Scalar>::mapToReferenceFrame( 
+    Intrepid::CellTools<double>::mapToReferenceFrame( 
 	reference_points,
 	coords,
 	cell_nodes,
@@ -296,10 +296,9 @@ void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
 	    component_coeffs(0,m) = entity_dofs(0,m,n);
 	}
 
-	Intrepid::FunctionSpaceTools::evaluate<Scalar,MDArray,MDArray>( 
-	    component_values,
-	    component_coeffs, 
-	    transformed_eval );
+	Intrepid::FunctionSpaceTools::evaluate<double>( component_values,
+							component_coeffs, 
+							transformed_eval );
 
 	for ( int p = 0; p < coords.dimension(0); ++p )
 	{
@@ -313,7 +312,7 @@ void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
 
 /*!
  * \brief Evaluate the gradient of the degrees of freedom of this field at a
- * set of coordinates in a particular entity. MDArray(C,P,component).
+ * set of coordinates in a particular entity. MDArray(C,P,component,spacedim).
  */
 template<class Scalar>
 void TensorField<Scalar>::evaluateGradDF( const iBase_EntityHandle entity,
@@ -321,6 +320,7 @@ void TensorField<Scalar>::evaluateGradDF( const iBase_EntityHandle entity,
 					  const int is_param,
 					  MDArray &dfunc_values )
 {
+    assert( FOOD_HGRAD == d_dfunckernel->getBasisFunctionSpace() );
     ErrorCode error = 0;
 
     // 1) Get the entity nodes and their coordinates.
@@ -335,6 +335,10 @@ void TensorField<Scalar>::evaluateGradDF( const iBase_EntityHandle entity,
 		     &element_nodes_size,
 		     &error );
     assert( iBase_SUCCESS == error );
+
+    TopologyTools::MBCN2Shards( element_nodes, 
+				element_nodes_size,
+				d_dfunckernel->getEvalTopology() );
 
     int coords_allocated = element_nodes_size*3;
     int coords_size = 0;
@@ -359,7 +363,7 @@ void TensorField<Scalar>::evaluateGradDF( const iBase_EntityHandle entity,
     // 2) Obtain pre-images of the set of evaluation points in the reference
     // frame. 
     MDArray reference_points( coords.dimension(0), coords.dimension(1) );
-    Intrepid::CellTools<Scalar>::mapToReferenceFrame( 
+    Intrepid::CellTools<double>::mapToReferenceFrame( 
 	reference_points,
 	coords,
 	cell_nodes,
@@ -368,38 +372,67 @@ void TensorField<Scalar>::evaluateGradDF( const iBase_EntityHandle entity,
 
     // 3) Evaluate the basis at the pre-image set in the reference frame.
     MDArray basis_eval( d_dfunckernel->getBasisCardinality(),
-			coords.dimension(0) );
+			coords.dimension(0),
+			coords.dimension(1) );
     d_dfunckernel->evaluateGradBasis( basis_eval, reference_points );
 
     // 4) Transform evaluated basis values to the physical frame.
+    MDArray jacobian( 1, 
+		      coords.dimension(0),
+		      coords.dimension(1),
+		      coords.dimension(1) );
+    Intrepid::CellTools<double>::setJacobian( 
+	jacobian, 
+	reference_points,
+	cell_nodes,
+	*d_dfunckernel->getCellTopology() );
+
+    MDArray jacobian_inv( 1, 
+			  coords.dimension(0),
+			  coords.dimension(1),
+			  coords.dimension(1) );
+    Intrepid::CellTools<double>::setJacobianInv( jacobian_inv, jacobian );
+
     MDArray transformed_eval( 1, 
 			      d_dfunckernel->getBasisCardinality(),
-			      coords.dimension(0) );
-    d_dfunckernel->transformOperator( transformed_eval, basis_eval );
+			      coords.dimension(0),
+			      coords.dimension(1) );
+    Intrepid::FunctionSpaceTools::HGRADtransformGRAD<double>( 
+	transformed_eval, jacobian_inv, basis_eval );
 
     // 5) Evaluate the field using tensor components (the DOF for this
     // entity).
     MDArray entity_dofs = getEntDF( entity, error );
     assert( iBase_SUCCESS == error );
 
-    int num_components = d_tensor_template->getNumComponents();
-    MDArray component_values( 1, coords.dimension(0) );
+    MDArray component_values( 1, coords.dimension(0), coords.dimension(1) );
     MDArray component_coeffs( 1, d_dfunckernel->getBasisCardinality() );
-    for ( int n = 0; n < num_components; ++n )
+    for ( int n = 0; n < (int) d_tensor_template->getNumComponents(); ++n )
     {
+	for ( int p = 0; p < coords.dimension(0); ++p )
+	{
+	    for ( int d = 0; d < coords.dimension(1); ++d )
+	    {
+		component_values(0,p,d) = 0.0;
+	    }
+	}
+
 	for ( int m = 0; m < (int) d_dfunckernel->getBasisCardinality(); ++m )
 	{
 	    component_coeffs(0,m) = entity_dofs(0,m,n);
 	}
 
-	Intrepid::FunctionSpaceTools::evaluate<Scalar,MDArray,MDArray>( 
+	Intrepid::FunctionSpaceTools::evaluate<double>( 
 	    component_values,
 	    component_coeffs, 
 	    transformed_eval );
 
 	for ( int p = 0; p < coords.dimension(0); ++p )
 	{
-		dfunc_values(0,p,n) = component_values(0,p);
+	    for ( int d = 0; d < coords.dimension(1); ++d )
+	    {
+		dfunc_values(0,p,n,d) = component_values(0,p,d);
+	    }
 	}
     }
 

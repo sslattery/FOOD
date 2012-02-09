@@ -37,6 +37,17 @@
 // HELPER FUNCTIONS
 //---------------------------------------------------------------------------//
 
+bool softEqualityCheck( double d1, double d2 )
+{
+    double epsilon = 1.0e-12;
+    double diff = d1 - d2;
+    diff *= diff;
+    diff = pow( diff, 0.5 );
+    if ( diff < epsilon ) return true;
+    else return false;
+}
+	 
+
 template<class Ordinal>
 Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 {
@@ -1213,11 +1224,8 @@ TEUCHOS_UNIT_TEST( TensorField, quadratic_hex_evaluation_test )
 			      0,0,0.5, 1,0,0.5, 1,1,0.5, 0,1,0.5,
 			      0.5,0,1, 1,0.5,1, 0.5,1,1, 0,0.5,1, // 20
 			      0.5,0,0.5, 1,0.5,0.5, 0.5,1,0.5, 0,0.5,0.5,
-			      0.5,0.5,0, 0.5,0.5,1, 0.5,0.5,0.5 };
+			      0.5,0.5,0, 0.5,0.5,1, 0.5,0.5,0.5 }; // 27
 
-			      // 0.5,0.5,0.5, // centroid
-			      // 0.5,0.5,0, 0.5,0.5,1, 0,0.5,0.5, 1,0.5,0.5,
-			      // 0.5,0,0.5, 0.5,1,0.5 }; // quad 2
     int num_verts = 27;
     int new_coords_size = 81;
     int new_vertex_handles_allocated = 27;
@@ -1341,6 +1349,134 @@ TEUCHOS_UNIT_TEST( TensorField, quadratic_hex_evaluation_test )
     field.evaluateDF( hex_element, eval_coords2, false, dfunc_values2 );
     TEST_ASSERT( dfunc_values2(0,0,0) == 0.5 );
     TEST_ASSERT( dfunc_values2(0,1,0) == 0.75 );
+}
+
+TEUCHOS_UNIT_TEST( TensorField, hex_grad_eval_test )
+{
+    typedef Intrepid::FieldContainer<double> MDArray;
+
+    // Create a hex mesh.
+    int error;
+    iMesh_Instance mesh;
+    iMesh_newMesh( "", &mesh, &error, 0);
+    TEST_ASSERT( iBase_SUCCESS == error );
+
+    double vtx_coords[24] = { 0,0,0, 1,0,0, 1,1,0, 0,1,0,
+			      0,0,1, 1,0,1, 1,1,1, 0,1,1 };
+    int num_verts = 8;
+    int new_coords_size = 24;
+    int new_vertex_handles_allocated = 8;
+    int new_vertex_handles_size = 0;
+    iBase_EntityHandle *vertex_handles = 0;
+    iMesh_createVtxArr( mesh,
+			num_verts,
+			iBase_INTERLEAVED,
+			vtx_coords,
+			new_coords_size,
+			&vertex_handles,
+			&new_vertex_handles_allocated,
+			&new_vertex_handles_size,
+			&error );
+    TEST_ASSERT( iBase_SUCCESS == error );
+
+    int status = 0;
+    iBase_EntityHandle hex_element;
+    iMesh_createEnt( mesh,
+		     iMesh_HEXAHEDRON,
+		     vertex_handles,
+		     new_vertex_handles_size,
+		     &hex_element,
+		     &status,
+		     &error );  
+    TEST_ASSERT( iBase_SUCCESS == error );
+
+    // Generate the domain for the field on the root set.
+    iBase_EntitySetHandle root_set;
+    iMesh_getRootSet(mesh, &root_set, &error);
+    TEST_ASSERT( iBase_SUCCESS == error );
+    
+    Teuchos::RCP<FOOD::Domain> domain = Teuchos::rcp(
+	new FOOD::Domain(mesh, root_set) );
+
+    // Create the tensor template for this field. The hex vertices are tagged
+    // with a scalar field.
+    Teuchos::RCP<FOOD::TensorTemplate> tensor_template = Teuchos::rcp(
+	new FOOD::TensorTemplate(0, 1, FOOD::FOOD_REAL, Teuchos::null) );
+
+    // Create a distribution function kernel for the field.
+    Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel =
+	Teuchos::rcp( new FOOD::DFuncKernel<double>( iBase_REGION,
+						     iMesh_HEXAHEDRON,
+						     iBase_VERTEX,
+						     iMesh_POINT,
+						     FOOD::FOOD_CARTESIAN, 
+						     FOOD::FOOD_FEM,
+						     FOOD::FOOD_HGRAD,
+						     1 ) );
+
+    // Create the field.
+    FOOD::TensorField<double> field( getDefaultComm<int>(),
+				     domain,
+				     dfunckernel,
+				     FOOD::FOOD_CARTESIAN, 
+				     tensor_template,
+				     Teuchos::null,
+				     "HEX_FIELD" );
+
+    // Attach the field to array data. These are nodal values but they are
+    // bound to the hex, so we tag the hex with them.
+    Teuchos::ArrayRCP<double> hex_dof1(8, 6.54);
+    field.attachToArrayData( hex_dof1, iBase_INTERLEAVED, error );
+    TEST_ASSERT( iBase_SUCCESS == error );
+
+    // Check that we can get the DOF on the hex.
+    MDArray dof_coeffs(1,8,1);
+    dof_coeffs = field.getEntDF( hex_element, error );
+    TEST_ASSERT( iBase_SUCCESS == error );
+    for ( int n = 0; n < dfunckernel->getBasisCardinality(); ++n )
+    {
+	TEST_ASSERT( dof_coeffs(0,n,0) == 6.54 );
+    }
+
+    // Evaluate the basis at a set of coordinates in the hex element.
+    MDArray eval_coords1(1,3);
+    eval_coords1(0,0) = 0.5;
+    eval_coords1(0,1) = 0.5;
+    eval_coords1(0,2) = 0.5;
+
+    MDArray dfunc_values1(1,1,1,3);
+    field.evaluateGradDF( hex_element, eval_coords1, false, dfunc_values1 );
+    TEST_ASSERT( softEqualityCheck( dfunc_values1(0,0,0,0) ,0.0 ) );
+    TEST_ASSERT( softEqualityCheck( dfunc_values1(0,0,0,1) ,0.0 ) );
+    TEST_ASSERT( softEqualityCheck( dfunc_values1(0,0,0,2) ,0.0 ) );
+
+    // Create new DOFs and attach again;
+    Teuchos::ArrayRCP<double> hex_dof2(8, 0.0);
+    hex_dof2[4] = 1.0;
+    hex_dof2[5] = 1.0;
+    hex_dof2[6] = 1.0;
+    hex_dof2[7] = 1.0;
+    field.attachToArrayData( hex_dof2, iBase_INTERLEAVED, error );
+    TEST_ASSERT( iBase_SUCCESS == error );
+
+    // Evaluate the second basis at a set of coordinates in the hex element.
+    MDArray eval_coords2(2,3);
+    eval_coords2(0,0) = 0.5;
+    eval_coords2(0,1) = 0.5;
+    eval_coords2(0,2) = 0.5;
+
+    eval_coords2(1,0) = 0.75;
+    eval_coords2(1,1) = 0.75;
+    eval_coords2(1,2) = 0.75;
+
+    MDArray dfunc_values2(1,2,1,3);
+    field.evaluateGradDF( hex_element, eval_coords2, false, dfunc_values2 );
+    TEST_ASSERT( softEqualityCheck( dfunc_values2(0,0,0,0), 0.0 ) );
+    TEST_ASSERT( softEqualityCheck( dfunc_values2(0,0,0,1), 0.0 ) );
+    TEST_ASSERT( softEqualityCheck( dfunc_values2(0,0,0,2), 1.0 ) );
+    TEST_ASSERT( softEqualityCheck( dfunc_values2(0,1,0,0), 0.0 ) );
+    TEST_ASSERT( softEqualityCheck( dfunc_values2(0,1,0,1), 0.0 ) );
+    TEST_ASSERT( softEqualityCheck( dfunc_values2(0,1,0,2), 1.0 ) );
 }
 
 //---------------------------------------------------------------------------//

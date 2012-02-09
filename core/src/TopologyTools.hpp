@@ -12,6 +12,8 @@
 #include <iBase.h>
 #include <iMesh.h>
 
+#include <Intrepid_FieldContainer.hpp>
+
 namespace FOOD
 {
 
@@ -25,6 +27,11 @@ int numLinearNodes( const int entity_topology );
 void MBCN2Shards( iBase_EntityHandle *element_nodes, 
 		  const int num_nodes,
 		  const int entity_topology );
+
+// Get the coordinates of the reference cell for the given topology.
+void getReferenceCoords( Intrepid::FieldContainer<double> &ref_coords,
+			 const int num_nodes,
+			 const int entity_topology );
 
 } // end namespace TopologyTools
 

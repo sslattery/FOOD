@@ -101,10 +101,6 @@ class DFuncKernel
     void transformValue( MDArray &transformed_eval,
 			 const MDArray &basis_eval );
 
-    // Transform evaluated basis operator values to physical frame.
-    void transformOperator( MDArray &transformed_eval,
-			    const MDArray &basis_eval );
-
     //! Get the type of the cell for which this kernel is defined.
     int getEvalType() const
     { return d_eval_type; }
