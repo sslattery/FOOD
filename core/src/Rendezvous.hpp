@@ -31,6 +31,7 @@ class Rendezvous
     typedef Tpetra::Export<OrdinalType>                   Export_t;
     typedef Teuchos::RCP<Export_t>                        RCP_Export;
     typedef int                                           ErrorCode;
+    typedef iBase_EntityHandle                            EntityHandle;
     //@}
 
   private:

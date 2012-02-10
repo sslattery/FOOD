@@ -37,7 +37,8 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 }
 
 // This FEMInterpolation example loads a quadratic hexahedron mesh tagged with
-// a scalar and interpolates it onto a coarse linear tet mesh.
+// a scalar and interpolates it onto a coarse linear tet mesh along with the
+// gradient pull back.
 int main(int argc, char* argv[])
 {
     // Setup communication.

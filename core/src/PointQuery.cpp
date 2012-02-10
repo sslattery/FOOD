@@ -18,7 +18,7 @@ namespace FOOD
 {
 
 bool PointQuery::pointInRefElement( const iMesh_Instance mesh,
-				    const iBase_EntityHandle entity,
+				    const EntityHandle entity,
 				    const MDArray &coords)
 {
     int error = 0;
@@ -28,7 +28,7 @@ bool PointQuery::pointInRefElement( const iMesh_Instance mesh,
 
     int num_linear_nodes = TopologyTools::numLinearNodes( topology );
 
-    iBase_EntityHandle *element_nodes = 0;
+    EntityHandle *element_nodes = 0;
     int element_nodes_allocated = 0;
     int element_nodes_size = 0;
     iMesh_getEntAdj( mesh,
@@ -40,7 +40,7 @@ bool PointQuery::pointInRefElement( const iMesh_Instance mesh,
 		     &error );
     assert( iBase_SUCCESS == error );
 
-    std::vector<iBase_EntityHandle> linear_nodes(num_linear_nodes);
+    std::vector<EntityHandle> linear_nodes(num_linear_nodes);
     for ( int i = 0; i < num_linear_nodes; ++i )
     {
 	linear_nodes[i] = element_nodes[i];

@@ -35,6 +35,7 @@ class FEMInterpolate
     typedef Teuchos::RCP<TensorField_t>              RCP_TensorField;
     typedef Teuchos::RCP< KDTree<3> >                RCP_KDTree;
     typedef Intrepid::FieldContainer<Scalar>         MDArray;
+    typedef iBase_EntityHandle                       EntityHandle;
     //@}
 
   private:
@@ -49,7 +50,7 @@ class FEMInterpolate
     RCP_KDTree d_kdtree;
 
     // Range to domain mapping.
-    std::map<iBase_EntityHandle,iBase_EntityHandle> d_map;
+    std::map<EntityHandle,EntityHandle> d_map;
 
   public:
 

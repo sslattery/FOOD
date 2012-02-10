@@ -125,7 +125,7 @@ Rendezvous<Scalar>::computeIntersectionBoundingBox()
 			&error );
     assert( iBase_SUCCESS == error );
 
-    iBase_EntityHandle *domain_vertices = 0;
+    EntityHandle *domain_vertices = 0;
     int domain_vertices_allocated = num_domain_vertices;
     int domain_vertices_size = 0;
     iMesh_getEntities( d_domain_primary->getDomain()->getDomainMesh(),
@@ -220,7 +220,7 @@ Rendezvous<Scalar>::computeIntersectionBoundingBox()
 			&error );
     assert( iBase_SUCCESS == error );
 
-    iBase_EntityHandle *range_vertices = 0;
+    EntityHandle *range_vertices = 0;
     int range_vertices_allocated = num_primary_range_vertices;
     int range_vertices_size = 0;
     iMesh_getEntities( d_range_primary->getDomain()->getDomainMesh(),

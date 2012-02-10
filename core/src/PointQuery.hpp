@@ -24,11 +24,16 @@ namespace FOOD
 namespace PointQuery
 {
 
+//@{
+//! Typedefs.
 typedef Intrepid::FieldContainer<double>          MDArray;
 typedef Teuchos::RCP<shards::CellTopology>        RCP_CellTopology;
+typedef iBase_EntityHandle                        EntityHandle;
+//@}
 
+// Point in volume query.
 bool pointInRefElement( const iMesh_Instance mesh,
-			const iBase_EntityHandle entity,
+			const EntityHandle entity,
 			const MDArray &coords );
 		      
 } // end namespace PointQuery

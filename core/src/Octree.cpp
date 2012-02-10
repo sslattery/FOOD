@@ -45,7 +45,7 @@ void Octree::buildTree()
 /*!
  * \brief Locate a point. Return false if we didn't find it.
  */
-bool Octree::findPoint( iBase_EntityHandle &found_in_entity,
+bool Octree::findPoint( EntityHandle &found_in_entity,
 			const MDArray &coords )
 {
     return findPointInNode( d_root_node, found_in_entity, coords );
@@ -74,10 +74,10 @@ void Octree::buildTreeNode( RCP_Node node )
     sliceBox( node );
 
     // Add the elements in the parent set to the child sets.
-    std::vector<iBase_EntityHandle> root_list;
+    std::vector<EntityHandle> root_list;
     int node_elements_allocated = 0;
     int node_elements_size = 0;
-    iBase_EntityHandle *node_elements;
+    EntityHandle *node_elements;
     iMesh_getEntities( d_domain->getMesh(),
 		       node->node_set,
 		       d_entity_type,
@@ -190,14 +190,14 @@ void Octree::buildTreeNode( RCP_Node node )
  * found it in.
  */
 bool Octree::findPointInNode( RCP_Node node,
-			      iBase_EntityHandle &found_in_entity,
+			      EntityHandle &found_in_entity,
 			      const MDArray &coords )
 {
     int error = 0;
     bool return_val = false;
 
     // First check at the node level.
-    iBase_EntityHandle *node_elements = 0;
+    EntityHandle *node_elements = 0;
     int node_elements_allocated = 0; 
     int node_elements_size = 0; 
     iMesh_getEntities( d_domain->getMesh(),
@@ -264,7 +264,7 @@ void Octree::getEntSetBox( iBase_EntitySetHandle entity_set,
 			&error );
     assert( iBase_SUCCESS == error );
 
-    iBase_EntityHandle *set_vertices = 0;
+    EntityHandle *set_vertices = 0;
     int set_vertices_allocated = 0;
     int set_vertices_size = 0;
     iMesh_getEntities( d_domain->getMesh(),
@@ -345,12 +345,12 @@ bool Octree::isPointInBox( const Box &box,
  * must be in the box.
  */
 bool Octree::isEntInBox( const Box &box,
-			 iBase_EntityHandle entity )
+			 EntityHandle entity )
 {
     int error = 0;
     bool return_val = true;
 
-    iBase_EntityHandle *element_nodes = 0;
+    EntityHandle *element_nodes = 0;
     int element_nodes_allocated = 0;
     int element_nodes_size = 0;
     iMesh_getEntAdj( d_domain->getMesh(),

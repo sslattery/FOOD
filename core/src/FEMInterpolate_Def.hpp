@@ -37,7 +37,7 @@ void FEMInterpolate<Scalar>::setup()
     int error = 0;
 
     // Get the range mesh vertices for interpolation.
-    iBase_EntityHandle *range_vertices = 0;
+    EntityHandle *range_vertices = 0;
     int range_vertices_allocated = 0;
     int range_vertices_size = 0;
     iMesh_getEntities( d_dof_range->getDomain()->getMesh(),
@@ -72,7 +72,7 @@ void FEMInterpolate<Scalar>::setup()
 
     // Generate a mapping for interpolation.
     MDArray local_coords(1,3);
-    iBase_EntityHandle found_entity = 0;
+    EntityHandle found_entity = 0;
     for ( int n = 0; n < range_vertices_size; ++n )
     {
 	found_entity = 0;
@@ -83,7 +83,7 @@ void FEMInterpolate<Scalar>::setup()
 
 	if ( d_kdtree->getElement( local_coords, found_entity ) )
 	{
-	    d_map.insert( std::pair<iBase_EntityHandle,iBase_EntityHandle>( 
+	    d_map.insert( std::pair<EntityHandle,EntityHandle>( 
 			      range_vertices[n], found_entity ) );
 	}
     }
@@ -103,7 +103,7 @@ void FEMInterpolate<Scalar>::interpolateValueDF()
     int error = 0;
 
     // Get the range mesh vertices for interpolation.
-    iBase_EntityHandle *range_vertices = 0;
+    EntityHandle *range_vertices = 0;
     int range_vertices_allocated = 0;
     int range_vertices_size = 0;
     iMesh_getEntities( d_dof_range->getDomain()->getMesh(),
@@ -174,7 +174,7 @@ void FEMInterpolate<Scalar>::interpolateGradDF()
     int error = 0;
 
     // Get the range mesh vertices for interpolation.
-    iBase_EntityHandle *range_vertices = 0;
+    EntityHandle *range_vertices = 0;
     int range_vertices_allocated = 0;
     int range_vertices_size = 0;
     iMesh_getEntities( d_dof_range->getDomain()->getMesh(),

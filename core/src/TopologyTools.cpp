@@ -55,11 +55,11 @@ int TopologyTools::numLinearNodes( const int entity_topology )
  * \brief Reorder a list of element nodes from MBCN ordering to Shards
  * ordering. 
  */
-void TopologyTools::MBCN2Shards( iBase_EntityHandle *element_nodes, 
+void TopologyTools::MBCN2Shards( EntityHandle *element_nodes, 
 				 const int num_nodes,
 				 const int entity_topology )
 {
-    std::vector<iBase_EntityHandle> temp_nodes( num_nodes );
+    std::vector<EntityHandle> temp_nodes( num_nodes );
 
     switch( entity_topology )
     {

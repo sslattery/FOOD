@@ -82,7 +82,7 @@ class DFuncKernel
 
     // Evaluate the basis value for this kernel at a specific parametric
     // location. 
-    void evaluateValueBasis( MDArray &values_at_coords, 
+    void evaluateValueBasis( MDArray &dfunc_values, 
 			     const MDArray &coords );
 
     // Evaluate the gradient of the basis for this kernel at a specific
@@ -91,11 +91,11 @@ class DFuncKernel
 
     // Evaluate the divergence of the basis for this kernel at a specific
     // parametric location.
-    void evaluateDivBasis( MDArray &dfunc_grad_values, const MDArray &coords );
+    void evaluateDivBasis( MDArray &dfunc_div_values, const MDArray &coords );
 
     // Evaluate the curl of the basis for this kernel at a specific parametric
     // location. 
-    void evaluateCurlBasis( MDArray &dfunc_grad_values, const MDArray &coords );
+    void evaluateCurlBasis( MDArray &dfunc_curl_values, const MDArray &coords );
 
     // Transform evaluated basis values to physical frame.
     void transformValue( MDArray &transformed_eval,

@@ -50,6 +50,7 @@ class Octree
     typedef Teuchos::RCP<OctreeNode>                  RCP_Node;
     typedef Intrepid::FieldContainer<double>          MDArray;
     typedef Teuchos::Tuple<double,6>                  Box;
+    typedef iBase_EntityHandle                        EntityHandle;
     //@}
 
   private:
@@ -80,7 +81,7 @@ class Octree
     void buildTree();
 
     // Locate a point.
-    bool findPoint( iBase_EntityHandle &found_in_entity,
+    bool findPoint( EntityHandle &found_in_entity,
 		    const MDArray &coords );
 
   private:
@@ -90,7 +91,7 @@ class Octree
 
     // Search a node for a point.
     bool findPointInNode( RCP_Node node,
-			  iBase_EntityHandle &found_in_entity,
+			  EntityHandle &found_in_entity,
 			  const MDArray &coords );
 
     // Get the bounding box of a set of entities.
@@ -100,7 +101,7 @@ class Octree
     bool isPointInBox( const Box &box, const MDArray &coords );
 
     // Determine if an entity is inside a bounding box.
-    bool isEntInBox( const Box &box, iBase_EntityHandle entity );
+    bool isEntInBox( const Box &box, EntityHandle entity );
 
     // Slice a node box into 8 children boxes.
     void sliceBox( RCP_Node node );

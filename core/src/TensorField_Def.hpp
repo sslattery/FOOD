@@ -56,7 +56,7 @@ TensorField<Scalar>::~TensorField()
  * and define the Tpetra map of that vector.
  */
 template<class Scalar>
-void TensorField<Scalar>::attachToTagData( iBase_TagHandle dof_tag,
+void TensorField<Scalar>::attachToTagData( TagHandle dof_tag,
 					   ErrorCode &error )
 {
     d_dof_tag = dof_tag;
@@ -90,7 +90,7 @@ void TensorField<Scalar>::attachToTagData( iBase_TagHandle dof_tag,
     assert( iBase_SUCCESS == error );
     assert( tag_type == (int) TypeTraits<Scalar>::tag_type );
 
-    iBase_EntityHandle *dof_entities = 0;
+    EntityHandle *dof_entities = 0;
     int entities_allocated = num_domain_entity;
     int entities_size = 0;
     iMesh_getEntities( d_domain->getMesh(),
@@ -169,7 +169,7 @@ void TensorField<Scalar>::attachToArrayData(
     assert( (int) dof_array.size() == dof_size );
     d_dofs.clear();
 
-    iBase_EntityHandle *dof_entities = 0;
+    EntityHandle *dof_entities = 0;
     int entities_allocated = num_domain_entity;
     int entities_size = 0;
     iMesh_getEntities( d_domain->getMesh(),
@@ -212,7 +212,7 @@ void TensorField<Scalar>::attachToArrayData(
  * coordinates in a particular entity. MDArray(C,P,component).
  */
 template<class Scalar>
-void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
+void TensorField<Scalar>::evaluateDF( const EntityHandle entity,
 				      const MDArray &coords,
 				      const int is_param,
 				      MDArray &dfunc_values )
@@ -220,7 +220,7 @@ void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
     ErrorCode error = 0;
 
     // 1) Get the entity nodes and their coordinates.
-    iBase_EntityHandle *element_nodes = 0;
+    EntityHandle *element_nodes = 0;
     int element_nodes_allocated = 0;
     int element_nodes_size = 0;
     iMesh_getEntAdj( d_domain->getMesh(),
@@ -315,7 +315,7 @@ void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
  * set of coordinates in a particular entity. MDArray(C,P,component,spacedim).
  */
 template<class Scalar>
-void TensorField<Scalar>::evaluateGradDF( const iBase_EntityHandle entity,
+void TensorField<Scalar>::evaluateGradDF( const EntityHandle entity,
 					  const MDArray &coords,
 					  const int is_param,
 					  MDArray &dfunc_values )
@@ -324,7 +324,7 @@ void TensorField<Scalar>::evaluateGradDF( const iBase_EntityHandle entity,
     ErrorCode error = 0;
 
     // 1) Get the entity nodes and their coordinates.
-    iBase_EntityHandle *element_nodes = 0;
+    EntityHandle *element_nodes = 0;
     int element_nodes_allocated = 0;
     int element_nodes_size = 0;
     iMesh_getEntAdj( d_domain->getMesh(),
@@ -446,7 +446,7 @@ void TensorField<Scalar>::evaluateGradDF( const iBase_EntityHandle entity,
  */
 template<class Scalar>
 typename TensorField<Scalar>::MDArray
-TensorField<Scalar>::getEntDF( iBase_EntityHandle entity,
+TensorField<Scalar>::getEntDF( EntityHandle entity,
 			       ErrorCode &error ) const
 {
     error = 0;
@@ -459,7 +459,7 @@ TensorField<Scalar>::getEntDF( iBase_EntityHandle entity,
     int tag_values_allocated = entity_dofs.size()*sizeof(Scalar);
     int tag_values_size = 0;
 
-    iBase_EntityHandle *dof_entities = 0;
+    EntityHandle *dof_entities = 0;
     int dof_entities_allocated = 0;
     int dof_entities_size = 0;
     iMesh_getEntAdj( d_domain->getMesh(),

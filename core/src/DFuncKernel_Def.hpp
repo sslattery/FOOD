@@ -64,10 +64,10 @@ DFuncKernel<Scalar>::~DFuncKernel()
  * at. ArrayDim[num_points][dimension].
  */
 template<class Scalar>
-void DFuncKernel<Scalar>::evaluateValueBasis( MDArray &values_at_coords, 
+void DFuncKernel<Scalar>::evaluateValueBasis( MDArray &dfunc_values, 
 					      const MDArray &coords )
 {
-    d_basis->getValues( values_at_coords, 
+    d_basis->getValues( dfunc_values, 
 			coords, 
 			Intrepid::OPERATOR_VALUE );
 }
@@ -82,11 +82,11 @@ void DFuncKernel<Scalar>::evaluateValueBasis( MDArray &values_at_coords,
  * at. ArrayDim[num_points][dimension].
  */
 template<class Scalar>
-void DFuncKernel<Scalar>::evaluateGradBasis( MDArray &values_at_coords, 
+void DFuncKernel<Scalar>::evaluateGradBasis( MDArray &dfunc_grad_values, 
 					     const MDArray &coords )
 {
     assert( FOOD_HGRAD == d_basis_function_space );
-    d_basis->getValues( values_at_coords, 
+    d_basis->getValues( dfunc_grad_values, 
 			coords, 
 			Intrepid::OPERATOR_GRAD );
 }
@@ -101,11 +101,11 @@ void DFuncKernel<Scalar>::evaluateGradBasis( MDArray &values_at_coords,
  * at. ArrayDim[num_points][dimension].
  */
 template<class Scalar>
-void DFuncKernel<Scalar>::evaluateDivBasis( MDArray &values_at_coords, 
+void DFuncKernel<Scalar>::evaluateDivBasis( MDArray &dfunc_div_values, 
 					    const MDArray &coords )
 {
     assert( FOOD_HDIV == d_basis_function_space );
-    d_basis->getValues( values_at_coords, 
+    d_basis->getValues( dfunc_div_values, 
 			coords, 
 			Intrepid::OPERATOR_DIV );
 }
@@ -120,11 +120,11 @@ void DFuncKernel<Scalar>::evaluateDivBasis( MDArray &values_at_coords,
  * at. ArrayDim[num_points][dimension].
  */
 template<class Scalar>
-void DFuncKernel<Scalar>::evaluateCurlBasis( MDArray &values_at_coords, 
+void DFuncKernel<Scalar>::evaluateCurlBasis( MDArray &dfunc_curl_values, 
 					     const MDArray &coords )
 {
     assert( FOOD_HCURL == d_basis_function_space );
-    d_basis->getValues( values_at_coords, 
+    d_basis->getValues( dfunc_curl_values, 
 			coords, 
 			Intrepid::OPERATOR_CURL );
 }
