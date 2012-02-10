@@ -37,7 +37,8 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 }
 
 // This FEMInterpolation example loads a quadratic hexahedron mesh tagged with
-// a scalar and interpolates it onto a coarse linear tet mesh.
+// a scalar and interpolates it onto a coarse linear tet mesh. (Function
+// domain = func_dmn, function range = func_rng )
 int main(int argc, char* argv[])
 {
     // Setup communication.
@@ -45,7 +46,7 @@ int main(int argc, char* argv[])
     Teuchos::RCP<const Teuchos::Comm<int> > comm = 
 	Teuchos::DefaultComm<int>::getComm();
 
-    if ( getDefaultComm<int>()->getRank() == 0 )
+    if ( getDefaultComm<int>()->getRank() == 0 ) // Force scalar execution.
     {
 
     typedef Intrepid::FieldContainer<double> MDArray;
@@ -56,6 +57,10 @@ int main(int argc, char* argv[])
     // domain. 
     Teuchos::RCP<FOOD::TensorTemplate> tensor_template = Teuchos::rcp(
 	new FOOD::TensorTemplate(0, 1, FOOD::FOOD_REAL, Teuchos::null) );
+
+    // Need another one for the gradient. Here the gradient is a 3-vector.
+    Teuchos::RCP<FOOD::TensorTemplate> grad_tensor_template = Teuchos::rcp(
+	new FOOD::TensorTemplate(1, 3, FOOD::FOOD_REAL, Teuchos::null) );
 
     // Set up the func_dmn mesh.
     iMesh_Instance func_dmn_mesh;
@@ -165,10 +170,36 @@ int main(int argc, char* argv[])
     func_rng_field->attachToTagData( func_rng_tag, error );
     assert( iBase_SUCCESS == error );
 
+    // Setup the gradient field.
+    Teuchos::RCP< FOOD::TensorField<double> > func_rng_grad_field = Teuchos::rcp(
+	new FOOD::TensorField<double>( getDefaultComm<int>(),
+				       func_rng_domain,
+				       func_rng_dfunckernel,
+				       FOOD::FOOD_CARTESIAN, 
+				       grad_tensor_template,
+				       Teuchos::null,
+				       "FUNC_RNG_GRAD_FIELD" ) );
+
+    std::string func_rng_grad_tag_name = "grad_range";
+    iBase_TagHandle func_rng_grad_tag;
+    iMesh_getTagHandle( func_rng_domain->getMesh(),
+			&func_rng_grad_tag_name[0],
+			&func_rng_grad_tag,
+			&error,
+			(int) func_rng_grad_tag_name.size() );
+    assert( iBase_SUCCESS == error );
+
+    func_rng_grad_field->attachToTagData( func_rng_grad_tag, error );
+    assert( iBase_SUCCESS == error );
+
     // Do interpolation.
-    FOOD::FEMInterpolate<double> fem_interp( func_dmn_field, func_rng_field );
-    fem_interp.setup();
-    fem_interp.interpolateValueDF();
+    FOOD::FEMInterpolate<double> fem_interp_val( func_dmn_field, func_rng_field );
+    fem_interp_val.setup();
+    fem_interp_val.interpolateValueDF();
+
+    FOOD::FEMInterpolate<double> fem_interp_grad( func_dmn_field, func_rng_grad_field );
+    fem_interp_grad.setup();
+    fem_interp_grad.interpolateGradDF();
 
     // Write the interpolated mesh to file.
     std::string interp_file = "small_box_output.vtk";

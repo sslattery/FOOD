@@ -65,6 +65,10 @@ class FEMInterpolate
     // Perform value interpolation of the degrees of freedom from the domain
     // to the range.
     void interpolateValueDF();
+
+    // Perform gradient interpolation of the degrees of freedom from the domain
+    // to the range.
+    void interpolateGradDF();
 };
 
 } // end namespace FOOD

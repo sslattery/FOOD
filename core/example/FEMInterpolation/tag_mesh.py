@@ -18,7 +18,9 @@ coords = mesh.getVtxCoords(vertices)
 tag_data = []
 
 for i in xrange(num_vert):
-    tag_data += [ [coords[i][0], coords[i][1], coords[i][2]] ]
+    tag_data += [ [coords[i][0]*coords[i][0], \
+                   coords[i][1]*coords[i][1], \
+                   coords[i][2]*coords[i][2]] ]
 
 tag[vertices] = tag_data
 
@@ -36,17 +38,21 @@ mesh = iMesh.Mesh()
 mesh.load("small_99_linear_hex.vtk")
 
 tag = mesh.createTag("range", 3, float)
+tag_grad = mesh.createTag("grad_range", 9, float)
 
 num_vert = mesh.getNumOfType( iBase.Type.vertex )
 vertices = mesh.getEntities( iBase.Type.vertex )
 coords = mesh.getVtxCoords(vertices)
 
 tag_data = []
+tag_grad_data = []
 
 for i in xrange(num_vert):
     tag_data += [ [0.0, 0.0, 0.0] ]
+    tag_grad_data += [ [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] ]
 
 tag[vertices] = tag_data
+tag_grad[vertices] = tag_grad_data
 
 mesh.save("tagged_small_99_linear_hex.vtk")
 
@@ -71,9 +77,9 @@ coords = mesh.getVtxCoords(vertices)
 tag_data = []
 
 for i in xrange(num_vert):
-    tag_data += [ math.sqrt( coords[i][0]*coords[i][0] + \
-                             coords[i][1]*coords[i][1] + \
-                             coords[i][2]*coords[i][2] ) ]
+    tag_data += [ coords[i][0]*coords[i][0] + \
+                  coords[i][1]*coords[i][1] + \
+                  coords[i][2]*coords[i][2] ]
 
 tag[vertices] = tag_data
 
@@ -92,17 +98,21 @@ mesh = iMesh.Mesh()
 mesh.load("small_99_linear_tet.vtk")
 
 tag = mesh.createTag("range", 1, float)
+tag_grad = mesh.createTag("grad_range", 3, float)
 
 num_vert = mesh.getNumOfType( iBase.Type.vertex )
 vertices = mesh.getEntities( iBase.Type.vertex )
 coords = mesh.getVtxCoords(vertices)
 
 tag_data = []
+tag_grad_data = []
 
 for i in xrange(num_vert):
     tag_data += [ 0.0 ];
+    tag_grad_data += [ [0.0, 0.0, 0.0] ];
 
 tag[vertices] = tag_data
+tag_grad[vertices] = tag_grad_data
 
 mesh.save("tagged_small_99_linear_tet.vtk")
 
@@ -148,17 +158,21 @@ mesh = iMesh.Mesh()
 mesh.load("small_tet4_box.vtk")
 
 tag = mesh.createTag("range", 1, float)
+tag_grad = mesh.createTag("grad_range", 3, float)
 
 num_vert = mesh.getNumOfType( iBase.Type.vertex )
 vertices = mesh.getEntities( iBase.Type.vertex )
 coords = mesh.getVtxCoords(vertices)
 
 tag_data = []
+tag_grad_data = []
 
 for i in xrange(num_vert):
     tag_data += [ 0.0 ];
+    tag_grad_data += [ [0.0, 0.0, 0.0] ];
 
 tag[vertices] = tag_data
+tag_grad[vertices] = tag_grad_data
 
 mesh.save("tagged_small_tet4_box.vtk")
 
