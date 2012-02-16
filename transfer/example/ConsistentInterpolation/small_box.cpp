@@ -1,12 +1,14 @@
 //---------------------------------------------------------------------------//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 3.0 of the License, or (at your option) any later version.
-//
-// \file cxx_main.cpp
-// \author Stuart Slattery
-// \brief Consistent interpolation example 2.
+/*!
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
+ *
+ * \file cxx_main.cpp
+ * \author Stuart Slattery
+ * \brief Consistent interpolation example 1.
+ */
 //---------------------------------------------------------------------------//
 
 #include <cassert>
@@ -29,8 +31,6 @@
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_CommHelpers.hpp>
 
-#include <Intrepid_FieldContainer.hpp>
-
 template<class Ordinal>
 Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 {
@@ -41,9 +41,10 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 #endif
 }
 
-// This consistent interpolation example loads a quadratic hexahedron mesh tagged with
-// a scalar and interpolates it along with the gradient pullback onto a coarse
-// linear tet mesh. (Function domain = func_dmn, function range = func_rng )
+// This consistent interpolation example loads a quadratic hexahedron mesh
+// tagged with a scalar field and interpolates it along with the gradient
+// pullback onto a coarse linear tet mesh. (Function domain = func_dmn,
+// function range = func_rng ) 
 int main(int argc, char* argv[])
 {
     // Setup communication.
@@ -54,12 +55,10 @@ int main(int argc, char* argv[])
     if ( getDefaultComm<int>()->getRank() == 0 ) // Force scalar execution.
     {
 
-    typedef Intrepid::FieldContainer<double> MDArray;
-
     int error;
 
     // The tensor template can be shared by both the range and
-    // domain. 
+    // domain value. 
     Teuchos::RCP<FOOD::TensorTemplate> tensor_template = Teuchos::rcp(
 	new FOOD::TensorTemplate(0, 1, FOOD::FOOD_REAL, Teuchos::null) );
 
@@ -198,11 +197,13 @@ int main(int argc, char* argv[])
     assert( iBase_SUCCESS == error );
 
     // Do interpolation.
-    FOOD::ConsistentScheme<double> fem_interp_val( func_dmn_field, func_rng_field );
+    FOOD::ConsistentScheme<double> fem_interp_val( func_dmn_field, 
+						   func_rng_field );
     fem_interp_val.setup();
     fem_interp_val.interpolateValueDF();
 
-    FOOD::ConsistentScheme<double> fem_interp_grad( func_dmn_field, func_rng_grad_field );
+    FOOD::ConsistentScheme<double> fem_interp_grad( func_dmn_field, 
+						    func_rng_grad_field );
     fem_interp_grad.setup();
     fem_interp_grad.interpolateGradDF();
 
