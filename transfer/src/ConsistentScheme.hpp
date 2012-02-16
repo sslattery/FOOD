@@ -1,16 +1,18 @@
 //---------------------------------------------------------------------------//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 3.0 of the License, or (at your option) any later version.
-//
-// \file FEMInterpolate.hpp
-// \author Stuart Slattery
-// \brief Finite element interpolation declaration.
+/*!
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
+ *
+ * \file ConsistentScheme.hpp
+ * \author Stuart Slattery
+ * \brief Consistent finite element interpolation scheme declaration.
+ */
 //---------------------------------------------------------------------------//
 
-#ifndef FOOD_FEMINTERPOLATE_HPP
-#define FOOD_FEMINTERPOLATE_HPP
+#ifndef FOOD_CONSISTENTSCHEME_HPP
+#define FOOD_CONSISTENTSCHEME_HPP
 
 #include <map>
 
@@ -29,7 +31,7 @@ namespace FOOD
 {
 
 template<class Scalar>
-class FEMInterpolate
+class ConsistentScheme
 {
 
   public:
@@ -40,7 +42,6 @@ class FEMInterpolate
     typedef Teuchos::RCP<TensorField_t>              RCP_TensorField;
     typedef Teuchos::RCP< KDTree<3> >                RCP_KDTree;
     typedef Intrepid::FieldContainer<Scalar>         MDArray;
-    typedef iBase_EntityHandle                       EntityHandle;
     //@}
 
   private:
@@ -55,15 +56,15 @@ class FEMInterpolate
     RCP_KDTree d_kdtree;
 
     // Range to domain mapping.
-    std::map<EntityHandle,EntityHandle> d_map;
+    std::map<iBase_EntityHandle,iBase_EntityHandle> d_map;
 
   public:
 
     // Constructor.
-    FEMInterpolate( RCP_TensorField dof_domain, RCP_TensorField dof_range );
+    ConsistentScheme( RCP_TensorField dof_domain, RCP_TensorField dof_range );
 
     // Destructor.
-    ~FEMInterpolate();
+    ~ConsistentScheme();
 
     // Setup for interpolation.
     void setup();
@@ -79,10 +80,10 @@ class FEMInterpolate
 
 } // end namespace FOOD
 
-#include "FEMInterpolate_Def.hpp"
+#include "ConsistentScheme_Def.hpp"
 
-#endif // end FOOD_FEMINTERPOLATE_HPP
+#endif // end FOOD_CONSISTENTSCHEME_HPP
 
 //---------------------------------------------------------------------------//
-// end FEMInterpolate.hpp
+// end ConsistentScheme.hpp
 //---------------------------------------------------------------------------//

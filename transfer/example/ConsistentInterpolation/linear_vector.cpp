@@ -1,12 +1,14 @@
 //---------------------------------------------------------------------------//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 3.0 of the License, or (at your option) any later version.
-//
-// \file cxx_main.cpp
-// \author Stuart Slattery
-// \brief FEMInterpolation Example 1.
+/*!
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
+ *
+ * \file cxx_main.cpp
+ * \author Stuart Slattery
+ * \brief Consistent interpolation Example 1.
+ */
 //---------------------------------------------------------------------------//
 
 #include <cassert>
@@ -18,7 +20,7 @@
 #include <TensorTemplate.hpp>
 #include <DFuncKernel.hpp>
 #include <TensorField.hpp>
-#include <FEMInterpolate.hpp>
+#include <ConsistentScheme.hpp>
 
 #include <iBase.h>
 #include <iMesh.h>
@@ -197,11 +199,11 @@ int main(int argc, char* argv[])
     assert( iBase_SUCCESS == error );
 
     // Do interpolation.
-    FOOD::FEMInterpolate<double> fem_interp( func_dmn_field, func_rng_field );
+    FOOD::ConsistentScheme<double> fem_interp( func_dmn_field, func_rng_field );
     fem_interp.setup();
     fem_interp.interpolateValueDF();
 
-    FOOD::FEMInterpolate<double> fem_interp_grad( func_dmn_field, func_rng_grad_field );
+    FOOD::ConsistentScheme<double> fem_interp_grad( func_dmn_field, func_rng_grad_field );
     fem_interp_grad.setup();
     fem_interp_grad.interpolateGradDF();
 

@@ -1,12 +1,14 @@
 //---------------------------------------------------------------------------//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 3.0 of the License, or (at your option) any later version.
-//
-// \file Unit.cpp
-// \author Stuart Slattery
-// \brief Unit definiton
+/*!
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
+ *
+ * \file Unit.cpp
+ * \author Stuart Slattery
+ * \brief Unit definiton
+ */
 //---------------------------------------------------------------------------//
 
 #include "Unit.hpp"

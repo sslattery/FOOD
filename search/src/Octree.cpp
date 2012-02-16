@@ -1,12 +1,14 @@
 //---------------------------------------------------------------------------//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 3.0 of the License, or (at your option) any later version.
-//
-// \file Octree.cpp
-// \author Stuart Slattery
-// \brief Octree defintion.
+/*!
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
+ *
+ * \file Octree.cpp
+ * \author Stuart Slattery
+ * \brief Octree defintion.
+ */
 //---------------------------------------------------------------------------//
 
 #include <cassert>
@@ -21,10 +23,12 @@ namespace FOOD
 /*! 
  * \brief Constructor.
  */
-Octree::Octree( RCP_Domain domain, 
+Octree::Octree( iMesh_Instance mesh,
+		iBase_EntitySetHandle mesh_set, 
 		const int entity_type,
 		const int entity_topology )
-    : d_domain(domain)
+    : d_mesh(mesh)
+    , d_mesh_set(mesh_set)
     , d_entity_type(entity_type)
     , d_entity_topology(entity_topology)
     , d_root_node( Teuchos::rcp(new OctreeNode) )
@@ -41,7 +45,7 @@ Octree::~Octree()
  */
 void Octree::buildTree()
 {
-    d_root_node->node_set = d_domain->getMeshSet();
+    d_root_node->node_set = d_mesh_set;
     getEntSetBox( d_root_node->node_set, d_root_node->bounding_box );
 
     buildTreeNode( d_root_node );
@@ -50,7 +54,7 @@ void Octree::buildTree()
 /*!
  * \brief Locate a point. Return false if we didn't find it.
  */
-bool Octree::findPoint( EntityHandle &found_in_entity,
+bool Octree::findPoint( iBase_EntityHandle &found_in_entity,
 			const MDArray &coords )
 {
     return findPointInNode( d_root_node, found_in_entity, coords );
@@ -68,7 +72,7 @@ void Octree::buildTreeNode( RCP_Node node )
     {
 	node->children[i] = Teuchos::rcp( new OctreeNode );
 
-	iMesh_createEntSet( d_domain->getMesh(),
+	iMesh_createEntSet( d_mesh,
 			    1,
 			    &(node->children[i]->node_set),
 			    &error );
@@ -79,11 +83,11 @@ void Octree::buildTreeNode( RCP_Node node )
     sliceBox( node );
 
     // Add the elements in the parent set to the child sets.
-    std::vector<EntityHandle> root_list;
+    std::vector<iBase_EntityHandle> root_list;
     int node_elements_allocated = 0;
     int node_elements_size = 0;
-    EntityHandle *node_elements;
-    iMesh_getEntities( d_domain->getMesh(),
+    iBase_EntityHandle *node_elements;
+    iMesh_getEntities( d_mesh,
 		       node->node_set,
 		       d_entity_type,
 		       d_entity_topology,
@@ -105,7 +109,7 @@ void Octree::buildTreeNode( RCP_Node node )
 		if ( isEntInBox( node->children[m]->bounding_box, 
 				 node_elements[n] ) )
 		{
-		    iMesh_addEntToSet( d_domain->getMesh(),
+		    iMesh_addEntToSet( d_mesh,
 				       node_elements[n],
 				       node->children[m]->node_set,
 				       &error );
@@ -113,7 +117,7 @@ void Octree::buildTreeNode( RCP_Node node )
 
 		    if ( node != d_root_node )
 		    {
-			iMesh_rmvEntFromSet( d_domain->getMesh(),
+			iMesh_rmvEntFromSet( d_mesh,
 					     node_elements[n],
 					     node->node_set,
 					     &error );
@@ -138,13 +142,13 @@ void Octree::buildTreeNode( RCP_Node node )
     if ( node == d_root_node )
     {
 	iBase_EntitySetHandle new_root_set;
-	iMesh_createEntSet( d_domain->getMesh(),
+	iMesh_createEntSet( d_mesh,
 			    1,
 			    &new_root_set,
 			    &error );
 	assert( iBase_SUCCESS == error );
 
-	iMesh_addEntArrToSet( d_domain->getMesh(),
+	iMesh_addEntArrToSet( d_mesh,
 			      &root_list[0],
 			      (int) root_list.size(),
 			      new_root_set,
@@ -159,7 +163,7 @@ void Octree::buildTreeNode( RCP_Node node )
     int total_child_ents = 0;
     for (int i = 0; i < 8; ++i )
     {
-	iMesh_getNumOfTopo( d_domain->getMesh(),
+	iMesh_getNumOfTopo( d_mesh,
 			    node->children[i]->node_set,
 			    d_entity_topology,
 			    &num_child_ents[i],
@@ -195,17 +199,17 @@ void Octree::buildTreeNode( RCP_Node node )
  * found it in.
  */
 bool Octree::findPointInNode( RCP_Node node,
-			      EntityHandle &found_in_entity,
+			      iBase_EntityHandle &found_in_entity,
 			      const MDArray &coords )
 {
     int error = 0;
     bool return_val = false;
 
     // First check at the node level.
-    EntityHandle *node_elements = 0;
+    iBase_EntityHandle *node_elements = 0;
     int node_elements_allocated = 0; 
     int node_elements_size = 0; 
-    iMesh_getEntities( d_domain->getMesh(),
+    iMesh_getEntities( d_mesh,
 		       node->node_set,
 		       d_entity_type,
 		       d_entity_topology,
@@ -220,7 +224,7 @@ bool Octree::findPointInNode( RCP_Node node,
     {
 	while ( i < node_elements_size && !return_val )
 	{
-	    if ( PointQuery::pointInRefElement( d_domain->getMesh(),
+	    if ( PointQuery::pointInRefElement( d_mesh,
 						node_elements[i],
 						coords ) )
 	    {
@@ -262,17 +266,17 @@ void Octree::getEntSetBox( iBase_EntitySetHandle entity_set,
     int error = 0;
     
     int num_set_vertices = 0;
-    iMesh_getNumOfTopo( d_domain->getMesh(),
+    iMesh_getNumOfTopo( d_mesh,
 			entity_set,
 			iMesh_POINT,
 			&num_set_vertices,
 			&error );
     assert( iBase_SUCCESS == error );
 
-    EntityHandle *set_vertices = 0;
+    iBase_EntityHandle *set_vertices = 0;
     int set_vertices_allocated = 0;
     int set_vertices_size = 0;
-    iMesh_getEntities( d_domain->getMesh(),
+    iMesh_getEntities( d_mesh,
 		       entity_set,
 		       iBase_VERTEX,
 		       iMesh_POINT,
@@ -285,7 +289,7 @@ void Octree::getEntSetBox( iBase_EntitySetHandle entity_set,
     int set_coords_allocated = 3*set_vertices_size;
     int set_coords_size = 0;
     double *coords = 0;
-    iMesh_getVtxArrCoords( d_domain->getMesh(),
+    iMesh_getVtxArrCoords( d_mesh,
 			   set_vertices,
 			   set_vertices_size,
 			   iBase_BLOCKED,
@@ -350,15 +354,15 @@ bool Octree::isPointInBox( const Box &box,
  * must be in the box.
  */
 bool Octree::isEntInBox( const Box &box,
-			 EntityHandle entity )
+			 iBase_EntityHandle entity )
 {
     int error = 0;
     bool return_val = true;
 
-    EntityHandle *element_nodes = 0;
+    iBase_EntityHandle *element_nodes = 0;
     int element_nodes_allocated = 0;
     int element_nodes_size = 0;
-    iMesh_getEntAdj( d_domain->getMesh(),
+    iMesh_getEntAdj( d_mesh,
 		     entity,
 		     iBase_VERTEX,
 		     &element_nodes,
@@ -370,7 +374,7 @@ bool Octree::isEntInBox( const Box &box,
     int coords_allocated = element_nodes_size*3;
     int coords_size = 0;
     double *coord_array = 0;
-    iMesh_getVtxArrCoords( d_domain->getMesh(),
+    iMesh_getVtxArrCoords( d_mesh,
 			   element_nodes,
 			   element_nodes_size,
 			   iBase_INTERLEAVED,

@@ -1,10 +1,10 @@
 //----------------------------------*-C++-*----------------------------------//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 3.0 of the License, or (at your option) any later version.
-//
 /*!
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
+ *
  * \file   mesh/test/tstOctree.cpp
  * \author Stuart Slattery
  * \brief  Octree class unit tests.
@@ -16,7 +16,6 @@
 #include <cmath>
 #include <sstream>
 
-#include <Domain.hpp>
 #include <Octree.hpp>
 
 #include <iMesh.h>
@@ -158,10 +157,7 @@ TEUCHOS_UNIT_TEST( Octree, tree_build_and_search_test )
     iMesh_getRootSet(mesh, &root_set, &error);
     TEST_ASSERT( iBase_SUCCESS == error );
     
-    Teuchos::RCP<FOOD::Domain> domain = 
-	Teuchos::rcp( new FOOD::Domain(mesh, root_set) );
-
-    FOOD::Octree octree( domain, iBase_REGION, iMesh_HEXAHEDRON );
+    FOOD::Octree octree( mesh, root_set, iBase_REGION, iMesh_HEXAHEDRON );
     octree.buildTree();
 
     MDArray coords1(1,3);

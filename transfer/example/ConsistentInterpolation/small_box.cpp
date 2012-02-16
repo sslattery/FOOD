@@ -6,7 +6,7 @@
 //
 // \file cxx_main.cpp
 // \author Stuart Slattery
-// \brief FEMInterpolation example 2.
+// \brief Consistent interpolation example 2.
 //---------------------------------------------------------------------------//
 
 #include <cassert>
@@ -18,7 +18,7 @@
 #include <TensorTemplate.hpp>
 #include <DFuncKernel.hpp>
 #include <TensorField.hpp>
-#include <FEMInterpolate.hpp>
+#include <ConsistentScheme.hpp>
 
 #include <iBase.h>
 #include <iMesh.h>
@@ -41,7 +41,7 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 #endif
 }
 
-// This FEMInterpolation example loads a quadratic hexahedron mesh tagged with
+// This consistent interpolation example loads a quadratic hexahedron mesh tagged with
 // a scalar and interpolates it along with the gradient pullback onto a coarse
 // linear tet mesh. (Function domain = func_dmn, function range = func_rng )
 int main(int argc, char* argv[])
@@ -198,11 +198,11 @@ int main(int argc, char* argv[])
     assert( iBase_SUCCESS == error );
 
     // Do interpolation.
-    FOOD::FEMInterpolate<double> fem_interp_val( func_dmn_field, func_rng_field );
+    FOOD::ConsistentScheme<double> fem_interp_val( func_dmn_field, func_rng_field );
     fem_interp_val.setup();
     fem_interp_val.interpolateValueDF();
 
-    FOOD::FEMInterpolate<double> fem_interp_grad( func_dmn_field, func_rng_grad_field );
+    FOOD::ConsistentScheme<double> fem_interp_grad( func_dmn_field, func_rng_grad_field );
     fem_interp_grad.setup();
     fem_interp_grad.interpolateGradDF();
 

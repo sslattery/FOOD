@@ -1,16 +1,18 @@
 //---------------------------------------------------------------------------//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 3.0 of the License, or (at your option) any later version.
-//
-// \file FEMInterpolate.hpp
-// \author Stuart Slattery
-// \brief Finite element interpolation declaration.
+/*!
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
+ *
+ * \file ConsistentScheme.hpp
+ * \author Stuart Slattery
+ * \brief Consistent finite element interpolation scheme definition.
+ */
 //---------------------------------------------------------------------------//
 
-#ifndef FOOD_FEMINTERPOLATE_DEF_HPP
-#define FOOD_FEMINTERPOLATE_DEF_HPP
+#ifndef FOOD_CONSISTENTSCHEME_DEF_HPP
+#define FOOD_CONSISTENTSCHEME_DEF_HPP
 
 namespace FOOD
 {
@@ -19,8 +21,8 @@ namespace FOOD
  * \brief Constructor.
  */
 template<class Scalar>
-FEMInterpolate<Scalar>::FEMInterpolate(RCP_TensorField dof_domain, 
-				       RCP_TensorField dof_range )
+ConsistentScheme<Scalar>::ConsistentScheme(RCP_TensorField dof_domain, 
+					   RCP_TensorField dof_range )
     : d_dof_domain( dof_domain )
     , d_dof_range( dof_range )
     , d_kdtree(0)
@@ -30,19 +32,19 @@ FEMInterpolate<Scalar>::FEMInterpolate(RCP_TensorField dof_domain,
  * \brief Destructor.
  */
 template<class Scalar>
-FEMInterpolate<Scalar>::~FEMInterpolate()
+ConsistentScheme<Scalar>::~ConsistentScheme()
 { /* ... */ }
 
 /*!
  * \brief Setup for interpolation.
  */
 template<class Scalar>
-void FEMInterpolate<Scalar>::setup()
+void ConsistentScheme<Scalar>::setup()
 {
     int error = 0;
 
     // Get the range mesh vertices for interpolation.
-    EntityHandle *range_vertices = 0;
+    iBase_EntityHandle *range_vertices = 0;
     int range_vertices_allocated = 0;
     int range_vertices_size = 0;
     iMesh_getEntities( d_dof_range->getDomain()->getMesh(),
@@ -70,14 +72,15 @@ void FEMInterpolate<Scalar>::setup()
 
     // Setup the kdtree to search the domain mesh with range vertices.
     d_kdtree = Teuchos::rcp( 
-	new KDTree<3>( d_dof_domain->getDomain(),
+	new KDTree<3>( d_dof_domain->getDomain()->getMesh(),
+		       d_dof_domain->getDomain()->getMeshSet(),
 		       d_dof_domain->getDFuncKernel()->getEvalType(),
 		       d_dof_domain->getDFuncKernel()->getEvalTopology() ) );
     d_kdtree->buildTree();
 
     // Generate a mapping for interpolation.
     MDArray local_coords(1,3);
-    EntityHandle found_entity = 0;
+    iBase_EntityHandle found_entity = 0;
     for ( int n = 0; n < range_vertices_size; ++n )
     {
 	found_entity = 0;
@@ -88,7 +91,7 @@ void FEMInterpolate<Scalar>::setup()
 
 	if ( d_kdtree->getElement( local_coords, found_entity ) )
 	{
-	    d_map.insert( std::pair<EntityHandle,EntityHandle>( 
+	    d_map.insert( std::pair<iBase_EntityHandle,iBase_EntityHandle>( 
 			      range_vertices[n], found_entity ) );
 	}
     }
@@ -103,12 +106,12 @@ void FEMInterpolate<Scalar>::setup()
  * domain to the range.
  */
 template<class Scalar>
-void FEMInterpolate<Scalar>::interpolateValueDF()
+void ConsistentScheme<Scalar>::interpolateValueDF()
 {
     int error = 0;
 
     // Get the range mesh vertices for interpolation.
-    EntityHandle *range_vertices = 0;
+    iBase_EntityHandle *range_vertices = 0;
     int range_vertices_allocated = 0;
     int range_vertices_size = 0;
     iMesh_getEntities( d_dof_range->getDomain()->getMesh(),
@@ -174,12 +177,12 @@ void FEMInterpolate<Scalar>::interpolateValueDF()
  * domain to the range.
  */
 template<class Scalar>
-void FEMInterpolate<Scalar>::interpolateGradDF()
+void ConsistentScheme<Scalar>::interpolateGradDF()
 {
     int error = 0;
 
     // Get the range mesh vertices for interpolation.
-    EntityHandle *range_vertices = 0;
+    iBase_EntityHandle *range_vertices = 0;
     int range_vertices_allocated = 0;
     int range_vertices_size = 0;
     iMesh_getEntities( d_dof_range->getDomain()->getMesh(),
@@ -248,5 +251,5 @@ void FEMInterpolate<Scalar>::interpolateGradDF()
 
 } // end namespace FOOD
 
-#endif // end FOOD_FEMINTERPOLATE_DEF_HPP
+#endif // end FOOD_CONSISTENTSCHEME_DEF_HPP
 

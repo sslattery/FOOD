@@ -1,12 +1,14 @@
 //---------------------------------------------------------------------------//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 3.0 of the License, or (at your option) any later version.
-//
-// \file KDTree_Def.hpp
-// \author Stuart Slattery
-// \brief KDTree definition.
+/*! 
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
+ *
+ * \file KDTree_Def.hpp
+ * \author Stuart Slattery
+ * \brief KDTree definition.
+ */
 //---------------------------------------------------------------------------//
 
 #ifndef FOOD_KDTREE_DEF_HPP
@@ -29,10 +31,12 @@ namespace FOOD
  * \brief Constructor.
  */
 template<int DIM>
-KDTree<DIM>::KDTree( RCP_Domain domain, 
+KDTree<DIM>::KDTree( iMesh_Instance mesh, 
+		     iBase_EntitySetHandle mesh_set, 
 		     const int entity_type,
 		     const int entity_topology )
-    : d_domain(domain)
+    : d_mesh(mesh)
+    , d_mesh_set(mesh_set)
     , d_entity_type(entity_type)
     , d_entity_topology(entity_topology)
     , d_large(1.0e99)
@@ -59,11 +63,11 @@ void KDTree<DIM>::buildTree()
     int error = 0;
 
     // Get the domain linear element vertices and their coordinates.
-    EntityHandle *elements = 0;
+    iBase_EntityHandle *elements = 0;
     int elements_allocated = 0;
     int elements_size = 0;
-    iMesh_getEntities( d_domain->getMesh(),
-		       d_domain->getMeshSet(),
+    iMesh_getEntities( d_mesh,
+		       d_mesh_set,
 		       d_entity_type,
 		       d_entity_topology,
 		       &elements,
@@ -74,10 +78,10 @@ void KDTree<DIM>::buildTree()
 
     for ( int n = 0; n < elements_size; ++n )
     {
-	EntityHandle *element_nodes = 0;
+	iBase_EntityHandle *element_nodes = 0;
 	int element_nodes_allocated = 0;
 	int element_nodes_size = 0;
-	iMesh_getEntAdj( d_domain->getMesh(),
+	iMesh_getEntAdj( d_mesh,
 			 elements[n],
 			 iBase_VERTEX,
 			 &element_nodes,
@@ -102,7 +106,7 @@ void KDTree<DIM>::buildTree()
     int coords_allocated = 0;
     int coords_size = 0;
     double *coords;
-    iMesh_getVtxArrCoords( d_domain->getMesh(),
+    iMesh_getVtxArrCoords( d_mesh,
 			   &d_points[0],
 			   d_num_points,
 			   iBase_BLOCKED,
@@ -207,11 +211,11 @@ void KDTree<DIM>::buildTree()
 }
 
 /*!
- * \brief Locate the nearest neighbor in the mesh.
+ * \brief Locate the nearest neighbor point in the mesh.
  */
 template<int DIM>
 void KDTree<DIM>::nearestNeighbor( const MDArray &coords,
-				   EntityHandle &nearest_neighbor )
+				   iBase_EntityHandle &nearest_neighbor )
 {
     Point<DIM> search_point( coords(0,0), coords(0,1), coords(0,2) );
     int nearest_idx = nearest( search_point );
@@ -224,7 +228,7 @@ void KDTree<DIM>::nearestNeighbor( const MDArray &coords,
  */
 template<int DIM>
 bool KDTree<DIM>::getElement( const MDArray &coords,
-			      EntityHandle &element )
+			      iBase_EntityHandle &element )
 {
     element = 0;
     Point<DIM> search_point( coords(0,0), coords(0,1), coords(0,2) );
@@ -252,12 +256,12 @@ double KDTree<DIM>::dist( const Point<DIM> &p1, const Point<DIM> &p2 )
  * \brief Calculate the distance between a point and an iMesh Point.
  */
 template<int DIM>
-double KDTree<DIM>::dist( EntityHandle p1, const Point<DIM> &p2 )
+double KDTree<DIM>::dist( iBase_EntityHandle p1, const Point<DIM> &p2 )
 {
     int error = 0;
 
     double p1x[3] = {0.0, 0.0, 0.0};
-    iMesh_getVtxCoord( d_domain->getMesh(),
+    iMesh_getVtxCoord( d_mesh,
 		       p1,
 		       &p1x[0],
 		       &p1x[1],
@@ -468,8 +472,8 @@ int KDTree<DIM>::nearest( Point<DIM> p )
  */
 template<int DIM>
 bool KDTree<DIM>::pointInAdjElements( Point<DIM> p,
-				      EntityHandle point,
-				      EntityHandle &element )
+				      iBase_EntityHandle point,
+				      iBase_EntityHandle &element )
 {
     int error = 0;
     bool return_val = false;
@@ -479,10 +483,10 @@ bool KDTree<DIM>::pointInAdjElements( Point<DIM> p,
     coords(0,1) = p.x[1];
     coords(0,2) = p.x[2];
 
-    EntityHandle *adj_elements = 0;
+    iBase_EntityHandle *adj_elements = 0;
     int adj_elements_allocated = 0;
     int adj_elements_size = 0;
-    iMesh_getEntAdj( d_domain->getMesh(),
+    iMesh_getEntAdj( d_mesh,
 		     point,
 		     d_entity_type,
 		     &adj_elements,
@@ -495,7 +499,7 @@ bool KDTree<DIM>::pointInAdjElements( Point<DIM> p,
     {
 	if ( !return_val )
 	{
-	    return_val = PointQuery::pointInRefElement( d_domain->getMesh(),
+	    return_val = PointQuery::pointInRefElement( d_mesh,
 							adj_elements[i],
 							coords );
 	    if ( return_val )
@@ -514,7 +518,7 @@ bool KDTree<DIM>::pointInAdjElements( Point<DIM> p,
  * \brief Find the element a point resides in.
  */
 template<int DIM>
-bool KDTree<DIM>::findElement( Point<DIM> p, EntityHandle &element )
+bool KDTree<DIM>::findElement( Point<DIM> p, iBase_EntityHandle &element )
 {
     bool point_found = false;
 

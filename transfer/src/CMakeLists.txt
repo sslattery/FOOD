@@ -20,8 +20,8 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  FEMInterpolate.hpp
-  FEMInterpolate_Def.hpp
+  ConsistentScheme.hpp
+  ConsistentScheme_Def.hpp
   Rendezvous.hpp
   Rendezvous_Def.hpp
   )

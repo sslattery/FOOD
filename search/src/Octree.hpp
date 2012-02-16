@@ -1,19 +1,20 @@
 //---------------------------------------------------------------------------//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 3.0 of the License, or (at your option) any later version.
-//
-// \file Octree.hpp
-// \author Stuart Slattery
-// \brief Octree declaration.
+/*!
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
+ *
+ * \file Octree.hpp
+ * \author Stuart Slattery
+ * \brief Octree declaration.
+ */
 //---------------------------------------------------------------------------//
 
 #ifndef FOOD_OCTREE_HPP
 #define FOOD_OCTREE_HPP
 
 #include "PointQuery.hpp"
-#include "Domain.hpp"
 
 #include <iBase.h>
 #include <iMesh.h>
@@ -51,17 +52,18 @@ class Octree
 
     //@{
     //! Typedefs.
-    typedef Teuchos::RCP<Domain>                      RCP_Domain;
     typedef Teuchos::RCP<OctreeNode>                  RCP_Node;
     typedef Intrepid::FieldContainer<double>          MDArray;
     typedef Teuchos::Tuple<double,6>                  Box;
-    typedef iBase_EntityHandle                        EntityHandle;
     //@}
 
   private:
 
-    // The domain this octree is generated for.
-    RCP_Domain d_domain;
+    // The mesh this tree is generated for.
+    iMesh_Instance d_mesh;
+
+    // The mesh set this tree is generated for.
+    iBase_EntitySetHandle d_mesh_set;
 
     // The entity type this tree is built on.
     std::size_t d_entity_type;
@@ -75,7 +77,8 @@ class Octree
   public:
 
     // Constructor.
-    Octree( RCP_Domain domain, 
+    Octree( iMesh_Instance mesh,
+	    iBase_EntitySetHandle mesh_set,
 	    const int entity_type,
 	    const int entity_topology );
 
@@ -86,7 +89,7 @@ class Octree
     void buildTree();
 
     // Locate a point.
-    bool findPoint( EntityHandle &found_in_entity,
+    bool findPoint( iBase_EntityHandle &found_in_entity,
 		    const MDArray &coords );
 
   private:
@@ -96,7 +99,7 @@ class Octree
 
     // Search a node for a point.
     bool findPointInNode( RCP_Node node,
-			  EntityHandle &found_in_entity,
+			  iBase_EntityHandle &found_in_entity,
 			  const MDArray &coords );
 
     // Get the bounding box of a set of entities.
@@ -106,7 +109,7 @@ class Octree
     bool isPointInBox( const Box &box, const MDArray &coords );
 
     // Determine if an entity is inside a bounding box.
-    bool isEntInBox( const Box &box, EntityHandle entity );
+    bool isEntInBox( const Box &box, iBase_EntityHandle entity );
 
     // Slice a node box into 8 children boxes.
     void sliceBox( RCP_Node node );

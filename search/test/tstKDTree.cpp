@@ -1,10 +1,10 @@
 //----------------------------------*-C++-*----------------------------------//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 3.0 of the License, or (at your option) any later version.
-//
 /*!
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
+ *
  * \file   mesh/test/tstKDTree.cpp
  * \author Stuart Slattery
  * \brief  KDTree class unit tests.
@@ -16,7 +16,6 @@
 #include <cmath>
 #include <sstream>
 
-#include <Domain.hpp>
 #include <KDTree.hpp>
 
 #include <iMesh.h>
@@ -158,10 +157,7 @@ TEUCHOS_UNIT_TEST( KDTree, tree_build_and_search_test )
     iMesh_getRootSet(mesh, &root_set, &error);
     TEST_ASSERT( iBase_SUCCESS == error );
     
-    Teuchos::RCP<FOOD::Domain> domain = 
-	Teuchos::rcp( new FOOD::Domain(mesh, root_set) );
-
-    FOOD::KDTree<3> kdtree( domain, iBase_REGION, iMesh_HEXAHEDRON );
+    FOOD::KDTree<3> kdtree( mesh, root_set, iBase_REGION, iMesh_HEXAHEDRON );
     kdtree.buildTree();
 
     MDArray coords1(1,3);
@@ -187,7 +183,7 @@ TEUCHOS_UNIT_TEST( KDTree, tree_build_and_search_test )
     iBase_EntityHandle *adj_elements = 0;
     int adj_elements_allocated = 0;
     int adj_elements_size = 0;
-    iMesh_getEntAdj( domain->getMesh(),
+    iMesh_getEntAdj( mesh,
 		     found_hex,
 		     iBase_VERTEX,
 		     &adj_elements,
@@ -198,7 +194,7 @@ TEUCHOS_UNIT_TEST( KDTree, tree_build_and_search_test )
     double *coords = 0;
     int coords_allocated = 0;
     int coords_size = 0;
-    iMesh_getVtxArrCoords( domain->getMesh(),
+    iMesh_getVtxArrCoords( mesh,
 			   adj_elements,
 			   adj_elements_size,
 			   iBase_INTERLEAVED,

@@ -1,12 +1,14 @@
 //---------------------------------------------------------------------------//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 3.0 of the License, or (at your option) any later version.
-//
-// \file KDTree.hpp
-// \author Stuart Slattery
-// \brief KDTree declaration.
+/*! 
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
+ *
+ * \file KDTree.hpp
+ * \author Stuart Slattery
+ * \brief KDTree declaration.
+ */
 //---------------------------------------------------------------------------//
 
 #ifndef FOOD_KDTREE_HPP
@@ -15,7 +17,6 @@
 #include <vector>
 
 #include "PointQuery.hpp"
-#include "Domain.hpp"
 
 #include <iBase.h>
 #include <iMesh.h>
@@ -133,15 +134,16 @@ class KDTree
     //@{
     //! Typedefs.
     typedef Teuchos::RCP< KDTreeNode<DIM> >           RCP_Node;
-    typedef Teuchos::RCP<Domain>                      RCP_Domain;
     typedef Intrepid::FieldContainer<double>          MDArray;
-    typedef iBase_EntityHandle                        EntityHandle;
     //@}
 
   private:
 
-    // The domain this octree is generated for.
-    RCP_Domain d_domain;
+    // The mesh instance this tree is generated for.
+    iMesh_Instance d_mesh;
+
+    // The mesh set this tree is generated for.
+    iBase_EntitySetHandle d_mesh_set;
 
     // The entity type this tree is built on.
     std::size_t d_entity_type;
@@ -156,7 +158,7 @@ class KDTree
     int d_num_points;
 
     // Points in the domain.
-    std::vector<EntityHandle> d_points;
+    std::vector<iBase_EntityHandle> d_points;
 
     // Point indices.
     std::vector<int> d_ptindx;
@@ -170,7 +172,8 @@ class KDTree
   public:
 
     // Constructor.
-    KDTree( RCP_Domain domain, 
+    KDTree( iMesh_Instance mesh, 
+	    iBase_EntitySetHandle mesh_set,
 	    const int entity_type,
 	    const int entity_topology );
 
@@ -180,13 +183,13 @@ class KDTree
     // Build the tree.
     void buildTree();
 
-    // Locate the nearest neighbor in the mesh.
+    // Locate the nearest neighbor point in the mesh.
     void nearestNeighbor( const MDArray &coords,
-			  EntityHandle &nearest_neighbor );
+			  iBase_EntityHandle &nearest_neighbor );
 
     // Get the element a point is located in.
     bool getElement( const MDArray &coords,
-		     EntityHandle &element);
+		     iBase_EntityHandle &element );
 
   private:
 
@@ -194,7 +197,7 @@ class KDTree
     double dist( const Point<DIM> &p1, const Point<DIM> &p2 );
 
     // Calculate the distance between a point and an iMesh Point.
-    double dist( EntityHandle p1, const Point<DIM> &p2 );
+    double dist( iBase_EntityHandle p1, const Point<DIM> &p2 );
 
     // Calculate the distance between a point and a box.
     double dist( const Box<DIM> &b, const Point<DIM> &p );
@@ -214,11 +217,11 @@ class KDTree
 
     // Determine if a point is inside the elements adjacent to a point.
     bool pointInAdjElements( Point<DIM> p,
-			     EntityHandle point,
-			     EntityHandle &element );
+			     iBase_EntityHandle point,
+			     iBase_EntityHandle &element );
 
     // Find the element a point resides in.
-    bool findElement( Point<DIM> p, EntityHandle &element );
+    bool findElement( Point<DIM> p, iBase_EntityHandle &element );
 };
 
 } // end namespace FOOD
