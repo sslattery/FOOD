@@ -79,15 +79,15 @@ void ConsistentScheme<Scalar>::setup()
     d_kdtree->buildTree();
 
     // Generate a mapping for interpolation.
-    MDArray local_coords(1,3);
+    double local_coords[3];
     iBase_EntityHandle found_entity = 0;
     for ( int n = 0; n < range_vertices_size; ++n )
     {
 	found_entity = 0;
 
-	local_coords(0,0) = coord_array[3*n];
-	local_coords(0,1) = coord_array[3*n+1];
-	local_coords(0,2) = coord_array[3*n+2];
+	local_coords[0] = coord_array[3*n];
+	local_coords[1] = coord_array[3*n+1];
+	local_coords[2] = coord_array[3*n+2];
 
 	if ( d_kdtree->getElement( local_coords, found_entity ) )
 	{

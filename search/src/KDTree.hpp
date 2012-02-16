@@ -24,8 +24,6 @@
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ArrayView.hpp>
 
-#include <Intrepid_FieldContainer.hpp>
-
 namespace FOOD
 {
 
@@ -134,7 +132,6 @@ class KDTree
     //@{
     //! Typedefs.
     typedef Teuchos::RCP< KDTreeNode<DIM> >           RCP_Node;
-    typedef Intrepid::FieldContainer<double>          MDArray;
     //@}
 
   private:
@@ -184,11 +181,11 @@ class KDTree
     void buildTree();
 
     // Locate the nearest neighbor point in the mesh.
-    void nearestNeighbor( const MDArray &coords,
+    void nearestNeighbor( const double coords[3],
 			  iBase_EntityHandle &nearest_neighbor );
 
     // Get the element a point is located in.
-    bool getElement( const MDArray &coords,
+    bool getElement( const double coords[3],
 		     iBase_EntityHandle &element );
 
   private:

@@ -1,12 +1,14 @@
 //---------------------------------------------------------------------------//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 3.0 of the License, or (at your option) any later version.
-//
-// \file PointQuery.cpp
-// \author Stuart Slattery
-// \brief Point query method definitions for reference elements.
+/*!
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
+ *
+ * \file PointQuery.cpp
+ * \author Stuart Slattery
+ * \brief Point query method definitions for reference elements.
+ */
 //---------------------------------------------------------------------------//
 
 #include <vector>
@@ -24,7 +26,7 @@ namespace FOOD
 
 bool PointQuery::pointInRefElement( const iMesh_Instance mesh,
 				    const EntityHandle entity,
-				    const MDArray &coords)
+				    const double coords[3] )
 {
     int error = 0;
     int topology = 0;
@@ -75,10 +77,14 @@ bool PointQuery::pointInRefElement( const iMesh_Instance mesh,
     MDArray cell_nodes( Teuchos::Array<int>(cell_node_dimensions), 
 			coord_array );
 
+    MDArray find_coords(1,3);
+    find_coords(0,0) = coords[0];
+    find_coords(0,1) = coords[1];
+    find_coords(0,2) = coords[2];
     MDArray reference_points(1,3);
     Intrepid::CellTools<double>::mapToReferenceFrame( 
 	reference_points,
-	coords,
+	find_coords,
 	cell_nodes,
 	*cell_topo,
 	0 );

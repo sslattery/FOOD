@@ -214,10 +214,10 @@ void KDTree<DIM>::buildTree()
  * \brief Locate the nearest neighbor point in the mesh.
  */
 template<int DIM>
-void KDTree<DIM>::nearestNeighbor( const MDArray &coords,
+void KDTree<DIM>::nearestNeighbor( const double coords[3],
 				   iBase_EntityHandle &nearest_neighbor )
 {
-    Point<DIM> search_point( coords(0,0), coords(0,1), coords(0,2) );
+    Point<DIM> search_point( coords[0], coords[1], coords[2] );
     int nearest_idx = nearest( search_point );
     nearest_neighbor = d_points[nearest_idx];
 }
@@ -227,11 +227,11 @@ void KDTree<DIM>::nearestNeighbor( const MDArray &coords,
  * find anything.
  */
 template<int DIM>
-bool KDTree<DIM>::getElement( const MDArray &coords,
+bool KDTree<DIM>::getElement( const double coords[3],
 			      iBase_EntityHandle &element )
 {
     element = 0;
-    Point<DIM> search_point( coords(0,0), coords(0,1), coords(0,2) );
+    Point<DIM> search_point( coords[0], coords[1], coords[2] );
     return findElement( search_point, element );
 }
 
@@ -478,10 +478,10 @@ bool KDTree<DIM>::pointInAdjElements( Point<DIM> p,
     int error = 0;
     bool return_val = false;
 
-    MDArray coords(1,3);
-    coords(0,0) = p.x[0];
-    coords(0,1) = p.x[1];
-    coords(0,2) = p.x[2];
+    double coords[3];
+    coords[0] = p.x[0];
+    coords[1] = p.x[1];
+    coords[2] = p.x[2];
 
     iBase_EntityHandle *adj_elements = 0;
     int adj_elements_allocated = 0;

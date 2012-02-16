@@ -1,10 +1,10 @@
 //----------------------------------*-C++-*----------------------------------//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 3.0 of the License, or (at your option) any later version.
-//
 /*!
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
+ *
  * \file   mesh/test/tstPointQuery.cpp
  * \author Stuart Slattery
  * \brief  PointQuery class unit tests.
@@ -29,8 +29,6 @@
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_ArrayRCP.hpp>
 
-#include <Intrepid_FieldContainer.hpp>
-
 //---------------------------------------------------------------------------//
 // HELPER FUNCTIONS
 //---------------------------------------------------------------------------//
@@ -51,8 +49,6 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 
 TEUCHOS_UNIT_TEST( PointQuery, hex_query )
 {
-    typedef Intrepid::FieldContainer<double> MDArray;
-
     // Create a hex-8 element.
     int error;
     iMesh_Instance mesh;
@@ -88,25 +84,23 @@ TEUCHOS_UNIT_TEST( PointQuery, hex_query )
 		     &error );  
     TEST_ASSERT( iBase_SUCCESS == error );
 
-    MDArray point1(1,3);
-    point1(0,0) = 0.5;
-    point1(0,1) = 0.5;
-    point1(0,2) = 0.5;
+    double point1[3];
+    point1[0] = 0.5;
+    point1[1] = 0.5;
+    point1[2] = 0.5;
     TEST_ASSERT( FOOD::PointQuery::pointInRefElement( 
 		     mesh, hex_element, point1 ) == true );
 
-    MDArray point2(1,3);
-    point2(0,0) = 0.25;
-    point2(0,1) = 1.5;
-    point2(0,2) = -0.5;
+    double point2[3];
+    point2[0] = 0.25;
+    point2[1] = 1.5;
+    point2[2] = -0.5;
     TEST_ASSERT( FOOD::PointQuery::pointInRefElement( 
 		     mesh, hex_element, point2 ) == false );
 }
 
 TEUCHOS_UNIT_TEST( PointQuery, quadratic_hex_query )
 {
-    typedef Intrepid::FieldContainer<double> MDArray;
-
     // Create a hex-27 element.
     int error;
     iMesh_Instance mesh;
@@ -149,17 +143,17 @@ TEUCHOS_UNIT_TEST( PointQuery, quadratic_hex_query )
     TEST_ASSERT( iBase_SUCCESS == error );
     TEST_ASSERT( iBase_NEW == status );
 
-    MDArray point1(1,3);
-    point1(0,0) = 0.5;
-    point1(0,1) = 0.5;
-    point1(0,2) = 0.5;
+    double point1[3];
+    point1[0] = 0.5;
+    point1[1] = 0.5;
+    point1[2] = 0.5;
     TEST_ASSERT( FOOD::PointQuery::pointInRefElement( 
 		     mesh, hex_element, point1 ) == true );
 
-    MDArray point2(1,3);
-    point2(0,0) = 0.25;
-    point2(0,1) = 1.5;
-    point2(0,2) = -0.5;
+    double point2[3];
+    point2[0] = 0.25;
+    point2[1] = 1.5;
+    point2[2] = -0.5;
     TEST_ASSERT( FOOD::PointQuery::pointInRefElement( 
 		     mesh, hex_element, point2 ) == false );
 }

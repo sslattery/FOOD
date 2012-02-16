@@ -23,8 +23,6 @@
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_ArrayView.hpp>
 
-#include <Intrepid_FieldContainer.hpp>
-
 namespace FOOD
 {
 
@@ -53,7 +51,6 @@ class Octree
     //@{
     //! Typedefs.
     typedef Teuchos::RCP<OctreeNode>                  RCP_Node;
-    typedef Intrepid::FieldContainer<double>          MDArray;
     typedef Teuchos::Tuple<double,6>                  Box;
     //@}
 
@@ -90,7 +87,7 @@ class Octree
 
     // Locate a point.
     bool findPoint( iBase_EntityHandle &found_in_entity,
-		    const MDArray &coords );
+		    const double coords[3] );
 
   private:
 
@@ -100,13 +97,13 @@ class Octree
     // Search a node for a point.
     bool findPointInNode( RCP_Node node,
 			  iBase_EntityHandle &found_in_entity,
-			  const MDArray &coords );
+			  const double coords[3] );
 
     // Get the bounding box of a set of entities.
     void getEntSetBox( iBase_EntitySetHandle entity_set, Box &bounding_box );
 
     // Determine if a point is inside a bounding box.
-    bool isPointInBox( const Box &box, const MDArray &coords );
+    bool isPointInBox( const Box &box, const double coords[3] );
 
     // Determine if an entity is inside a bounding box.
     bool isEntInBox( const Box &box, iBase_EntityHandle entity );

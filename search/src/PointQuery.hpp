@@ -39,7 +39,7 @@ typedef iBase_EntityHandle                        EntityHandle;
 // Point in volume query.
 bool pointInRefElement( const iMesh_Instance mesh,
 			const EntityHandle entity,
-			const MDArray &coords );
+			const double coords[3] );
 		      
 } // end namespace PointQuery
 

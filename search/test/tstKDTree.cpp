@@ -26,8 +26,6 @@
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_CommHelpers.hpp>
 
-#include <Intrepid_FieldContainer.hpp>
-
 //---------------------------------------------------------------------------//
 // HELPER FUNCTIONS
 //---------------------------------------------------------------------------//
@@ -147,8 +145,6 @@ void create_hex_mesh(iMesh_Instance &mesh)
 
 TEUCHOS_UNIT_TEST( KDTree, tree_build_and_search_test )
 {
-    typedef Intrepid::FieldContainer<double> MDArray;
-
     int error;
     iMesh_Instance mesh;
     create_hex_mesh(mesh);
@@ -160,20 +156,20 @@ TEUCHOS_UNIT_TEST( KDTree, tree_build_and_search_test )
     FOOD::KDTree<3> kdtree( mesh, root_set, iBase_REGION, iMesh_HEXAHEDRON );
     kdtree.buildTree();
 
-    MDArray coords1(1,3);
-    coords1(0,0) = 0.5;
-    coords1(0,1) = 0.5;
-    coords1(0,2) = 0.5;
+    double coords1[3];
+    coords1[0] = 0.5;
+    coords1[1] = 0.5;
+    coords1[2] = 0.5;
 
-    MDArray coords2(1,3);
-    coords2(0,0) = -1.4;
-    coords2(0,1) = 2.6;
-    coords2(0,2) = 7.34;
+    double coords2[3];
+    coords2[0] = -1.4;
+    coords2[1] = 2.6;
+    coords2[2] = 7.34;
 
-    MDArray coords3(1,3);
-    coords3(0,0) = 9.4;
-    coords3(0,1) = 4.6;
-    coords3(0,2) = 5.5;
+    double coords3[3];
+    coords3[0] = 9.4;
+    coords3[1] = 4.6;
+    coords3[2] = 5.5;
 
     iBase_EntityHandle found_hex = 0;
 
