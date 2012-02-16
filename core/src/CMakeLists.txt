@@ -26,16 +26,8 @@ APPEND_SET(HEADERS
   DFuncKernel.hpp
   DFuncKernel_Def.hpp
   Domain.hpp
-  FEMInterpolate.hpp
-  FEMInterpolate_Def.hpp
-  KDTree.hpp
-  KDTree_Def.hpp
   KernelTraits.hpp
-  Octree.hpp
-  PointQuery.hpp
   Quantity.hpp
-  Rendezvous.hpp
-  Rendezvous_Def.hpp
   TensorField.hpp
   TensorField_Def.hpp
   TensorTemplate.hpp
@@ -51,8 +43,6 @@ APPEND_SET(SOURCES
   CellTopologyFactory.cpp
   Domain.cpp
   KernelTraits.cpp
-  Octree.cpp
-  PointQuery.cpp
   Quantity.cpp
   TensorTemplate.cpp
   TopologyTools.cpp
@@ -76,7 +66,7 @@ ENDIF()
 #
 
 TRIBITS_ADD_LIBRARY(
-  food
+  food_core
   HEADERS ${HEADERS}
   SOURCES ${SOURCES}
   )
@@ -84,4 +74,4 @@ TRIBITS_ADD_LIBRARY(
 INSTALL(FILES 
   ${HEADERS} 
   DESTINATION 
-  ${CMAKE_INSTALL_PREFIX}/include/)
+  ${CMAKE_INSTALL_PREFIX}/include/food)

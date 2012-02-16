@@ -20,43 +20,15 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  BasisFactory.hpp
-  BasisFactory_Def.hpp
-  CellTopologyFactory.hpp
-  DFuncKernel.hpp
-  DFuncKernel_Def.hpp
-  Domain.hpp
   FEMInterpolate.hpp
   FEMInterpolate_Def.hpp
-  KDTree.hpp
-  KDTree_Def.hpp
-  KernelTraits.hpp
-  Octree.hpp
-  PointQuery.hpp
-  Quantity.hpp
   Rendezvous.hpp
   Rendezvous_Def.hpp
-  TensorField.hpp
-  TensorField_Def.hpp
-  TensorTemplate.hpp
-  TopologyTools.hpp
-  Types.hpp
-  TypeTraits.hpp
-  Unit.hpp
   )
 
 # Set sources
 
 APPEND_SET(SOURCES
-  CellTopologyFactory.cpp
-  Domain.cpp
-  KernelTraits.cpp
-  Octree.cpp
-  PointQuery.cpp
-  Quantity.cpp
-  TensorTemplate.cpp
-  TopologyTools.cpp
-  Unit.cpp
   )
 
 # Set addition headers and source based on package-specific
@@ -76,7 +48,7 @@ ENDIF()
 #
 
 TRIBITS_ADD_LIBRARY(
-  food
+  food_transfer
   HEADERS ${HEADERS}
   SOURCES ${SOURCES}
   )
@@ -84,4 +56,4 @@ TRIBITS_ADD_LIBRARY(
 INSTALL(FILES 
   ${HEADERS} 
   DESTINATION 
-  ${CMAKE_INSTALL_PREFIX}/include/)
+  ${CMAKE_INSTALL_PREFIX}/include/food)
