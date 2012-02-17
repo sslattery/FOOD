@@ -22,7 +22,6 @@
 #include <iMesh.h>
 
 #include <Teuchos_RCP.hpp>
-#include <Teuchos_ArrayView.hpp>
 
 namespace FOOD
 {
