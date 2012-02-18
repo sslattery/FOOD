@@ -26,7 +26,6 @@ APPEND_SET(HEADERS
   DFuncKernel.hpp
   DFuncKernel_Def.hpp
   Domain.hpp
-  KernelTraits.hpp
   Quantity.hpp
   TensorField.hpp
   TensorField_Def.hpp
@@ -42,7 +41,6 @@ APPEND_SET(HEADERS
 APPEND_SET(SOURCES
   CellTopologyFactory.cpp
   Domain.cpp
-  KernelTraits.cpp
   Quantity.cpp
   TensorTemplate.cpp
   TopologyTools.cpp

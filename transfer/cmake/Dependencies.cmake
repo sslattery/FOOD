@@ -3,8 +3,6 @@ SET(LIB_REQUIRED_DEP_PACKAGES
   Tpetra 
   Shards 
   Intrepid 
-  Sacado 
-  Phalanx
   FOODCore
   FOODSearch
   )

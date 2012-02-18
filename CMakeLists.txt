@@ -18,6 +18,8 @@ TRIBITS_PACKAGE_DECL(FOOD)
 ## B) Set up package-specific options
 ##---------------------------------------------------------------------------##
 
+SET(CMAKE_CXX_FLAGS "-std=c++0x")
+
 TRIBITS_ADD_DEBUG_OPTION()
 
 TRIBITS_ADD_SHOW_DEPRECATED_WARNINGS_OPTION()

@@ -39,8 +39,7 @@ KDTree<DIM>::KDTree( iMesh_Instance mesh,
     , d_mesh_set(mesh_set)
     , d_entity_type(entity_type)
     , d_entity_topology(entity_topology)
-    , d_large(1.0e99)
-    , d_num_points(0)
+    , d_large(HUGE_VAL)
     , d_points(0)
     , d_ptindx(0)
     , d_rptindx(0)
@@ -95,7 +94,6 @@ void KDTree<DIM>::buildTree()
 	for ( int i = 0; i < num_linear_nodes; ++i )
 	{
 	    d_points.push_back( element_nodes[i] );
-	    ++d_num_points;
 	}
 
 	free( element_nodes );
@@ -108,30 +106,29 @@ void KDTree<DIM>::buildTree()
     double *coords;
     iMesh_getVtxArrCoords( d_mesh,
 			   &d_points[0],
-			   d_num_points,
+			   (int) d_points.size(),
 			   iBase_BLOCKED,
 			   &coords,
 			   &coords_allocated,
 			   &coords_size,
 			   &error );
     assert( iBase_SUCCESS == error );
-    assert( d_num_points * 3 == coords_size );
 
     // Setup the point indices.
-    d_ptindx.resize( d_num_points );
-    d_rptindx.resize( d_num_points );
-    for ( int k = 0; k < d_num_points; ++k )
+    d_ptindx.resize( d_points.size() );
+    d_rptindx.resize( d_points.size() );
+    for ( int k = 0; k < (int) d_points.size() ; ++k )
     {
 	d_ptindx[k] = k;
     }
 
     // Compute the number of tree nodes.
     int m = 1;
-    for ( int n = d_num_points; n; n >>=1 )
+    for ( int n = (int) d_points.size() ; n; n >>=1 )
     {
 	m <<= 1;
     }
-    int num_nodes = 2*d_num_points - (m >> 1);
+    int num_nodes = 2*d_points.size() - (m >> 1);
     if ( m < num_nodes )
     {
 	num_nodes = m;
@@ -144,7 +141,7 @@ void KDTree<DIM>::buildTree()
     Point<DIM> hi(d_large, d_large, d_large);
 
     d_nodes[0] = Teuchos::rcp( 
-	new KDTreeNode<DIM>( lo, hi, 0, 0, 0, 0, d_num_points-1 ) );
+	new KDTreeNode<DIM>( lo, hi, 0, 0, 0, 0, d_points.size()-1 ) );
 
     // Setup task lists for up to 2^50 points.
     std::vector<int> taskparent(50);
@@ -165,7 +162,7 @@ void KDTree<DIM>::buildTree()
 	ptlo = d_nodes[tparent]->ptlo;
 	pthi = d_nodes[tparent]->pthi;
 	hp = &d_ptindx[ptlo];
-	cp = &coords[tdim*d_num_points];
+	cp = &coords[tdim*d_points.size()];
 	np = pthi - ptlo + 1;
 	kk = (np-1) / 2;
 
@@ -174,8 +171,8 @@ void KDTree<DIM>::buildTree()
 	// Create the children.
 	hi = d_nodes[tparent]->hi;
 	lo = d_nodes[tparent]->lo;
-	hi.x[tdim] = coords[tdim*d_num_points + hp[kk]];
-	lo.x[tdim] = coords[tdim*d_num_points + hp[kk]];
+	hi.x[tdim] = coords[tdim*d_points.size() + hp[kk]];
+	lo.x[tdim] = coords[tdim*d_points.size() + hp[kk]];
 
 	d_nodes[++jbox] = Teuchos::rcp( 
 	    new KDTreeNode<DIM>( 
@@ -201,7 +198,7 @@ void KDTree<DIM>::buildTree()
     }
 
     // Create reverse indices.
-    for ( int j = 0; j < d_num_points; ++j )
+    for ( int j = 0; j < (int) d_points.size(); ++j )
     {
 	d_rptindx[ d_ptindx[j] ] = j;
     }
@@ -214,7 +211,7 @@ void KDTree<DIM>::buildTree()
  * \brief Locate the nearest neighbor point in the mesh.
  */
 template<int DIM>
-void KDTree<DIM>::nearestNeighbor( const double coords[3],
+void KDTree<DIM>::nearestNeighbor( const std::array<double,3> &coords,
 				   iBase_EntityHandle &nearest_neighbor )
 {
     Point<DIM> search_point( coords[0], coords[1], coords[2] );
@@ -227,7 +224,7 @@ void KDTree<DIM>::nearestNeighbor( const double coords[3],
  * find anything.
  */
 template<int DIM>
-bool KDTree<DIM>::getElement( const double coords[3],
+bool KDTree<DIM>::getElement( const std::array<double,3> &coords,
 			      iBase_EntityHandle &element )
 {
     element = 0;
@@ -446,7 +443,7 @@ int KDTree<DIM>::nearest( Point<DIM> p )
 	    if ( d_nodes[k]->child1 )
 	    {
 		task[++ntask] = d_nodes[k]->child1;
-		task[++ntask] = d_nodes[k]->chidl2;
+		task[++ntask] = d_nodes[k]->child2;
 	    }
 	    else 
 	    {
@@ -478,10 +475,7 @@ bool KDTree<DIM>::pointInAdjElements( Point<DIM> p,
     int error = 0;
     bool return_val = false;
 
-    double coords[3];
-    coords[0] = p.x[0];
-    coords[1] = p.x[1];
-    coords[2] = p.x[2];
+    std::array<double,3> coords = { p.x[0], p.x[1], p.x[2] };
 
     iBase_EntityHandle *adj_elements = 0;
     int adj_elements_allocated = 0;

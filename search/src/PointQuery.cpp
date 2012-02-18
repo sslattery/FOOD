@@ -26,7 +26,7 @@ namespace FOOD
 
 bool PointQuery::pointInRefElement( const iMesh_Instance mesh,
 				    const EntityHandle entity,
-				    const double coords[3] )
+				    const std::array<double,3> &coords )
 {
     int error = 0;
     int topology = 0;

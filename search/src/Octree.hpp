@@ -14,6 +14,8 @@
 #ifndef FOOD_OCTREE_HPP
 #define FOOD_OCTREE_HPP
 
+#include <array>
+
 #include "PointQuery.hpp"
 
 #include <iBase.h>
@@ -26,6 +28,11 @@
 namespace FOOD
 {
 
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Node structure for the octree.
+ */
+//---------------------------------------------------------------------------//
 class OctreeNode
 {
   public:
@@ -43,6 +50,14 @@ class OctreeNode
     { /* ... */ }
 };
 
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Octree data structure.
+ *
+ * This class constructs a Octree of the entities in the provided mesh set of
+ * the specified type and topology.
+ */
+//---------------------------------------------------------------------------//
 class Octree
 {
 
@@ -87,7 +102,7 @@ class Octree
 
     // Locate a point.
     bool findPoint( iBase_EntityHandle &found_in_entity,
-		    const double coords[3] );
+		    const std::array<double,3> &coords );
 
   private:
 
@@ -97,13 +112,13 @@ class Octree
     // Search a node for a point.
     bool findPointInNode( RCP_Node node,
 			  iBase_EntityHandle &found_in_entity,
-			  const double coords[3] );
+			  const std::array<double,3> &coords );
 
     // Get the bounding box of a set of entities.
     void getEntSetBox( iBase_EntitySetHandle entity_set, Box &bounding_box );
 
     // Determine if a point is inside a bounding box.
-    bool isPointInBox( const Box &box, const double coords[3] );
+    bool isPointInBox( const Box &box, const std::array<double,3> &coords );
 
     // Determine if an entity is inside a bounding box.
     bool isEntInBox( const Box &box, iBase_EntityHandle entity );

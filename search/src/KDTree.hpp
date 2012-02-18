@@ -15,6 +15,7 @@
 #define FOOD_KDTREE_HPP
 
 #include <vector>
+#include <array>
 
 #include "PointQuery.hpp"
 
@@ -26,6 +27,11 @@
 namespace FOOD
 {
 
+//---------------------------------------------------------------------------//
+/*! 
+ * \brief Point structure for the KDTree.
+ */
+//---------------------------------------------------------------------------//
 template<int DIM>
 class Point
 {
@@ -66,6 +72,11 @@ class Point
     }
 };
 
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Box structure for the KDTree.
+ */
+//---------------------------------------------------------------------------//
 template<int DIM>
 class Box
 {
@@ -86,6 +97,11 @@ class Box
     { /* ... */ }
 };
 
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Node structure for the KDTree.
+ */
+//---------------------------------------------------------------------------//
 template<int DIM>    
 class KDTreeNode : public Box<DIM>
 {
@@ -123,6 +139,16 @@ class KDTreeNode : public Box<DIM>
     { /* ... */ }
 };
 
+//---------------------------------------------------------------------------//
+/*!
+ * \brief KDTree data structure.
+ *
+ * This class constructs a KDTree of the vertices in the provided mesh
+ * set. Nearest neighbor searches are provided for all types and topologies
+ * equal to and below the those provided to the constructor. Offered for 1, 2,
+ * and 3 dimensional meshes.
+ */
+//---------------------------------------------------------------------------//
 template<int DIM>
 class KDTree
 {
@@ -141,19 +167,16 @@ class KDTree
     // The mesh set this tree is generated for.
     iBase_EntitySetHandle d_mesh_set;
 
-    // The entity type this tree is built on.
+    // The entity type this tree can search for.
     std::size_t d_entity_type;
 
-    // The entity topology this tree is built on.
+    // The entity topology this tree can search for.
     std::size_t d_entity_topology;
 
     // Large value to get the tree started.
     double d_large;
 
-    // Number of points in the domain.
-    int d_num_points;
-
-    // Points in the domain.
+    // Points in the domain corresponding to linear entities.
     std::vector<iBase_EntityHandle> d_points;
 
     // Point indices.
@@ -179,12 +202,14 @@ class KDTree
     // Build the tree.
     void buildTree();
 
-    // Locate the nearest neighbor point in the mesh.
-    void nearestNeighbor( const double coords[3],
+    // Locate the nearest neighbor point in the mesh set (linear entity points
+    // only).
+    void nearestNeighbor( const std::array<double,3> &coords,
 			  iBase_EntityHandle &nearest_neighbor );
 
-    // Get the element a point is located in.
-    bool getElement( const double coords[3],
+    // Get the element a point is located in. Return false if the point is not
+    // in the domain of the mesh set.
+    bool getElement( const std::array<double,3> &coords,
 		     iBase_EntityHandle &element );
 
   private:

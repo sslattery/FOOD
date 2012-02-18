@@ -67,15 +67,6 @@ enum FOOD_DiscretizationType {
     FOOD_DiscretizationType_MAX = FOOD_FD
 };
 
-// Basic operator types.
-enum FOOD_BasisOperatorType {
-    FOOD_BasisOperatorType_MIN = 0,
-    FOOD_GRAD = FOOD_BasisOperatorType_MIN,
-    FOOD_DIV,
-    FOOD_CURL,
-    FOOD_BasisOperatorType_MAX = FOOD_CURL
-};
-
 // Basis function space types.
 enum FOOD_FunctionSpaceType {
     FOOD_FunctionSpaceType_MIN = 0,

@@ -55,7 +55,7 @@ void Octree::buildTree()
  * \brief Locate a point. Return false if we didn't find it.
  */
 bool Octree::findPoint( iBase_EntityHandle &found_in_entity,
-			const double coords[3] )
+			const std::array<double,3> &coords )
 {
     return findPointInNode( d_root_node, found_in_entity, coords );
 }
@@ -200,7 +200,7 @@ void Octree::buildTreeNode( RCP_Node node )
  */
 bool Octree::findPointInNode( RCP_Node node,
 			      iBase_EntityHandle &found_in_entity,
-			      const double coords[3] )
+			      const std::array<double,3> &coords )
 {
     int error = 0;
     bool return_val = false;
@@ -332,7 +332,7 @@ void Octree::getEntSetBox( iBase_EntitySetHandle entity_set,
  * \brief Determine if a point is inside a bounding box.
  */
 bool Octree::isPointInBox( const Box &box,
-			   const double coords[3] )
+			   const std::array<double,3> &coords )
 {
     bool return_val = false;
     

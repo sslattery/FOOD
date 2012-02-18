@@ -442,9 +442,9 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 
 	default:
 
-	    assert( FOOD_GRAD == basis_function_space ||
-		    FOOD_DIV  == basis_function_space ||
-		    FOOD_CURL == basis_function_space );
+	    assert( FOOD_HGRAD == basis_function_space ||
+		    FOOD_HDIV  == basis_function_space ||
+		    FOOD_HCURL == basis_function_space );
     }
 
     return new_basis;

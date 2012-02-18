@@ -1,4 +1,4 @@
-//----------------------------------*-C++-*----------------------------------//
+//---------------------------------------------------------------------------//
 /*!
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -14,7 +14,9 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <cstdlib>
 #include <sstream>
+#include <array>
 
 #include <KDTree.hpp>
 
@@ -143,7 +145,7 @@ void create_hex_mesh(iMesh_Instance &mesh)
 // TESTS
 //---------------------------------------------------------------------------//
 
-TEUCHOS_UNIT_TEST( KDTree, tree_build_and_search_test )
+TEUCHOS_UNIT_TEST( KDTree, get_element_test )
 {
     int error;
     iMesh_Instance mesh;
@@ -156,52 +158,27 @@ TEUCHOS_UNIT_TEST( KDTree, tree_build_and_search_test )
     FOOD::KDTree<3> kdtree( mesh, root_set, iBase_REGION, iMesh_HEXAHEDRON );
     kdtree.buildTree();
 
-    double coords1[3];
-    coords1[0] = 0.5;
-    coords1[1] = 0.5;
-    coords1[2] = 0.5;
-
-    double coords2[3];
-    coords2[0] = -1.4;
-    coords2[1] = 2.6;
-    coords2[2] = 7.34;
-
-    double coords3[3];
-    coords3[0] = 9.4;
-    coords3[1] = 4.6;
-    coords3[2] = 5.5;
-
+    // Make a series of points in the domain.
+    std::array<double,3> coords = { 0.0, 0.0, 0.0 };
     iBase_EntityHandle found_hex = 0;
+    for ( int i = 0; i < 10; ++i )
+    {
+	coords[0] = (double) 9.99 * rand() / RAND_MAX + 0.005;
+	coords[1] = (double) 9.99 * rand() / RAND_MAX + 0.005;
+	coords[2] = (double) 9.99 * rand() / RAND_MAX + 0.005;
 
-    TEST_ASSERT( kdtree.getElement( coords1, found_hex ) );
-    TEST_ASSERT( !kdtree.getElement( coords2, found_hex ) );
-    TEST_ASSERT( kdtree.getElement( coords3, found_hex ) );
-    iBase_EntityHandle *adj_elements = 0;
-    int adj_elements_allocated = 0;
-    int adj_elements_size = 0;
-    iMesh_getEntAdj( mesh,
-		     found_hex,
-		     iBase_VERTEX,
-		     &adj_elements,
-		     &adj_elements_allocated,
-		     &adj_elements_size,
-		     &error );
-    assert( iBase_SUCCESS == error );
-    double *coords = 0;
-    int coords_allocated = 0;
-    int coords_size = 0;
-    iMesh_getVtxArrCoords( mesh,
-			   adj_elements,
-			   adj_elements_size,
-			   iBase_INTERLEAVED,
-			   &coords,
-			   &coords_allocated,
-			   &coords_size,
-			   &error );
-    assert( iBase_SUCCESS == error );
+	TEST_ASSERT( kdtree.getElement( coords, found_hex ) );
+    }
 
-    free( adj_elements );
-    free( coords );
+    // Make a series of points outside the domain.
+    for ( int i = 0; i < 10; ++i )
+    {
+	coords[0] = (double) -1.3 * rand() / RAND_MAX;
+	coords[1] = (double) rand() / RAND_MAX + 12.0;
+	coords[2] = (double) 9.9 * rand() / RAND_MAX + 0.5;
+
+	TEST_ASSERT( !kdtree.getElement( coords, found_hex ) );
+    }   
 }
 
 //---------------------------------------------------------------------------//

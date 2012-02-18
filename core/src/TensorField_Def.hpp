@@ -282,7 +282,10 @@ void TensorField<Scalar>::evaluateDF( const EntityHandle entity,
     MDArray transformed_eval( 1, 
 			      d_dfunckernel->getBasisCardinality(),
 			      coords.dimension(0) );
-    d_dfunckernel->transformValue( transformed_eval, basis_eval );
+    d_dfunckernel->transformValue( transformed_eval, 
+				   reference_points,
+				   cell_nodes,
+				   basis_eval );
 
     // 5) Evaluate the field using tensor components (the DOF for this
     // entity).

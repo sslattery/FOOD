@@ -106,6 +106,8 @@ class DFuncKernel
 
     // Transform evaluated basis values to physical frame.
     void transformValue( MDArray &transformed_eval,
+			 const MDArray &reference_coords,
+			 const MDArray &cell_nodes,
 			 const MDArray &basis_eval );
 
     //! Get the type of the cell for which this kernel is defined.

@@ -13,6 +13,7 @@
 #define FOOD_POINTQUERY_HPP
 
 #include <cassert>
+#include <array>
 
 #include <iBase.h>
 #include <iMesh.h>
@@ -39,7 +40,7 @@ typedef iBase_EntityHandle                        EntityHandle;
 // Point in volume query.
 bool pointInRefElement( const iMesh_Instance mesh,
 			const EntityHandle entity,
-			const double coords[3] );
+			const std::array<double,3> &coords );
 		      
 } // end namespace PointQuery
 

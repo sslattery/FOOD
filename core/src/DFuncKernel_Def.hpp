@@ -14,6 +14,8 @@
 #ifndef FOOD_DFUNCKERNEL_DEF_HPP
 #define FOOD_DFUNCKERNEL_DEF_HPP
 
+#include <cassert>
+
 #include "BasisFactory.hpp"
 #include "CellTopologyFactory.hpp"
 
@@ -141,22 +143,66 @@ void DFuncKernel<Scalar>::evaluateCurlBasis( MDArray &dfunc_curl_values,
  */
 template<class Scalar>
 void DFuncKernel<Scalar>::transformValue( MDArray &transformed_eval,
+					  const MDArray &reference_coords,
+					  const MDArray &cell_nodes,
 					  const MDArray &basis_eval )
 {
-    if ( d_basis_function_space == FOOD_HGRAD )
+    MDArray jacobian( 1, 
+		      reference_coords.dimension(0),
+		      reference_coords.dimension(1),
+		      reference_coords.dimension(1) );
+
+    MDArray jacobian_det( 1, reference_coords.dimension(0) );
+
+    MDArray jacobian_inv( 1, 
+			  reference_coords.dimension(0),
+			  reference_coords.dimension(1),
+			  reference_coords.dimension(1) );
+
+    switch ( d_basis_function_space )
     {
-	Intrepid::FunctionSpaceTools::HGRADtransformVALUE<Scalar,MDArray,MDArray>( 
-	    transformed_eval, basis_eval );
-    }
-    else if ( d_basis_function_space == FOOD_HDIV )
-    {
-	// Intrepid::FunctionSpaceTools::HDIVtransformVALUE<Scalar,MDArray,MDArray>( 
-	//     transformed_eval, basis_eval );
-    }
-    else if ( d_basis_function_space == FOOD_HCURL )
-    {
-	// Intrepid::FunctionSpaceTools::HCURLtransformVALUE<Scalar,MDArray,MDArray>( 
-	// transformed_eval, basis_eval );
+	case FOOD_HGRAD:
+
+	    Intrepid::FunctionSpaceTools::HGRADtransformVALUE<Scalar,MDArray,MDArray>( 
+		transformed_eval, basis_eval );
+
+	    break;
+
+	case FOOD_HDIV:
+
+	    Intrepid::CellTools<double>::setJacobian( 
+		jacobian, 
+		reference_coords,
+		cell_nodes,
+		*d_cell_topology );
+
+	    Intrepid::CellTools<double>::setJacobianDet( jacobian_det, jacobian );
+
+	    Intrepid::FunctionSpaceTools::HDIVtransformVALUE<Scalar,MDArray,MDArray>( 
+		transformed_eval, jacobian, jacobian_det, basis_eval );
+
+	    break;
+
+	case FOOD_HCURL:
+
+	    Intrepid::CellTools<double>::setJacobian( 
+		jacobian, 
+		reference_coords,
+		cell_nodes,
+		*d_cell_topology );
+
+	    Intrepid::CellTools<double>::setJacobianInv( jacobian_inv, jacobian );
+
+	    Intrepid::FunctionSpaceTools::HCURLtransformVALUE<Scalar,MDArray,MDArray>( 
+		transformed_eval, jacobian_inv, basis_eval );
+
+	    break;
+
+	default:
+	    
+	    assert( d_basis_function_space == FOOD_HGRAD ||
+		    d_basis_function_space == FOOD_HDIV  ||
+		    d_basis_function_space == FOOD_HCURL );
     }
 }
 
