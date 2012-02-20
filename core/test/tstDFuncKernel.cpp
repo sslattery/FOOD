@@ -57,6 +57,7 @@ TEUCHOS_UNIT_TEST( DFuncKernel, constructor_test )
 						    FOOD::FOOD_CARTESIAN,
 						    FOOD::FOOD_FEM,
 						    FOOD::FOOD_HDIV,
+						    FOOD::FOOD_SHARDSCN,
 						    1 );
     TEST_ASSERT( hex_fem_div_1_kernel.getBasisCardinality() == 6 );
     TEST_ASSERT( hex_fem_div_1_kernel.getBasisDegree() == 1 );
@@ -68,6 +69,7 @@ TEUCHOS_UNIT_TEST( DFuncKernel, constructor_test )
 						     FOOD::FOOD_CARTESIAN,
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_HCURL,
+						     FOOD::FOOD_SHARDSCN,
 						     1 );
     TEST_ASSERT( tet_fem_curl_1_kernel.getBasisCardinality() == 6 );
     TEST_ASSERT( tet_fem_curl_1_kernel.getBasisDegree() == 1 );
@@ -79,6 +81,7 @@ TEUCHOS_UNIT_TEST( DFuncKernel, constructor_test )
 						      FOOD::FOOD_CARTESIAN,
 						      FOOD::FOOD_FEM,
 						      FOOD::FOOD_HGRAD,
+						      FOOD::FOOD_SHARDSCN,
 						      2 );
     TEST_ASSERT( quad_fem_grad_2_kernel.getBasisCardinality() == 9 );
     TEST_ASSERT( quad_fem_grad_2_kernel.getBasisDegree() == 2 );
@@ -95,6 +98,7 @@ TEUCHOS_UNIT_TEST( DFuncKernel, hex_evaluation_test )
 					  FOOD::FOOD_CARTESIAN,
 					  FOOD::FOOD_FEM,
 					  FOOD::FOOD_HGRAD,
+					  FOOD::FOOD_SHARDSCN,
 					  1 );
     
     MDArray coords(1,3);

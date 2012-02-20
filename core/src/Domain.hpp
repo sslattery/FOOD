@@ -14,6 +14,8 @@
 #ifndef FOOD_DOMAIN_HPP
 #define FOOD_DOMAIN_HPP
 
+#include <cstddef>
+
 #include "Types.hpp"
 
 #include <iBase.h>
@@ -28,48 +30,54 @@ class Domain
 
     //@{
     //! Typedefs.
-    typedef iMesh_Instance                             Mesh;
-    typedef iBase_EntitySetHandle                      EntitySet;
     typedef iBase_EntityIterator*                      EntityIterator;
     typedef iBase_EntityArrIterator*                   EntityArrayIterator;
-    typedef int                                        ErrorCode;
     //@}
 
   private:
 
-    // Mesh instance to which the domain set belongs.
-    Mesh d_mesh;
+    // iMesh_Instance instance to which the domain set belongs.
+    iMesh_Instance d_mesh;
 
-    // Mesh set over which the field is defined.
-    EntitySet d_mesh_set;
+    // iMesh_Instance set over which the field is defined.
+    iBase_EntitySetHandle d_mesh_set;
+
+    // Canonical numbering system for this domain (enum).
+    std::size_t d_cn;
 
   public:
 
     // Constructor.
-    Domain(Mesh mesh_instance, EntitySet set_handle);
+    Domain( iMesh_Instance mesh_instance, 
+	    iBase_EntitySetHandle set_handle,
+	    const int cn );
 
     // Destructor.
     ~Domain();
 
     //! Get the mesh instance.
-    Mesh getMesh() const
+    iMesh_Instance getMesh() const
     { return d_mesh; }
 
     //! Get the mesh set.
-    EntitySet getMeshSet() const
+    iBase_EntitySetHandle getMeshSet() const
     { return d_mesh_set; }
 
+    //! Get the canonical numbering system.
+    int getCN() const
+    { return d_cn; }
+
     // Initialize an iterator over the specified entity type and topology.
-    ErrorCode initEntIter(const int entity_type,
-			  const int entity_topology,
-			  EntityIterator iterator);
+    int initEntIter( const int entity_type,
+		     const int entity_topology,
+		     EntityIterator iterator );
 
     // Initalize an array iterator over the specified entity type and
     // topology. 
-    ErrorCode initEntArrIter(const int entity_type,
-			     const int entity_topology,
-			     const int array_size,
-			     EntityArrayIterator iterator);
+    int initEntArrIter( const int entity_type,
+		        const int entity_topology,
+		        const int array_size,
+		        EntityArrayIterator iterator );
 };
 
 }

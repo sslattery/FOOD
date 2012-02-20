@@ -35,16 +35,18 @@ DFuncKernel<Scalar>::DFuncKernel( const int eval_type,
 				  const int coordinate_type,
 				  const int discretization_type,
 				  const int basis_function_space,
+				  const int cn,
 				  const int basis_degree )
-    : d_eval_type(eval_type)
-    , d_eval_topology(eval_topology)
-    , d_dof_entity_type(dof_entity_type)
-    , d_dof_entity_topology(dof_entity_topology)
-    , d_coordinate_type(coordinate_type)
-    , d_discretization_type(discretization_type)
-    , d_basis_function_space(basis_function_space)
-    , d_basis(0)
-    , d_cell_topology(0)
+    : d_eval_type( eval_type )
+    , d_eval_topology( eval_topology )
+    , d_dof_entity_type( dof_entity_type )
+    , d_dof_entity_topology( dof_entity_topology )
+    , d_coordinate_type( coordinate_type )
+    , d_discretization_type( discretization_type )
+    , d_basis_function_space( basis_function_space )
+    , d_cn( cn )
+    , d_basis( 0 )
+    , d_cell_topology( 0 )
 {
     BasisFactory<Scalar,MDArray> basis_factory;
     d_basis = basis_factory.create( eval_topology,

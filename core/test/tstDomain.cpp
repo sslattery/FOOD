@@ -55,7 +55,7 @@ TEUCHOS_UNIT_TEST( Domain, constructor_test )
     iMesh_getRootSet(mesh, &root_set, &error);
     TEST_ASSERT( iBase_SUCCESS == error );
     
-    FOOD::Domain domain(mesh, root_set);
+    FOOD::Domain domain(mesh, root_set, FOOD::FOOD_MBCN);
     TEST_ASSERT( domain.getMesh() == mesh );
     TEST_ASSERT( domain.getMeshSet() == root_set );
 }
@@ -91,7 +91,7 @@ TEUCHOS_UNIT_TEST( Domain, mesh_iterator_test )
     iMesh_addEntArrToSet(mesh, vertices, vertices_size, vertex_set, &error);
     TEST_ASSERT( iBase_SUCCESS == error );
 
-    FOOD::Domain domain(mesh, vertex_set);
+    FOOD::Domain domain(mesh, vertex_set, FOOD::FOOD_MBCN);
 
     iBase_EntityIterator domain_vertex_iterator = 0; 
     error = domain.initEntIter(iBase_VERTEX, 
@@ -159,7 +159,7 @@ TEUCHOS_UNIT_TEST( Domain, domain_retrieval_test )
     iMesh_addEntArrToSet(mesh, vertices, vertices_size, vertex_set, &error);
     TEST_ASSERT( iBase_SUCCESS == error );
 
-    FOOD::Domain domain(mesh, vertex_set);
+    FOOD::Domain domain(mesh, vertex_set, FOOD::FOOD_MBCN);
 
     iBase_EntityArrIterator domain_vertex_arr_iterator = 0; 
     error = domain.initEntArrIter(iBase_VERTEX, 

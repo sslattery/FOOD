@@ -22,9 +22,12 @@ namespace FOOD
  * in the given mesh instance, and the entity set is a set of mesh entities
  * from that instance. The set may be the root set.  
  */
-Domain::Domain(Mesh mesh_instance, EntitySet set_handle)
+Domain::Domain( iMesh_Instance mesh_instance, 
+		iBase_EntitySetHandle set_handle,
+		const int cn )
     : d_mesh( mesh_instance )
     , d_mesh_set( set_handle )
+    , d_cn( cn )
 { /* ... */ }
 
 /*!
@@ -46,14 +49,14 @@ Domain::~Domain()
  * \param entity_type Type of entity to iterate. Use enumerations in iMesh
  * definition. 
  * \param enity_toplogy Type of entity toplogy to iterate. Use enumerations in
- * iMesh definition.
+ * iiMesh_Instance definition.
  * \return Iterator over specified entity type and topology.
  */
-Domain::ErrorCode Domain::initEntIter(const int entity_type, 
-				      const int entity_topology,
-				      EntityIterator iterator)
+int Domain::initEntIter( const int entity_type, 
+			 const int entity_topology,
+			 EntityIterator iterator )
 {
-    ErrorCode return_code;
+    int return_code;
     iMesh_initEntIter(d_mesh,
 		      d_mesh_set,
 		      entity_type,
@@ -83,12 +86,12 @@ Domain::ErrorCode Domain::initEntIter(const int entity_type,
  * \param array_size Size of blocks for iterator to return.
  * \return Array iterator over specified entity type and topology.
  */
-Domain::ErrorCode Domain::initEntArrIter(const int entity_type,
-					 const int entity_topology,
-					 const int array_size,
-					 EntityArrayIterator iterator)
+int Domain::initEntArrIter( const int entity_type,
+			    const int entity_topology,
+			    const int array_size,
+			    EntityArrayIterator iterator )
 {
-    ErrorCode return_code;
+    int return_code;
     iMesh_initEntArrIter(d_mesh,
 			 d_mesh_set,
 			 entity_type,

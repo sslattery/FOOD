@@ -66,6 +66,9 @@ class DFuncKernel
     // Basis function space for this kernel (enum).
     std::size_t d_basis_function_space;
 
+    // Canonical numbering system for the basis (enum).
+    std::size_t d_cn;
+
     // The basis for this kernel.
     RCP_Basis d_basis;
 
@@ -82,7 +85,8 @@ class DFuncKernel
 		 const int coordinate_type,
 		 const int discretization_type,
 		 const int basis_function_space,
-	         const int basis_degree );
+	         const int cn,
+		 const int basis_degree );
 
     // Destructor.
     ~DFuncKernel();
@@ -147,6 +151,10 @@ class DFuncKernel
     //! Get the basis degree.
     int getBasisDegree() const
     { return d_basis->getDegree(); }
+
+    //! Get the canonical numbering system for this basis.
+    int getCN() const
+    { return d_cn; }
 
     //! Get the reference cell coordinates for the degrees of freedom.
     //! MDArray(F,D) defined for the basis.

@@ -27,23 +27,13 @@ namespace FOOD
 namespace TopologyTools
 {
 
-//@{
-//! Typedefs.
-typedef iBase_EntityHandle                       EntityHandle;
-//@}
-
 // Get the number of linear nodes for a particular iMesh topology.
 int numLinearNodes( const int entity_topology );
 
 // Reorder a list of element nodes from MBCN ordering to Shards ordering.
-void MBCN2Shards( EntityHandle *element_nodes, 
+void MBCN2Shards( iBase_EntityHandle *element_nodes, 
 		  const int num_nodes,
 		  const int entity_topology );
-
-// Get the coordinates of the reference cell for the given topology.
-void getReferenceCoords( Intrepid::FieldContainer<double> &ref_coords,
-			 const int num_nodes,
-			 const int entity_topology );
 
 } // end namespace TopologyTools
 

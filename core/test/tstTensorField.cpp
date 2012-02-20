@@ -559,7 +559,7 @@ TEUCHOS_UNIT_TEST( TensorField, constructor_test )
     TEST_ASSERT( iBase_SUCCESS == error );
     
     Teuchos::RCP<FOOD::Domain> domain = Teuchos::rcp(
-	new FOOD::Domain(mesh, root_set) );
+	new FOOD::Domain(mesh, root_set, FOOD::FOOD_MBCN) );
 
     // Create the quantity for this field.
     Teuchos::Tuple<int,7> numerator;
@@ -590,6 +590,7 @@ TEUCHOS_UNIT_TEST( TensorField, constructor_test )
 						     FOOD::FOOD_CARTESIAN,
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_HGRAD,
+						     FOOD::FOOD_SHARDSCN,
 						     1 ) );
 
     // Create the field and check basic accessors.
@@ -622,7 +623,7 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_vertex_tag_test )
     TEST_ASSERT( iBase_SUCCESS == error );
     
     Teuchos::RCP<FOOD::Domain> domain = Teuchos::rcp(
-	new FOOD::Domain(mesh, root_set) );
+	new FOOD::Domain(mesh, root_set, FOOD::FOOD_MBCN) );
 
     // Create the quantity for this field.
     Teuchos::Tuple<int,7> numerator;
@@ -654,6 +655,7 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_vertex_tag_test )
 						     FOOD::FOOD_CARTESIAN, 
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_HGRAD,
+						     FOOD::FOOD_SHARDSCN,
 						     1 ) );
 
     // Create the field.
@@ -711,7 +713,7 @@ TEUCHOS_UNIT_TEST( TensorField, dof_tet_mesh_region_tag_test )
     TEST_ASSERT( iBase_SUCCESS == error );
     
     Teuchos::RCP<FOOD::Domain> domain = Teuchos::rcp(
-	new FOOD::Domain(mesh, root_set) );
+	new FOOD::Domain(mesh, root_set, FOOD::FOOD_MBCN) );
 
     // Create the quantity for this field.
     Teuchos::Tuple<int,7> numerator;
@@ -743,6 +745,7 @@ TEUCHOS_UNIT_TEST( TensorField, dof_tet_mesh_region_tag_test )
 						     FOOD::FOOD_CARTESIAN,
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_HGRAD,
+						     FOOD::FOOD_SHARDSCN,
 						     1 ) );
 
     // Create the field.
@@ -819,7 +822,7 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_region_array_test )
     TEST_ASSERT( iBase_SUCCESS == error );
     
     Teuchos::RCP<FOOD::Domain> domain = Teuchos::rcp(
-	new FOOD::Domain(mesh, root_set) );
+	new FOOD::Domain(mesh, root_set, FOOD::FOOD_MBCN) );
 
     // Create the quantity for this field.
     Teuchos::Tuple<int,7> numerator;
@@ -851,6 +854,7 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_region_array_test )
 						     FOOD::FOOD_CARTESIAN,
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_HGRAD,
+						     FOOD::FOOD_SHARDSCN,
 						     1 ) );
 
     // Create the field.
@@ -988,7 +992,7 @@ TEUCHOS_UNIT_TEST( TensorField, hex_evaluation_test )
     TEST_ASSERT( iBase_SUCCESS == error );
     
     Teuchos::RCP<FOOD::Domain> domain = Teuchos::rcp(
-	new FOOD::Domain(mesh, root_set) );
+	new FOOD::Domain(mesh, root_set, FOOD::FOOD_MBCN) );
 
     // Create the quantity for this field.
     Teuchos::Tuple<int,7> numerator;
@@ -1020,6 +1024,7 @@ TEUCHOS_UNIT_TEST( TensorField, hex_evaluation_test )
 						     FOOD::FOOD_CARTESIAN, 
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_HGRAD,
+						     FOOD::FOOD_SHARDSCN,
 						     1 ) );
 
     // Create the field.
@@ -1127,7 +1132,7 @@ TEUCHOS_UNIT_TEST( TensorField, hex_vector_evaluation_test )
     TEST_ASSERT( iBase_SUCCESS == error );
     
     Teuchos::RCP<FOOD::Domain> domain = Teuchos::rcp(
-	new FOOD::Domain(mesh, root_set) );
+	new FOOD::Domain(mesh, root_set, FOOD::FOOD_MBCN) );
 
     // Create the tensor template for this field. The hex vertices are tagged
     // with a 3-vector field.
@@ -1143,6 +1148,7 @@ TEUCHOS_UNIT_TEST( TensorField, hex_vector_evaluation_test )
 						     FOOD::FOOD_CARTESIAN, 
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_HGRAD,
+						     FOOD::FOOD_SHARDSCN,
 						     1 ) );
 
     // Create the field.
@@ -1265,7 +1271,7 @@ TEUCHOS_UNIT_TEST( TensorField, quadratic_hex_evaluation_test )
     TEST_ASSERT( iBase_SUCCESS == error );
     
     Teuchos::RCP<FOOD::Domain> domain = Teuchos::rcp(
-	new FOOD::Domain(mesh, root_set) );
+	new FOOD::Domain(mesh, root_set, FOOD::FOOD_MBCN) );
 
     // Create the tensor template for this field. The hex vertices are tagged
     // with a scalar field.
@@ -1281,6 +1287,7 @@ TEUCHOS_UNIT_TEST( TensorField, quadratic_hex_evaluation_test )
 						     FOOD::FOOD_CARTESIAN, 
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_HGRAD,
+						     FOOD::FOOD_SHARDSCN,
 						     2 ) );
 
     // Create the field.
@@ -1401,7 +1408,7 @@ TEUCHOS_UNIT_TEST( TensorField, hex_grad_eval_test )
     TEST_ASSERT( iBase_SUCCESS == error );
     
     Teuchos::RCP<FOOD::Domain> domain = Teuchos::rcp(
-	new FOOD::Domain(mesh, root_set) );
+	new FOOD::Domain(mesh, root_set, FOOD::FOOD_MBCN) );
 
     // Create the tensor template for this field. The hex vertices are tagged
     // with a scalar field.
@@ -1417,6 +1424,7 @@ TEUCHOS_UNIT_TEST( TensorField, hex_grad_eval_test )
 						     FOOD::FOOD_CARTESIAN, 
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_HGRAD,
+						     FOOD::FOOD_SHARDSCN,
 						     1 ) );
 
     // Create the field.

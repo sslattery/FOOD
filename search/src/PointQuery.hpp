@@ -34,12 +34,11 @@ namespace PointQuery
 //! Typedefs.
 typedef Intrepid::FieldContainer<double>          MDArray;
 typedef Teuchos::RCP<shards::CellTopology>        RCP_CellTopology;
-typedef iBase_EntityHandle                        EntityHandle;
 //@}
 
 // Point in volume query.
 bool pointInRefElement( const iMesh_Instance mesh,
-			const EntityHandle entity,
+			const iBase_EntityHandle entity,
 			const std::array<double,3> &coords );
 		      
 } // end namespace PointQuery
