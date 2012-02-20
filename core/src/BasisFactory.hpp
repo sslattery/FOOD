@@ -63,8 +63,8 @@ class BasisFactory
     Teuchos::RCP< Intrepid::Basis<Scalar,ArrayScalar> > 
     create( const int entity_topology,
 	    const int discretization_type,
-	    const int basis_function_space,
-	    const int basis_degree );
+	    const int function_space,
+	    const int degree );
 };
 
 } // end namespace FOOD

@@ -40,13 +40,13 @@ template<class Scalar, class ArrayScalar>
 Teuchos::RCP< Intrepid::Basis<Scalar,ArrayScalar> > 
 BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 					  const int discretization_type,
-					  const int basis_function_space,
-					  const int basis_degree )
+					  const int function_space,
+					  const int degree )
 
 {
     Teuchos::RCP< Intrepid::Basis<Scalar,ArrayScalar> > new_basis;
     
-    switch ( basis_function_space )
+    switch ( function_space )
     {
 	
 	case FOOD_HGRAD:
@@ -59,14 +59,14 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 		    {
 			case FOOD_FEM:
 
-			    if ( basis_degree == 1 )
+			    if ( degree == 1 )
 			    {
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HGRAD_LINE_C1_FEM<Scalar,ArrayScalar>() );
 			    }
 			    else
 			    {
-				assert( basis_degree == 1 );
+				assert( degree == 1 );
 			    }
 
 			    break;
@@ -82,20 +82,20 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 		    {
 			case FOOD_FEM:
 
-			    if ( basis_degree == 1 )
+			    if ( degree == 1 )
 			    {
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HGRAD_TRI_C1_FEM<Scalar,ArrayScalar>() );
 			    }
-			    else if ( basis_degree == 2 )
+			    else if ( degree == 2 )
 			    {
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HGRAD_TRI_C2_FEM<Scalar,ArrayScalar>() );
 			    }
 			    else
 			    {
-				assert( basis_degree == 1 ||
-					basis_degree == 2 );
+				assert( degree == 1 ||
+					degree == 2 );
 			    }
 
 			    break;
@@ -113,20 +113,20 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 		    {
 			case FOOD_FEM:
 
-			    if ( basis_degree == 1 )
+			    if ( degree == 1 )
 			    {
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HGRAD_QUAD_C1_FEM<Scalar,ArrayScalar>() );
 			    }
-			    else if ( basis_degree == 2 )
+			    else if ( degree == 2 )
 			    {
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HGRAD_QUAD_C2_FEM<Scalar,ArrayScalar>() );
 			    }
 			    else
 			    {
-				assert( basis_degree == 1 ||
-					basis_degree == 2 );
+				assert( degree == 1 ||
+					degree == 2 );
 			    }
 
 			    break;
@@ -144,20 +144,20 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 		    {
 			case FOOD_FEM:
 
-			    if ( basis_degree == 1 )
+			    if ( degree == 1 )
 			    {
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HGRAD_TET_C1_FEM<Scalar,ArrayScalar>() );
 			    }
-			    else if ( basis_degree == 2 )
+			    else if ( degree == 2 )
 			    {
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HGRAD_TET_C2_FEM<Scalar,ArrayScalar>() );
 			    }
 			    else
 			    {
-				assert( basis_degree == 1 ||
-					basis_degree == 2 );
+				assert( degree == 1 ||
+					degree == 2 );
 			    }
 
 			    break;
@@ -175,20 +175,20 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 		    {
 			case FOOD_FEM:
 
-			    if ( basis_degree == 1 )
+			    if ( degree == 1 )
 			    {
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HGRAD_HEX_C1_FEM<Scalar,ArrayScalar>() );
 			    }
-			    else if ( basis_degree == 2 )
+			    else if ( degree == 2 )
 			    {
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HGRAD_HEX_C2_FEM<Scalar,ArrayScalar>() );
 			    }
 			    else
 			    {
-				assert( basis_degree == 1 ||
-					basis_degree == 2 );
+				assert( degree == 1 ||
+					degree == 2 );
 			    }
 
 			    break;
@@ -222,14 +222,14 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 		    {
 			case FOOD_FEM:
 
-			    if ( basis_degree == 1 )
+			    if ( degree == 1 )
 			    {
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HDIV_TRI_I1_FEM<Scalar,ArrayScalar>() );
 			    }
 			    else
 			    {
-				assert( basis_degree == 1 );
+				assert( degree == 1 );
 			    }
 
 			    break;
@@ -247,14 +247,14 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 		    {
 			case FOOD_FEM:
 
-			    if ( basis_degree == 1 )
+			    if ( degree == 1 )
 			    {
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HDIV_QUAD_I1_FEM<Scalar,ArrayScalar>() );
 			    }
 			    else
 			    {
-				assert( basis_degree == 1 );
+				assert( degree == 1 );
 			    }
 
 			    break;
@@ -272,14 +272,14 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 		    {
 			case FOOD_FEM:
 
-			    if ( basis_degree == 1 )
+			    if ( degree == 1 )
 			    {
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HDIV_TET_I1_FEM<Scalar,ArrayScalar>() );
 			    }
 			    else
 			    {
-				assert( basis_degree == 1 );
+				assert( degree == 1 );
 			    }
 
 			    break;
@@ -297,14 +297,14 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 		    {
 			case FOOD_FEM:
 
-			    if ( basis_degree == 1 )
+			    if ( degree == 1 )
 			    {
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HDIV_HEX_I1_FEM<Scalar,ArrayScalar>() );
 			    }
 			    else
 			    {
-				assert( basis_degree == 1 );
+				assert( degree == 1 );
 			    }
 
 			    break;
@@ -336,14 +336,14 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 		    {
 			case FOOD_FEM:
 
-			    if ( basis_degree == 1 )
+			    if ( degree == 1 )
 			    {
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HCURL_TRI_I1_FEM<Scalar,ArrayScalar>() );
 			    }
 			    else
 			    {
-				assert( basis_degree == 1 );
+				assert( degree == 1 );
 			    }
 
 			    break;
@@ -361,14 +361,14 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 		    {
 			case FOOD_FEM:
 
-			    if ( basis_degree == 1 )
+			    if ( degree == 1 )
 			    {
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HCURL_QUAD_I1_FEM<Scalar,ArrayScalar>() );
 			    }
 			    else
 			    {
-				assert( basis_degree == 1 );
+				assert( degree == 1 );
 			    }
 
 			    break;
@@ -386,14 +386,14 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 		    {
 			case FOOD_FEM:
 
-			    if ( basis_degree == 1 )
+			    if ( degree == 1 )
 			    {
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HCURL_TET_I1_FEM<Scalar,ArrayScalar>() );
 			    }
 			    else
 			    {
-				assert( basis_degree == 1 );
+				assert( degree == 1 );
 			    }
 
 			    break;
@@ -411,14 +411,14 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 		    {
 			case FOOD_FEM:
 
-			    if ( basis_degree == 1 )
+			    if ( degree == 1 )
 			    {
 				new_basis = Teuchos::rcp( 
 				    new Intrepid::Basis_HCURL_HEX_I1_FEM<Scalar,ArrayScalar>() );
 			    }
 			    else
 			    {
-				assert( basis_degree == 1 );
+				assert( degree == 1 );
 			    }
 
 			    break;
@@ -442,9 +442,9 @@ BasisFactory<Scalar,ArrayScalar>::create( const int entity_topology,
 
 	default:
 
-	    assert( FOOD_HGRAD == basis_function_space ||
-		    FOOD_HDIV  == basis_function_space ||
-		    FOOD_HCURL == basis_function_space );
+	    assert( FOOD_HGRAD == function_space ||
+		    FOOD_HDIV  == function_space ||
+		    FOOD_HCURL == function_space );
     }
 
     return new_basis;

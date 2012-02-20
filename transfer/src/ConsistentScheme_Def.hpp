@@ -14,6 +14,8 @@
 #ifndef FOOD_CONSISTENTSCHEME_DEF_HPP
 #define FOOD_CONSISTENTSCHEME_DEF_HPP
 
+#include <array>
+
 namespace FOOD
 {
 
@@ -79,7 +81,7 @@ void ConsistentScheme<Scalar>::setup()
     d_kdtree->buildTree();
 
     // Generate a mapping for interpolation.
-    double local_coords[3];
+    std::array<double,3> local_coords;
     iBase_EntityHandle found_entity = 0;
     for ( int n = 0; n < range_vertices_size; ++n )
     {

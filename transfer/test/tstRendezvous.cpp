@@ -576,7 +576,7 @@ TEUCHOS_UNIT_TEST( Rendezvous, constructor_test )
 			                             iMesh_POINT,
 						     FOOD::FOOD_CARTESIAN, 
 						     FOOD::FOOD_FEM,
-						     FOOD::FOOD_GRAD,
+						     FOOD::FOOD_HGRAD,
 						     1 ) );
 
     // Create the field domain and range and check basic accessors.
