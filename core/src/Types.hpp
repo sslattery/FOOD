@@ -29,7 +29,7 @@ enum FOOD_Precision {
     FOOD_Precision_MAX =  FOOD_QUAD
 };
 
-// Algorithm type.
+// Algebraic type.
 enum FOOD_AlgType {
     FOOD_AlgType_MIN = 0,
     FOOD_LOGICAL =  FOOD_AlgType_MIN,
@@ -74,6 +74,14 @@ enum FOOD_FunctionSpaceType {
     FOOD_HDIV,
     FOOD_HCURL,
     FOOD_FunctionSpaceType_MAX = FOOD_HCURL
+};
+
+// Canonical numbering system types.
+enum FOOD_CNType {
+    FOOD_CNType_MIN = 0,
+    FOOD_MBCN = FOOD_CNType_MIN,
+    FOOD_SHARDSCN,
+    FOOD_CNType_MAX = FOOD_SHARDSCN
 };
 
 } // end namespace FOOD

@@ -63,8 +63,8 @@ TensorField<Scalar>::~TensorField()
  * and define the Tpetra map of that vector.
  */
 template<class Scalar>
-void TensorField<Scalar>::attachToTagData( TagHandle dof_tag,
-					   ErrorCode &error )
+void TensorField<Scalar>::attachToTagData( iBase_TagHandle dof_tag,
+					   int &error )
 {
     d_dof_tag = dof_tag;
 
@@ -97,7 +97,7 @@ void TensorField<Scalar>::attachToTagData( TagHandle dof_tag,
     assert( iBase_SUCCESS == error );
     assert( tag_type == (int) TypeTraits<Scalar>::tag_type );
 
-    EntityHandle *dof_entities = 0;
+    iBase_EntityHandle *dof_entities = 0;
     int entities_allocated = num_domain_entity;
     int entities_size = 0;
     iMesh_getEntities( d_domain->getMesh(),
@@ -145,7 +145,7 @@ template<class Scalar>
 void TensorField<Scalar>::attachToArrayData(
     Teuchos::ArrayRCP<Scalar> dof_array, 
     int storage_order,
-    ErrorCode &error )
+    int &error )
 {
     error = 0;
 
@@ -176,7 +176,7 @@ void TensorField<Scalar>::attachToArrayData(
     assert( (int) dof_array.size() == dof_size );
     d_dofs.clear();
 
-    EntityHandle *dof_entities = 0;
+    iBase_EntityHandle *dof_entities = 0;
     int entities_allocated = num_domain_entity;
     int entities_size = 0;
     iMesh_getEntities( d_domain->getMesh(),
@@ -219,15 +219,16 @@ void TensorField<Scalar>::attachToArrayData(
  * coordinates in a particular entity. MDArray(C,P,component).
  */
 template<class Scalar>
-void TensorField<Scalar>::evaluateDF( const EntityHandle entity,
+void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
 				      const MDArray &coords,
 				      const int is_param,
 				      MDArray &dfunc_values )
 {
-    ErrorCode error = 0;
+    int error = 0;
 
-    // 1) Get the entity nodes and their coordinates.
-    EntityHandle *element_nodes = 0;
+    // 1) Get the entity nodes and their coordinates. ( I am assuming the DOFs
+    // on higher order elements are resolved by higher order vertices. )
+    iBase_EntityHandle *element_nodes = 0;
     int element_nodes_allocated = 0;
     int element_nodes_size = 0;
     iMesh_getEntAdj( d_domain->getMesh(),
@@ -239,6 +240,12 @@ void TensorField<Scalar>::evaluateDF( const EntityHandle entity,
 		     &error );
     assert( iBase_SUCCESS == error );
 
+    // Here I are assuming the external mesh service is providing MBCN
+    // ordering. This is *not* always going to be the case. We should perhaps
+    // add an enumeration the specifies common orderings and permutation
+    // vectors. Each DFuncKernel is then defined using a specific ordering
+    // ( e.g. Shards ordering for the interpid tools ), and each domain is
+    // constructed with a specification of its CN ordering.
     TopologyTools::MBCN2Shards( element_nodes, 
 				element_nodes_size,
 				d_dfunckernel->getEvalTopology() );
@@ -325,16 +332,16 @@ void TensorField<Scalar>::evaluateDF( const EntityHandle entity,
  * set of coordinates in a particular entity. MDArray(C,P,component,spacedim).
  */
 template<class Scalar>
-void TensorField<Scalar>::evaluateGradDF( const EntityHandle entity,
+void TensorField<Scalar>::evaluateGradDF( const iBase_EntityHandle entity,
 					  const MDArray &coords,
 					  const int is_param,
 					  MDArray &dfunc_values )
 {
     assert( FOOD_HGRAD == d_dfunckernel->getBasisFunctionSpace() );
-    ErrorCode error = 0;
+    int error = 0;
 
     // 1) Get the entity nodes and their coordinates.
-    EntityHandle *element_nodes = 0;
+    iBase_EntityHandle *element_nodes = 0;
     int element_nodes_allocated = 0;
     int element_nodes_size = 0;
     iMesh_getEntAdj( d_domain->getMesh(),
@@ -456,8 +463,7 @@ void TensorField<Scalar>::evaluateGradDF( const EntityHandle entity,
  */
 template<class Scalar>
 typename TensorField<Scalar>::MDArray
-TensorField<Scalar>::getEntDF( EntityHandle entity,
-			       ErrorCode &error ) const
+TensorField<Scalar>::getEntDF( iBase_EntityHandle entity, int &error ) const
 {
     error = 0;
 
@@ -469,7 +475,7 @@ TensorField<Scalar>::getEntDF( EntityHandle entity,
     int tag_values_allocated = entity_dofs.size()*sizeof(Scalar);
     int tag_values_size = 0;
 
-    EntityHandle *dof_entities = 0;
+    iBase_EntityHandle *dof_entities = 0;
     int dof_entities_allocated = 0;
     int dof_entities_size = 0;
     iMesh_getEntAdj( d_domain->getMesh(),

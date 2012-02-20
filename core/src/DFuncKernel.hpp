@@ -43,27 +43,27 @@ class DFuncKernel
 
   private:
 
-    // The type of the cell for which the kernel is defined.
+    // The type of the cell for which the kernel is defined (enum).
     std::size_t d_eval_type;
 
-    // The topology of the cell for which the kernel is defined.
+    // The topology of the cell for which the kernel is defined (enum).
     std::size_t d_eval_topology;
 
     // Entity type that the degrees of freedom are defined on for this
-    // kernel. 
+    // kernel (enum). 
     std::size_t d_dof_entity_type;
 
     // Entity topology that the degrees of freedom are define on for this
-    // kernel. 
+    // kernel (enum). 
     std::size_t d_dof_entity_topology;
 
-    // The coordinate type for this kernel.
+    // The coordinate type for this kernel (enum).
     std::size_t d_coordinate_type;
 
-    // Discretization type for this kernel.
+    // Discretization type for this kernel (enum).
     std::size_t d_discretization_type;
 
-    // Basis function space for this kernel.
+    // Basis function space for this kernel (enum).
     std::size_t d_basis_function_space;
 
     // The basis for this kernel.

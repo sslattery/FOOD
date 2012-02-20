@@ -71,7 +71,33 @@ enum iField_StorageHint {
     iField_StorageHint_MAX = iField_PER_ENTITY
         /**< MAX symbol used to facilitate iteration over enum values */
 };
-  
+
+enum iField_DiscretizationType {
+    iField_DiscretizationType_MIN = 0,
+        /**< MIN symbol used to facilitate iteration over enum values */
+    iField_FEM = iField_DiscretizationType_MIN,
+        /**< Finite element discretization */
+    iField_FV,
+        /**< Finite volume discretization */
+    iField_FD,
+        /**< Finite difference discretization */
+    iField_DiscretizationType_MAX = iField_FD
+        /**< MAX symbol used to facilitate iteration over enum values */
+};
+
+enum iField_FunctionSpaceType {
+    iField_FunctionSpaceType_MIN = 0,
+        /**< MIN symbol used to facilitate iteration over enum values */
+    iField_HGRAD = iField_FunctionSpaceType_MIN,
+        /**< Gradient function space */
+    iField_HDIV,
+        /**< Divergence function space */
+    iField_HCURL,
+        /**< Curl function space */
+    iField_FunctionSpaceType_MAX = iField_HCURL,
+        /**< MAX symbol used to facilitate iteration over enum values */
+};
+
 typedef void* iField_Instance;
 typedef struct iField_DomainHandle_Private* iField_DomainHandle;
 typedef struct iField_TensorHandle_Private* iField_TensorHandle;
@@ -239,6 +265,31 @@ void iField_destroyTensorTemplate(
     iField_TensorTemplateHandle handle,
         /**< [in] Tensor template to destroy. */
     int* err
+        /**< [out] Returned Error status (see iBase_ErrorType) */
+);
+
+/***************************************************************************//**
+ * \ingroup iField_DFunc
+ * \brief Create a distribution function.
+ *
+ ******************************************************************************/
+void iField_createDFuncKernel(
+    const iField_Instance instance,
+        /**< [in] iField instance handle. */
+    const int entity_type,
+        /**< [in] The entity type over which to perform 
+        evaluations. (enum) */
+    const int entity_topology,
+        /**< [in] The entity topology over which to perform
+	evaluations. (enum) */
+    const int discretization_type,
+        /**< [in] The discretization type of the distribution function. (enum) */
+    const int function_space,
+        /**< [in] The function space on which a distribution function is 
+        defined. (enum) */
+    iField_DFuncKernel *dfunc_kernel,
+        /**< [out] The new distribution function. */
+    int* err,
         /**< [out] Returned Error status (see iBase_ErrorType) */
 );
 

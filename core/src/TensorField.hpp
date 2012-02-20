@@ -58,9 +58,6 @@ class TensorField
     typedef Tpetra::Map<OrdinalType>                 Map_t;
     typedef Teuchos::RCP<const Map_t>                RCP_Map;
     typedef Intrepid::FieldContainer<Scalar>         MDArray;
-    typedef int                                      ErrorCode;
-    typedef iBase_EntityHandle                       EntityHandle;
-    typedef iBase_TagHandle                          TagHandle;
     //@}
 
   private:
@@ -94,7 +91,7 @@ class TensorField
     std::string d_name;
 
     // Degrees of freedom tag on the mesh.
-    TagHandle d_dof_tag;
+    iBase_TagHandle d_dof_tag;
 
   public:
 
@@ -111,31 +108,31 @@ class TensorField
     ~TensorField();
 
     // Attach this field to tag data.
-    void attachToTagData( TagHandle dof_tag,
-			  ErrorCode &error );
+    void attachToTagData( iBase_TagHandle dof_tag,
+			  int &error );
 
     // Attach this field to array data and tag the mesh.
     void attachToArrayData( Teuchos::ArrayRCP<Scalar> dof_array,
 			    int storage_order,
-			    ErrorCode &error );
+			    int &error );
 
     // Evaluate the degrees of freedom of this field at a set of coordinates
     // in a particular entity.
-    void evaluateDF( const EntityHandle entity,
+    void evaluateDF( const iBase_EntityHandle entity,
 		     const MDArray &coords,
 		     const int is_param,
 	             MDArray &dfunc_values );
 
     // Evaluate gradient of the degrees of freedom of this field at a set of
     // coordinates in a particular entity. 
-    void evaluateGradDF( const EntityHandle entity,
+    void evaluateGradDF( const iBase_EntityHandle entity,
 			 const MDArray &coords,
 			 const int is_param,
 			 MDArray &dfunc_values );
 
     // Evaluate the Hessian of the degrees of freedom of this field at a set
     // of coordinates in a particular entity. 
-    void evaluateHessianDF( const EntityHandle entity,
+    void evaluateHessianDF( const iBase_EntityHandle entity,
 			    const MDArray &coords,
 			    const int is_param,
 			    MDArray &dfunc_values );
@@ -161,14 +158,13 @@ class TensorField
     { return d_dofs.getData()(); }
 
     // Get degrees of freedom for a particular entity in the domain.
-    MDArray getEntDF( EntityHandle entity, 
-		      ErrorCode &error ) const;
+    MDArray getEntDF( iBase_EntityHandle entity, int &error ) const;
 
     // Get degrees of freedom for an array of entities in the
     // domain. Returned implicitly interleaved. 
-    MDArray getEntArrDF( EntityHandle *entities,
+    MDArray getEntArrDF( iBase_EntityHandle *entities,
 			 int num_entities,
-			 ErrorCode &error ) const;
+			 int &error ) const;
 
     //! Get the Tpetra map for the degrees of freedom.
     RCP_Map getDFMap() const
@@ -200,7 +196,7 @@ class TensorField
 
     //! Get the degrees of freedom tag on the mesh this field is associated
     //! with.
-    TagHandle getDFTag() const
+    iBase_TagHandle getDFTag() const
     { return d_dof_tag; }
 
   private:
