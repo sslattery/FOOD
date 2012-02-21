@@ -22,6 +22,8 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 APPEND_SET(HEADERS
   ConsistentScheme.hpp
   ConsistentScheme_Def.hpp
+  DataTransferScheme.hpp
+  DataTransferSchemeFactory.hpp
   Rendezvous.hpp
   Rendezvous_Def.hpp
   )
@@ -29,6 +31,7 @@ APPEND_SET(HEADERS
 # Set sources
 
 APPEND_SET(SOURCES
+  DataTransferSchemeFactory.cpp
   )
 
 # Set addition headers and source based on package-specific

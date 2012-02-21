@@ -203,11 +203,11 @@ int main(int argc, char* argv[])
     // Do interpolation.
     FOOD::ConsistentScheme<double> fem_interp( func_dmn_field, func_rng_field );
     fem_interp.setup();
-    fem_interp.interpolateValueDF();
+    fem_interp.transferValueDF();
 
     FOOD::ConsistentScheme<double> fem_interp_grad( func_dmn_field, func_rng_grad_field );
     fem_interp_grad.setup();
-    fem_interp_grad.interpolateGradDF();
+    fem_interp_grad.transferGradDF();
 
     // Write the interpolated mesh to file.
     std::string interp_file = "example1_output.vtk";

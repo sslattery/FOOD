@@ -202,12 +202,12 @@ int main(int argc, char* argv[])
     FOOD::ConsistentScheme<double> fem_interp_val( func_dmn_field, 
 						   func_rng_field );
     fem_interp_val.setup();
-    fem_interp_val.interpolateValueDF();
+    fem_interp_val.transferValueDF();
 
     FOOD::ConsistentScheme<double> fem_interp_grad( func_dmn_field, 
 						    func_rng_grad_field );
     fem_interp_grad.setup();
-    fem_interp_grad.interpolateGradDF();
+    fem_interp_grad.transferGradDF();
 
     // Write the interpolated mesh to file.
     std::string interp_file = "flat_surf_output.vtk";

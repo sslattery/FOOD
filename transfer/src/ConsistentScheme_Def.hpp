@@ -106,7 +106,7 @@ void ConsistentScheme<Scalar>::setup()
  * domain to the range.
  */
 template<class Scalar>
-void ConsistentScheme<Scalar>::interpolateValueDF()
+void ConsistentScheme<Scalar>::transferValueDF()
 {
     int error = 0;
 
@@ -177,7 +177,7 @@ void ConsistentScheme<Scalar>::interpolateValueDF()
  * domain to the range.
  */
 template<class Scalar>
-void ConsistentScheme<Scalar>::interpolateGradDF()
+void ConsistentScheme<Scalar>::transferGradDF()
 {
     int error = 0;
 

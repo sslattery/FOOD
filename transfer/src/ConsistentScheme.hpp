@@ -16,6 +16,7 @@
 
 #include <map>
 
+#include "DataTransferScheme.hpp"
 #include "TensorField.hpp"
 #include "KDTree.hpp"
 
@@ -31,7 +32,7 @@ namespace FOOD
 {
 
 template<class Scalar>
-class ConsistentScheme
+class ConsistentScheme : public DataTransferScheme<Scalar>
 {
 
   public:
@@ -71,11 +72,19 @@ class ConsistentScheme
 
     // Perform value interpolation of the degrees of freedom from the domain
     // to the range.
-    void interpolateValueDF();
+    void transferValueDF();
 
-    // Perform gradient interpolation of the degrees of freedom from the domain
-    // to the range.
-    void interpolateGradDF();
+    // Perform gradient interpolation of the degrees of freedom from the
+    // domain to the range.
+    void transferGradDF();
+
+    // Get the tensor field corresponding to the domain.
+    RCP_TensorField getDomainField() const
+    { return d_dof_domain; }
+
+    // Get the tensor field corresponding to the range.
+    RCP_TensorField getRangeField() const
+    { return d_dof_range; }
 };
 
 } // end namespace FOOD
