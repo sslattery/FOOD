@@ -16,7 +16,6 @@
 #include <cmath>
 #include <sstream>
 #include <cassert>
-#include <array>
 
 #include <PointQuery.hpp>
 
@@ -85,11 +84,11 @@ TEUCHOS_UNIT_TEST( PointQuery, hex_query )
 		     &error );  
     TEST_ASSERT( iBase_SUCCESS == error );
 
-    std::array<double,3> point1 = { 0.5, 0.5, 0.5 };
+    double point1[3] = { 0.5, 0.5, 0.5 };
     TEST_ASSERT( FOOD::PointQuery::pointInRefElement( 
 		     mesh, hex_element, point1 ) == true );
 
-    std::array<double,3> point2 = { 0.25, 1.5, -0.5 };
+    double point2[3] = { 0.25, 1.5, -0.5 };
     TEST_ASSERT( FOOD::PointQuery::pointInRefElement( 
 		     mesh, hex_element, point2 ) == false );
 }
@@ -138,11 +137,11 @@ TEUCHOS_UNIT_TEST( PointQuery, quadratic_hex_query )
     TEST_ASSERT( iBase_SUCCESS == error );
     TEST_ASSERT( iBase_NEW == status );
 
-    std::array<double,3> point1 = { 0.5, 0.5, 0.5 };
+    double point1[3] = { 0.5, 0.5, 0.5 };
     TEST_ASSERT( FOOD::PointQuery::pointInRefElement( 
 		     mesh, hex_element, point1 ) == true );
 
-    std::array<double,3> point2 = { 0.25, 1.5, -0.5 };
+    double point2[3] = { 0.25, 1.5, -0.5 };
     TEST_ASSERT( FOOD::PointQuery::pointInRefElement( 
 		     mesh, hex_element, point2 ) == false );
 }

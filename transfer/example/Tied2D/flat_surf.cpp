@@ -1,12 +1,14 @@
 //---------------------------------------------------------------------------//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 3.0 of the License, or (at your option) any later version.
-//
-// \file cxx_main.cpp
-// \author Stuart Slattery
-// \brief Consistent interpolation example 2.
+/*!
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
+ *
+ * \file cxx_main.cpp
+ * \author Stuart Slattery
+ * \brief Consistent interpolation example 1.
+ */
 //---------------------------------------------------------------------------//
 
 #include <cassert>
@@ -29,8 +31,6 @@
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_CommHelpers.hpp>
 
-#include <Intrepid_FieldContainer.hpp>
-
 template<class Ordinal>
 Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 {
@@ -41,9 +41,10 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 #endif
 }
 
-// This consistent interpolation example loads a quadratic hexahedron mesh
-// tagged with a scalar and interpolates it onto a coarse linear tet mesh
-// along with the gradient pull back.
+// This consistent interpolation example loads a linear quad mesh
+// tagged with a scalar field and interpolates it along with the gradient
+// pullback onto a delaunay tri mesh mesh. (Function domain = func_dmn,
+// function range = func_rng ) 
 int main(int argc, char* argv[])
 {
     // Setup communication.
@@ -51,15 +52,13 @@ int main(int argc, char* argv[])
     Teuchos::RCP<const Teuchos::Comm<int> > comm = 
 	Teuchos::DefaultComm<int>::getComm();
 
-    if ( getDefaultComm<int>()->getRank() == 0 )
+    if ( getDefaultComm<int>()->getRank() == 0 ) // Force scalar execution.
     {
-
-    typedef Intrepid::FieldContainer<double> MDArray;
 
     int error;
 
     // The tensor template can be shared by both the range and
-    // domain. 
+    // domain value. 
     Teuchos::RCP<FOOD::TensorTemplate> tensor_template = Teuchos::rcp(
 	new FOOD::TensorTemplate(0, 1, FOOD::FOOD_REAL, Teuchos::null) );
 
@@ -76,7 +75,7 @@ int main(int argc, char* argv[])
     iMesh_getRootSet( func_dmn_mesh, &func_dmn_root_set, &error );
     assert( iBase_SUCCESS == error );
 
-    std::string func_dmn_mesh_filename = "tagged_big_quadratic_hex.vtk";
+    std::string func_dmn_mesh_filename = "tagged_quad_flat_surf.vtk";
     iMesh_load( func_dmn_mesh, 
 		func_dmn_root_set, 
 		&func_dmn_mesh_filename[0], 
@@ -88,16 +87,17 @@ int main(int argc, char* argv[])
 
     // Set up the func_dmn mesh field.
     Teuchos::RCP<FOOD::Domain> func_dmn_domain = Teuchos::rcp(
-	new FOOD::Domain(func_dmn_mesh, func_dmn_root_set) );
+	new FOOD::Domain(func_dmn_mesh, func_dmn_root_set, FOOD::FOOD_MBCN) );
 
     Teuchos::RCP< FOOD::DFuncKernel<double> > func_dmn_dfunckernel =
-	Teuchos::rcp( new FOOD::DFuncKernel<double>( iBase_REGION,
-						     iMesh_HEXAHEDRON,
+	Teuchos::rcp( new FOOD::DFuncKernel<double>( iBase_FACE,
+						     iMesh_QUADRILATERAL,
 						     iBase_VERTEX,
 						     iMesh_POINT,
 						     FOOD::FOOD_CARTESIAN,
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_HGRAD,
+						     FOOD::FOOD_SHARDSCN,
 						     2 ) );
 
     Teuchos::RCP< FOOD::TensorField<double> > func_dmn_field = Teuchos::rcp(
@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
     iMesh_getRootSet( func_rng_mesh, &func_rng_root_set, &error );
     assert( iBase_SUCCESS == error );
 
-    std::string func_rng_mesh_filename = "tagged_small_99_linear_tet.vtk";
+    std::string func_rng_mesh_filename = "tagged_delaunay_flat_surf.vtk";
     iMesh_load( func_rng_mesh, 
 		func_rng_root_set, 
 		&func_rng_mesh_filename[0], 
@@ -142,16 +142,17 @@ int main(int argc, char* argv[])
 
     // Set up the func_rng mesh field for function values.
     Teuchos::RCP<FOOD::Domain> func_rng_domain = Teuchos::rcp(
-	new FOOD::Domain(func_rng_mesh, func_rng_root_set) );
+	new FOOD::Domain(func_rng_mesh, func_rng_root_set, FOOD::FOOD_MBCN) );
 
     Teuchos::RCP< FOOD::DFuncKernel<double> > func_rng_dfunckernel =
-	Teuchos::rcp( new FOOD::DFuncKernel<double>( iBase_REGION,
-						     iMesh_TETRAHEDRON,
+	Teuchos::rcp( new FOOD::DFuncKernel<double>( iBase_FACE,
+						     iMesh_TRIANGLE,
 						     iBase_VERTEX,
 						     iMesh_POINT,
 						     FOOD::FOOD_CARTESIAN,
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_HGRAD,
+						     FOOD::FOOD_SHARDSCN,
 						     1 ) );
 
     Teuchos::RCP< FOOD::TensorField<double> > func_rng_field = Teuchos::rcp(
@@ -198,16 +199,18 @@ int main(int argc, char* argv[])
     assert( iBase_SUCCESS == error );
 
     // Do interpolation.
-    FOOD::ConsistentScheme<double> fem_interp( func_dmn_field, func_rng_field );
-    fem_interp.setup();
-    fem_interp.interpolateValueDF();
+    FOOD::ConsistentScheme<double> fem_interp_val( func_dmn_field, 
+						   func_rng_field );
+    fem_interp_val.setup();
+    fem_interp_val.interpolateValueDF();
 
-    FOOD::ConsistentScheme<double> fem_interp_grad( func_dmn_field, func_rng_grad_field );
+    FOOD::ConsistentScheme<double> fem_interp_grad( func_dmn_field, 
+						    func_rng_grad_field );
     fem_interp_grad.setup();
     fem_interp_grad.interpolateGradDF();
 
     // Write the interpolated mesh to file.
-    std::string interp_file = "quadratic_scalar_output.vtk";
+    std::string interp_file = "flat_surf_output.vtk";
     iMesh_save( func_rng_domain->getMesh(),
 		func_rng_domain->getMeshSet(),
 		&interp_file[0],

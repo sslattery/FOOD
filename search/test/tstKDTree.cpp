@@ -16,7 +16,6 @@
 #include <cmath>
 #include <cstdlib>
 #include <sstream>
-#include <array>
 
 #include <KDTree.hpp>
 
@@ -159,7 +158,7 @@ TEUCHOS_UNIT_TEST( KDTree, get_element_test )
     kdtree.buildTree();
 
     // Make a series of points in the domain.
-    std::array<double,3> coords = { 0.0, 0.0, 0.0 };
+    double coords[3] = { 0.0, 0.0, 0.0 };
     iBase_EntityHandle found_hex = 0;
     for ( int i = 0; i < 10; ++i )
     {

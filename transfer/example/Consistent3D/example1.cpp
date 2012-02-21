@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
     iMesh_getRootSet( domain_mesh, &func_dmn_root_set, &error );
     assert( iBase_SUCCESS == error );
 
-    std::string domain_mesh_filename = "tagged_big_linear_tet.vtk";
+    std::string domain_mesh_filename = "tet_domain.vtk";
     iMesh_load( domain_mesh, 
 		func_dmn_root_set, 
 		&domain_mesh_filename[0], 
@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
 
     // Set up the func_dmn mesh field.
     Teuchos::RCP<FOOD::Domain> func_dmn_domain = Teuchos::rcp(
-	new FOOD::Domain(domain_mesh, func_dmn_root_set) );
+	new FOOD::Domain(domain_mesh, func_dmn_root_set, FOOD::FOOD_MBCN) );
 
     Teuchos::RCP< FOOD::DFuncKernel<double> > func_dmn_dfunckernel =
 	Teuchos::rcp( new FOOD::DFuncKernel<double>( iBase_REGION,
@@ -99,6 +99,7 @@ int main(int argc, char* argv[])
 						     FOOD::FOOD_CARTESIAN,
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_HGRAD,
+						     FOOD::FOOD_SHARDSCN,
 						     1 ) );
 
     Teuchos::RCP< FOOD::TensorField<double> > func_dmn_field = Teuchos::rcp(
@@ -131,7 +132,7 @@ int main(int argc, char* argv[])
     iMesh_getRootSet( func_rng_mesh, &func_rng_root_set, &error );
     assert( iBase_SUCCESS == error );
 
-    std::string func_rng_mesh_filename = "tagged_small_99_linear_hex.vtk";
+    std::string func_rng_mesh_filename = "hex_range.vtk";
     iMesh_load( func_rng_mesh, 
 		func_rng_root_set, 
 		&func_rng_mesh_filename[0], 
@@ -143,7 +144,7 @@ int main(int argc, char* argv[])
 
     // Set up the func_rng mesh field for function values.
     Teuchos::RCP<FOOD::Domain> func_rng_domain = Teuchos::rcp(
-	new FOOD::Domain(func_rng_mesh, func_rng_root_set) );
+	new FOOD::Domain(func_rng_mesh, func_rng_root_set, FOOD::FOOD_MBCN) );
 
     Teuchos::RCP< FOOD::DFuncKernel<double> > func_rng_dfunckernel =
 	Teuchos::rcp( new FOOD::DFuncKernel<double>( iBase_REGION,
@@ -153,7 +154,8 @@ int main(int argc, char* argv[])
 						     FOOD::FOOD_CARTESIAN,
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_HGRAD,
-						     1 ) );
+						     FOOD::FOOD_SHARDSCN,
+						     2 ) );
 
     Teuchos::RCP< FOOD::TensorField<double> > func_rng_field = Teuchos::rcp(
 	new FOOD::TensorField<double>( getDefaultComm<int>(),
@@ -208,7 +210,7 @@ int main(int argc, char* argv[])
     fem_interp_grad.interpolateGradDF();
 
     // Write the interpolated mesh to file.
-    std::string interp_file = "linear_vector_output.vtk";
+    std::string interp_file = "example1_output.vtk";
     iMesh_save( func_rng_domain->getMesh(),
 		func_rng_domain->getMeshSet(),
 		&interp_file[0],

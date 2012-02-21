@@ -15,7 +15,6 @@
 #define FOOD_KDTREE_HPP
 
 #include <vector>
-#include <array>
 
 #include "PointQuery.hpp"
 
@@ -204,12 +203,12 @@ class KDTree
 
     // Locate the nearest neighbor point in the mesh set (linear entity points
     // only).
-    void nearestNeighbor( const std::array<double,3> &coords,
+    void nearestNeighbor( const double coords[3],
 			  iBase_EntityHandle &nearest_neighbor );
 
     // Get the element a point is located in. Return false if the point is not
     // in the domain of the mesh set.
-    bool getElement( const std::array<double,3> &coords,
+    bool getElement( const double coords[3],
 		     iBase_EntityHandle &element );
 
   private:

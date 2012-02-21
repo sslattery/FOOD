@@ -52,7 +52,7 @@ class ConsistentScheme
     // Degrees of freedom range.
     RCP_TensorField d_dof_range;
 
-    // KDTree
+    // KDTree.
     RCP_KDTree d_kdtree;
 
     // Range to domain mapping.

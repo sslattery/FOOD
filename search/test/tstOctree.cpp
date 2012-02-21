@@ -15,7 +15,6 @@
 #include <vector>
 #include <cmath>
 #include <sstream>
-#include <array>
 
 #include <Octree.hpp>
 
@@ -157,8 +156,8 @@ TEUCHOS_UNIT_TEST( Octree, tree_build_and_search_test )
     FOOD::Octree octree( mesh, root_set, iBase_REGION, iMesh_HEXAHEDRON );
     octree.buildTree();
 
-    std::array<double,3> coords1 = { 1.5, 1.5, 1.5 };
-    std::array<double,3> coords2 = { -1.4, 2.6, 7.34 };
+    double coords1[3] = { 1.5, 1.5, 1.5 };
+    double coords2[3] = { -1.4, 2.6, 7.34 };
 
     iBase_EntityHandle found_hex = 0;
     TEST_ASSERT( octree.findPoint( found_hex, coords1 ) );

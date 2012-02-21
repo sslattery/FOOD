@@ -26,7 +26,7 @@ namespace FOOD
 
 bool PointQuery::pointInRefElement( const iMesh_Instance mesh,
 				    const iBase_EntityHandle entity,
-				    const std::array<double,3> &coords )
+				    const double coords[3] )
 {
     int error = 0;
     int topology = 0;
@@ -49,7 +49,7 @@ bool PointQuery::pointInRefElement( const iMesh_Instance mesh,
 
     TopologyTools::MBCN2Shards( element_nodes, 
 				element_nodes_size,
-				d_dfunckernel->getEvalTopology() );
+				topology );
 
     std::vector<iBase_EntityHandle> linear_nodes(num_linear_nodes);
     for ( int i = 0; i < num_linear_nodes; ++i )

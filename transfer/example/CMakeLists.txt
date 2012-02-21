@@ -2,5 +2,6 @@ INCLUDE(TribitsAddExecutableAndTest)
 INCLUDE(AddSubdirectories)
 
 ADD_SUBDIRECTORIES(
-  ConsistentInterpolation
+  Consistent3D
+  Tied2D
   )

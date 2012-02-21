@@ -74,7 +74,7 @@ void TopologyTools::MBCN2Shards( iBase_EntityHandle *element_nodes,
 
 	    switch( num_nodes )
 	    {
-		case 2:
+		default:
 		    for ( int n = 0; n < num_nodes; ++n )
 		    {
 			temp_nodes[n] = element_nodes[n];
@@ -88,7 +88,7 @@ void TopologyTools::MBCN2Shards( iBase_EntityHandle *element_nodes,
 
 	    switch( num_nodes )
 	    {
-		case 3:
+		default:
 		    for ( int n = 0; n < num_nodes; ++n )
 		    {
 			temp_nodes[n] = element_nodes[n];
@@ -102,12 +102,13 @@ void TopologyTools::MBCN2Shards( iBase_EntityHandle *element_nodes,
 
 	    switch( num_nodes )
 	    {
-		case 4:
+		default:
 		    for ( int n = 0; n < num_nodes; ++n )
 		    {
 			temp_nodes[n] = element_nodes[n];
 		    }
 		    break;
+
 	    }
 
 	    break;
@@ -116,7 +117,8 @@ void TopologyTools::MBCN2Shards( iBase_EntityHandle *element_nodes,
 
 	    switch( num_nodes )
 	    {
-		case 4:
+		default:
+		    
 		    for ( int n = 0; n < num_nodes; ++n )
 		    {
 			temp_nodes[n] = element_nodes[n];
@@ -130,18 +132,6 @@ void TopologyTools::MBCN2Shards( iBase_EntityHandle *element_nodes,
 
 	    switch( num_nodes )
 	    {
-		case 8:
-
-		    for ( int n = 0; n < num_nodes; ++n )
-		    {
-			temp_nodes[n] = element_nodes[n];
-		    }
-		    break;
-
-		case 20:
-
-		    break;
-
 		case 27:
 
 		    for ( int n = 0; n < 20; ++n )
@@ -155,6 +145,14 @@ void TopologyTools::MBCN2Shards( iBase_EntityHandle *element_nodes,
 		    temp_nodes[24] = element_nodes[21];
 		    temp_nodes[25] = element_nodes[20];
 		    temp_nodes[26] = element_nodes[22];
+		    break;
+
+		default:
+
+		    for ( int n = 0; n < num_nodes; ++n )
+		    {
+			temp_nodes[n] = element_nodes[n];
+		    }
 		    break;
 	    }
 	    break;

@@ -7,7 +7,7 @@ from itaps import iBase, iMesh
 ##---------------------------------------------------------------------------##
 ## Large linear tet mesh - tagged with a 3-vector domain of vertex coordinates.
 mesh = iMesh.Mesh()
-mesh.load("big_linear_tet.vtk")
+mesh.load("tet_mesh.vtk")
 
 tag = mesh.createTag("domain", 3, float)
 
@@ -24,7 +24,7 @@ for i in xrange(num_vert):
 
 tag[vertices] = tag_data
 
-mesh.save("tagged_big_linear_tet.vtk")
+mesh.save("tet_domain.vtk")
 
 del mesh
 del tag
@@ -33,9 +33,9 @@ del coords
 del tag_data
 
 ##---------------------------------------------------------------------------##
-## Small linear hex mesh - tagged with a 3-vector range.
+## hex mesh - tagged with a 3-vector range.
 mesh = iMesh.Mesh()
-mesh.load("small_99_linear_hex.vtk")
+mesh.load("hex_mesh.vtk")
 
 tag = mesh.createTag("range", 3, float)
 tag_grad = mesh.createTag("grad_range", 9, float)
@@ -54,7 +54,7 @@ for i in xrange(num_vert):
 tag[vertices] = tag_data
 tag_grad[vertices] = tag_grad_data
 
-mesh.save("tagged_small_99_linear_hex.vtk")
+mesh.save("hex_range.vtk")
 
 del mesh
 del tag
@@ -66,7 +66,7 @@ del tag_data
 ## Large quadratic hex mesh - tagged with a scalar domain of coordinate 
 ## distance from origin
 mesh = iMesh.Mesh()
-mesh.load("big_quadratic_hex.vtk")
+mesh.load("hex_mesh.vtk")
 
 tag = mesh.createTag("domain", 1, float)
 
@@ -77,13 +77,13 @@ coords = mesh.getVtxCoords(vertices)
 tag_data = []
 
 for i in xrange(num_vert):
-    tag_data += [ coords[i][0]*coords[i][0] + \
-                  coords[i][1]*coords[i][1] + \
-                  coords[i][2]*coords[i][2] ]
+    tag_data += [ math.cos(coords[i][0]/100.0) * \
+                  math.cos(coords[i][1]/100.0) * \
+                  math.cos(coords[i][2]/100.0) ]
 
 tag[vertices] = tag_data
 
-mesh.save("tagged_big_quadratic_hex.vtk")
+mesh.save("hex_domain.vtk")
 
 del mesh
 del tag
@@ -95,7 +95,7 @@ del tag_data
 ## Small linear tet mesh - tagged with a scalar range.
 ## from origin
 mesh = iMesh.Mesh()
-mesh.load("small_99_linear_tet.vtk")
+mesh.load("tet_mesh.vtk")
 
 tag = mesh.createTag("range", 1, float)
 tag_grad = mesh.createTag("grad_range", 3, float)
@@ -114,67 +114,7 @@ for i in xrange(num_vert):
 tag[vertices] = tag_data
 tag_grad[vertices] = tag_grad_data
 
-mesh.save("tagged_small_99_linear_tet.vtk")
-
-del mesh
-del tag
-del vertices
-del coords
-del tag_data
-
-##---------------------------------------------------------------------------##
-## Small quadratic hex mesh - tagged with a scalar domain of coordinate 
-## distance from origin
-mesh = iMesh.Mesh()
-mesh.load("small_hex27_box.vtk")
-
-tag = mesh.createTag("domain", 1, float)
-
-num_vert = mesh.getNumOfType( iBase.Type.vertex )
-vertices = mesh.getEntities( iBase.Type.vertex )
-coords = mesh.getVtxCoords(vertices)
-
-tag_data = []
-
-for i in xrange(num_vert):
-    tag_data += [ math.sqrt( coords[i][0]*coords[i][0] + \
-                             coords[i][1]*coords[i][1] + \
-                             coords[i][2]*coords[i][2] ) ]
-
-tag[vertices] = tag_data
-
-mesh.save("tagged_small_hex27_box.vtk")
-
-del mesh
-del tag
-del vertices
-del coords
-del tag_data
-
-##---------------------------------------------------------------------------##
-## Small linear tet box mesh - tagged with a scalar range.
-## from origin
-mesh = iMesh.Mesh()
-mesh.load("small_tet4_box.vtk")
-
-tag = mesh.createTag("range", 1, float)
-tag_grad = mesh.createTag("grad_range", 3, float)
-
-num_vert = mesh.getNumOfType( iBase.Type.vertex )
-vertices = mesh.getEntities( iBase.Type.vertex )
-coords = mesh.getVtxCoords(vertices)
-
-tag_data = []
-tag_grad_data = []
-
-for i in xrange(num_vert):
-    tag_data += [ 0.0 ];
-    tag_grad_data += [ [0.0, 0.0, 0.0] ];
-
-tag[vertices] = tag_data
-tag_grad[vertices] = tag_grad_data
-
-mesh.save("tagged_small_tet4_box.vtk")
+mesh.save("tet_range.vtk")
 
 del mesh
 del tag

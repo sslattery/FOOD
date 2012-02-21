@@ -13,7 +13,6 @@
 #define FOOD_POINTQUERY_HPP
 
 #include <cassert>
-#include <array>
 
 #include <iBase.h>
 #include <iMesh.h>
@@ -39,7 +38,7 @@ typedef Teuchos::RCP<shards::CellTopology>        RCP_CellTopology;
 // Point in volume query.
 bool pointInRefElement( const iMesh_Instance mesh,
 			const iBase_EntityHandle entity,
-			const std::array<double,3> &coords );
+			const double coords[3] );
 		      
 } // end namespace PointQuery
 

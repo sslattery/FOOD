@@ -546,7 +546,7 @@ TEUCHOS_UNIT_TEST( Rendezvous, constructor_test )
     TEST_ASSERT( iBase_SUCCESS == error );
     
     Teuchos::RCP<FOOD::Domain> domain = Teuchos::rcp(
-	new FOOD::Domain(mesh, root_set) );
+	new FOOD::Domain(mesh, root_set, FOOD::FOOD_MBCN) );
 
     // Create the quantity for this field.
     Teuchos::Tuple<int,7> numerator;
@@ -577,6 +577,7 @@ TEUCHOS_UNIT_TEST( Rendezvous, constructor_test )
 						     FOOD::FOOD_CARTESIAN, 
 						     FOOD::FOOD_FEM,
 						     FOOD::FOOD_HGRAD,
+						     FOOD::FOOD_SHARDSCN,
 						     1 ) );
 
     // Create the field domain and range and check basic accessors.
