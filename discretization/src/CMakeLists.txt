@@ -20,15 +20,20 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  KDTree.hpp
-  KDTree_Def.hpp
-  Octree.hpp
+  BasisFactory.hpp
+  BasisFactory_Def.hpp
+  CellTopologyFactory.hpp
+  DFuncKernel.hpp
+  DFuncKernel_Def.hpp
+  DiscretizationTypes.hpp
+  TopologyTools.hpp
   )
 
 # Set sources
 
 APPEND_SET(SOURCES
-  Octree.cpp
+  CellTopologyFactory.cpp
+  TopologyTools.cpp
   )
 
 # Set addition headers and source based on package-specific
@@ -48,7 +53,7 @@ ENDIF()
 #
 
 TRIBITS_ADD_LIBRARY(
-  food_search
+  food_discretization
   HEADERS ${HEADERS}
   SOURCES ${SOURCES}
   )

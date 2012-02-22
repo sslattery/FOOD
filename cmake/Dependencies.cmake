@@ -1,7 +1,8 @@
 SET(SUBPACKAGES_DIRS_CLASSIFICATIONS_OPTREQS
-  Core       core       SS  REQUIRED
-  Search     search     SS  REQUIRED
-  Transfer   transfer   SS  REQUIRED
+  Discretization   discretization   SS  REQUIRED
+  Core             core             SS  REQUIRED
+  Search           search           SS  REQUIRED
+  Transfer         transfer         SS  REQUIRED
   ) 
 
 SET(LIB_REQUIRED_DEP_PACKAGES)

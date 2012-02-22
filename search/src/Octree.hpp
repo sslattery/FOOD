@@ -14,7 +14,7 @@
 #ifndef FOOD_OCTREE_HPP
 #define FOOD_OCTREE_HPP
 
-#include "PointQuery.hpp"
+#include "TopologyTools.hpp"
 
 #include <iBase.h>
 #include <iMesh.h>

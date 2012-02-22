@@ -2,13 +2,6 @@ INCLUDE(TribitsAddExecutableAndTest)
 INCLUDE(TribitsAddAdvancedTest)
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  PointQuery_test
-  SOURCES tstPointQuery.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
-  COMM serial mpi
-  STANDARD_PASS_OUTPUT
-  )
-
-TRIBITS_ADD_EXECUTABLE_AND_TEST(
   Octree_test
   SOURCES tstOctree.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   COMM serial mpi

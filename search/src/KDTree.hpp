@@ -16,7 +16,7 @@
 
 #include <vector>
 
-#include "PointQuery.hpp"
+#include "TopologyTools.hpp"
 
 #include <iBase.h>
 #include <iMesh.h>

@@ -22,7 +22,6 @@
 
 #include "KDTree.hpp"
 #include "TopologyTools.hpp"
-#include "PointQuery.hpp"
 
 namespace FOOD
 {
@@ -493,9 +492,9 @@ bool KDTree<DIM>::pointInAdjElements( Point<DIM> p,
     {
 	if ( !return_val )
 	{
-	    return_val = PointQuery::pointInRefElement( d_mesh,
-							adj_elements[i],
-							coords );
+	    return_val = TopologyTools::pointInRefElement( d_mesh,
+							   adj_elements[i],
+							   coords );
 	    if ( return_val )
 	    {
 		element = adj_elements[i];

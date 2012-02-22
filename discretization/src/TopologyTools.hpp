@@ -14,10 +14,14 @@
 #ifndef FOOD_TOPOLOGYTOOLS_HPP
 #define FOOD_TOPOLOGYTOOLS_HPP
 
-#include "Types.hpp"
+#include "DiscretizationTypes.hpp"
 
 #include <iBase.h>
 #include <iMesh.h>
+
+#include <Teuchos_RCP.hpp>
+
+#include <Shards_CellTopology.hpp>
 
 #include <Intrepid_FieldContainer.hpp>
 
@@ -34,6 +38,11 @@ int numLinearNodes( const int entity_topology );
 void MBCN2Shards( iBase_EntityHandle *element_nodes, 
 		  const int num_nodes,
 		  const int entity_topology );
+
+// Point in volume query on a reference element.
+bool pointInRefElement( const iMesh_Instance mesh,
+			const iBase_EntityHandle entity,
+			const double coords[3] );
 
 } // end namespace TopologyTools
 

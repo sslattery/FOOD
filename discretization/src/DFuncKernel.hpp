@@ -92,7 +92,7 @@ class DFuncKernel
     ~DFuncKernel();
 
     // Evaluate the basis value for this kernel at a specific parametric
-    // location. 
+    // location.
     void evaluateValueBasis( MDArray &dfunc_values, 
 			     const MDArray &coords );
 
@@ -155,11 +155,6 @@ class DFuncKernel
     //! Get the canonical numbering system for this basis.
     int getCN() const
     { return d_cn; }
-
-    //! Get the reference cell coordinates for the degrees of freedom.
-    //! MDArray(F,D) defined for the basis.
-    void getBasisCoords( MDArray &coords )
-    { return d_basis->getDoFCoords( coords ); }
 
     //! Get the cell topology for this kernel.
     RCP_CellTopology getCellTopology() const

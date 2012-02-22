@@ -5,9 +5,9 @@
  * License as published by the Free Software Foundation; either
  * version 3.0 of the License, or (at your option) any later version.
  *
- * \file   mesh/test/tstPointQuery.cpp
+ * \file   mesh/test/tstTopologyTools.cpp
  * \author Stuart Slattery
- * \brief  PointQuery class unit tests.
+ * \brief  TopologyTools unit tests.
  */
 //---------------------------------------------------------------------------//
 
@@ -17,7 +17,7 @@
 #include <sstream>
 #include <cassert>
 
-#include <PointQuery.hpp>
+#include <TopologyTools.hpp>
 
 #include <iMesh.h>
 #include <iBase.h>
@@ -47,7 +47,7 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 // TESTS
 //---------------------------------------------------------------------------//
 
-TEUCHOS_UNIT_TEST( PointQuery, hex_query )
+TEUCHOS_UNIT_TEST( TopologyTools, hex_query )
 {
     // Create a hex-8 element.
     int error;
@@ -85,15 +85,15 @@ TEUCHOS_UNIT_TEST( PointQuery, hex_query )
     TEST_ASSERT( iBase_SUCCESS == error );
 
     double point1[3] = { 0.5, 0.5, 0.5 };
-    TEST_ASSERT( FOOD::PointQuery::pointInRefElement( 
+    TEST_ASSERT( FOOD::TopologyTools::pointInRefElement( 
 		     mesh, hex_element, point1 ) == true );
 
     double point2[3] = { 0.25, 1.5, -0.5 };
-    TEST_ASSERT( FOOD::PointQuery::pointInRefElement( 
+    TEST_ASSERT( FOOD::TopologyTools::pointInRefElement( 
 		     mesh, hex_element, point2 ) == false );
 }
 
-TEUCHOS_UNIT_TEST( PointQuery, quadratic_hex_query )
+TEUCHOS_UNIT_TEST( TopologyTools, quadratic_hex_query )
 {
     // Create a hex-27 element.
     int error;
@@ -138,14 +138,14 @@ TEUCHOS_UNIT_TEST( PointQuery, quadratic_hex_query )
     TEST_ASSERT( iBase_NEW == status );
 
     double point1[3] = { 0.5, 0.5, 0.5 };
-    TEST_ASSERT( FOOD::PointQuery::pointInRefElement( 
+    TEST_ASSERT( FOOD::TopologyTools::pointInRefElement( 
 		     mesh, hex_element, point1 ) == true );
 
     double point2[3] = { 0.25, 1.5, -0.5 };
-    TEST_ASSERT( FOOD::PointQuery::pointInRefElement( 
+    TEST_ASSERT( FOOD::TopologyTools::pointInRefElement( 
 		     mesh, hex_element, point2 ) == false );
 }
 
 //---------------------------------------------------------------------------//
-//                        end of tstPointQuery.cpp
+//                        end of tstTopologyTools.cpp
 //---------------------------------------------------------------------------//
