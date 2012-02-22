@@ -7,167 +7,154 @@
  *
  * \file DFuncKernel.hpp
  * \author Stuart Slattery
- * \brief Distribution function kernel declaration.
+ * \brief Interface definition for distribution function kernels.
  */
 //---------------------------------------------------------------------------//
 
 #ifndef FOOD_DFUNCKERNEL_HPP
 #define FOOD_DFUNCKERNEL_HPP
 
+#include <cstdlib>
+
 #include "DiscretizationTypes.hpp"
 
 #include <iBase.h>
 #include <iMesh.h>
 
-#include <Teuchos_RCP.hpp>
-
-#include <Intrepid_FieldContainer.hpp>
-#include <Intrepid_Basis.hpp>
-
-namespace FOOD 
+namespace FOOD
 {
 
+/*
+ * \brief Interface definition for distribution function kernels associated
+ * with an iMesh topology. This is heavily based on the Intrepid defintion as
+ * the Intrepid data model is fairly complete. Templated on the degree of
+ * freedom data type.
+ */
 template<class Scalar>
 class DFuncKernel
 {
-  
-  public:
 
-    //@{
-    //! Typedefs.
-    typedef Intrepid::FieldContainer<Scalar>          MDArray;
-    typedef Intrepid::Basis<Scalar,MDArray>           Basis_t;
-    typedef Teuchos::RCP<Basis_t>                     RCP_Basis;
-    typedef Teuchos::RCP<shards::CellTopology>        RCP_CellTopology;
-    //@}
+  protected:
 
-  private:
+    // Distribution function kernel cardinality.
+    int b_cardinality;
 
-    // The type of the cell for which the kernel is defined (enum).
-    std::size_t d_eval_type;
+    // Distribution function kernel degree.
+    int b_degree;
 
-    // The topology of the cell for which the kernel is defined (enum).
-    std::size_t d_eval_topology;
+    // Distribution function kernel cell topology. (enum)
+    std::size_t b_topology;
 
-    // Entity type that the degrees of freedom are defined on for this
-    // kernel (enum). 
-    std::size_t d_dof_entity_type;
+    // Reference cell canonical numbering. (enum)
+    std::size_t b_cn_type;
 
-    // Entity topology that the degrees of freedom are define on for this
-    // kernel (enum). 
-    std::size_t d_dof_entity_topology;
+    // Distribution function kernel coordinate type. (enum)
+    std::size_t b_coord_type;
 
-    // The coordinate type for this kernel (enum).
-    std::size_t d_coordinate_type;
+    // Discretization type. (enum)
+    std::size_t b_discretization_type;
 
-    // Discretization type for this kernel (enum).
-    std::size_t d_discretization_type;
-
-    // Basis function space for this kernel (enum).
-    std::size_t d_basis_function_space;
-
-    // Canonical numbering system for the basis (enum).
-    std::size_t d_cn;
-
-    // The basis for this kernel.
-    RCP_Basis d_basis;
-
-    // The cell topology for this kernel.
-    RCP_CellTopology d_cell_topology;
+    // Function space type. (enum)
+    std::size_t b_function_space_type;
 
   public:
 
-    // Constructor.
-    DFuncKernel( const int eval_type,
-		 const int eval_topology, 
-		 const int dof_entity_type,
-	         const int dof_entity_topology,
-		 const int coordinate_type,
-		 const int discretization_type,
-		 const int basis_function_space,
-	         const int cn,
-		 const int basis_degree );
+    /*!
+     * \brief Default constructor.
+     */
+    DFuncKernel()
+    { /* ... */ }
 
-    // Destructor.
-    ~DFuncKernel();
+    /*!
+     * \brief Destructor.
+     */
+    virtual ~DFuncKernel()
+    { /* ... */ }
 
-    // Evaluate the basis value for this kernel at a specific parametric
-    // location.
-    void evaluateValueBasis( MDArray &dfunc_values, 
-			     const MDArray &coords );
+    /*!
+     * \brief Evaluate the value of the distribution function kernel at a
+     * given set of parametric coordinates. 
+     */
+    virtual void evaluateValue( Scalar **values, 
+				int *num_values,
+				const double param_coords[3] ) = 0;
 
-    // Evaluate the gradient of the basis for this kernel at a specific
-    // parametric location.
-    void evaluateGradBasis( MDArray &dfunc_grad_values, const MDArray &coords );
+    /*!
+     * \brief Evaluate the operator value of a distribution function kernel at
+     * a given set of parametric coordinates. The operator is defined by the
+     * function space. (i.e. FOOD_HDIV space returns the divergence of the
+     * distribution function kernel.) 
+     */
+    virtual void evaluateOperator( Scalar **values, 
+				   int *num_values,
+				   const double param_coords[3] ) = 0;
 
-    // Evaluate the divergence of the basis for this kernel at a specific
-    // parametric location.
-    void evaluateDivBasis( MDArray &dfunc_div_values, const MDArray &coords );
+    /*!
+     * \brief Transform a point from the physical frame in a physical cell to
+     * the reference frame of the reference cell for the distribution function
+     * kernel topology. 
+    */
+    virtual void transformPoint( double param_coords[3],
+				 const double physical_coords[3],
+				 const iBase_EntityHandle physical_cell ) = 0;
 
-    // Evaluate the curl of the basis for this kernel at a specific parametric
-    // location. 
-    void evaluateCurlBasis( MDArray &dfunc_curl_values, const MDArray &coords );
+    /*!
+     * \brief Transform the value of the distribution function kernel at a
+     * given set of parametric coordinates back to the physical frame for the
+     * given physical cell. 
+     */
+    virtual void transformValue( Scalar **transformed_values, 
+				 const Scalar *values,
+				 const int num_values,
+				 const double param_coords[3],
+				 const iBase_EntityHandle physical_cell ) = 0;
 
-    // Transform evaluated basis values to physical frame.
-    void transformValue( MDArray &transformed_eval,
-			 const MDArray &reference_coords,
-			 const MDArray &cell_nodes,
-			 const MDArray &basis_eval );
+    /*!
+     * \brief Transform the operator value of a distribution function kernel
+     * at a given set of parametric coordinates back to the physical frame for
+     * the given physical cell. The operator is defined by the function
+     * space. (i.e. FOOD_HDIV space returns the divergence of the distribution
+     * function kernel.)  
+     */
+    virtual void transformOperator( Scalar **transformed_values,
+				    const Scalar *values,
+				    const int num_values,
+				    const double param_coords[3],
+				    const iBase_EntityHandle physical_cell ) = 0;
 
-    //! Get the type of the cell for which this kernel is defined.
-    int getEvalType() const
-    { return d_eval_type; }
+    //! Get the distribution function kernel cardinality.
+    virtual int getCardinality() const
+    { return b_cardinality; }
 
-    //! Get the topology of the cell for which this kernel is defined.
-    int getEvalTopology() const
-    { return d_eval_topology; }
+    //! Get the distribution function kernel degree.
+    virtual int getDegree() const
+    { return b_degree; }
 
-    //! Get the entity type the degrees of freedom are defined on for the
-    //! kernel. 
-    int getDFEntityType() const
-    { return d_dof_entity_type; }
+    //! Get the distribution function kernel cell topology.
+    virtual int getTopology() const
+    { return b_topology; }
 
-    //! Get the entity topology the degrees of freedom are defined for the
-    //! kernel. 
-    int getDFEntityTopology() const
-    { return d_dof_entity_topology; }
+    //! Get the canonical numbering scheme for the reference cell.
+    virtual int getCNType() const
+    { return b_cn_type; }
+
+    //! Get the distribution function kernel coordinate type.
+    virtual int getCoordType() const
+    { return b_coord_type; }
 
     //! Get the discretization type.
-    int getDiscretizationType() const
-    { return d_discretization_type; }
+    virtual int getDiscretizationType() const
+    { return b_discretization_type; }
 
-    //! Get the basis function space for this kernel.
-    int getBasisFunctionSpace() const
-    { return d_basis_function_space; }
-
-    //! Get the basis for this kernel.
-    RCP_Basis getBasis() const
-    { return d_basis; }
-
-    //! Get the basis cardinality.
-    int getBasisCardinality() const
-    { return d_basis->getCardinality(); }
-
-    //! Get the basis degree.
-    int getBasisDegree() const
-    { return d_basis->getDegree(); }
-
-    //! Get the canonical numbering system for this basis.
-    int getCN() const
-    { return d_cn; }
-
-    //! Get the cell topology for this kernel.
-    RCP_CellTopology getCellTopology() const
-    { return d_cell_topology; }
+    //! Get the function space type.
+    virtual int getFunctionSpaceType() const
+    { return b_function_space_type; }
 };
 
 } // end namespace FOOD
-
-#include "DFuncKernel_Def.hpp"
 
 #endif // end FOOD_DFUNCKERNEL_HPP
 
 //---------------------------------------------------------------------------//
 // end DFuncKernel.hpp
 //---------------------------------------------------------------------------//
-

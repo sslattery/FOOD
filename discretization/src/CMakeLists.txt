@@ -20,11 +20,12 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
-  BasisFactory.hpp
-  BasisFactory_Def.hpp
   CellTopologyFactory.hpp
   DFuncKernel.hpp
-  DFuncKernel_Def.hpp
+  DFuncKernelFactory.hpp
+  DFuncKernelFactory_Def.hpp
+  IntrepidKernel.hpp
+  IntrepidKernel_Def.hpp
   DiscretizationTypes.hpp
   TopologyTools.hpp
   )

@@ -5,19 +5,19 @@
  * License as published by the Free Software Foundation; either
  * version 3.0 of the License, or (at your option) any later version.
  *
- * \field DFuncKernel_Def.hpp
+ * \field IntrepidKernel_Def.hpp
  * \author Stuart Slattery
- * \brief Distribution function kernel definition.
+ * \brief Distribution function kernel definition for Intrepid basis
+ * implemenentations.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef FOOD_DFUNCKERNEL_DEF_HPP
-#define FOOD_DFUNCKERNEL_DEF_HPP
+#ifndef FOOD_INTREPIDKERNEL_DEF_HPP
+#define FOOD_INTREPIDKERNEL_DEF_HPP
 
 #include <cassert>
 
 #include "BasisFactory.hpp"
-#include "CellTopologyFactory.hpp"
 
 #include <Intrepid_FunctionSpaceTools.hpp>
 
@@ -28,41 +28,26 @@ namespace FOOD
  * \brief Constructor.
  */
 template<class Scalar>
-DFuncKernel<Scalar>::DFuncKernel( const int eval_type,
-				  const int eval_topology,
-				  const int dof_entity_type,
-				  const int dof_entity_topology,
-				  const int coordinate_type,
-				  const int discretization_type,
-				  const int basis_function_space,
-				  const int cn,
-				  const int basis_degree )
-    : d_eval_type( eval_type )
-    , d_eval_topology( eval_topology )
-    , d_dof_entity_type( dof_entity_type )
-    , d_dof_entity_topology( dof_entity_topology )
-    , d_coordinate_type( coordinate_type )
-    , d_discretization_type( discretization_type )
-    , d_basis_function_space( basis_function_space )
-    , d_cn( cn )
-    , d_basis( 0 )
-    , d_cell_topology( 0 )
+IntrepidKernel<Scalar>::IntrepidKernel( RCP_IntrepidBasis intrepid_basis,
+					const int entity_topology, 
+					const int discretization_type,
+					const int function_space_type )
+    : d_intrepid_basis( intrepid_basis )
 {
-    BasisFactory<Scalar,MDArray> basis_factory;
-    d_basis = basis_factory.create( eval_topology,
-				    discretization_type,
-				    basis_function_space,
-				    basis_degree );
-
-    CellTopologyFactory topo_factory;
-    d_cell_topology = topo_factory.create( eval_topology, d_basis->getCardinality() );
+    this->b_cardinality = d_intrepid_basis->getCardinality();
+    this->b_degree = d_intrepid_basis->getDegree();
+    this->b_topology = entity_topology;
+    this->b_cn_type = FOOD_SHARDSCN;
+    this->b_coord_type = FOOD_CARTESIAN;
+    this->b_discretization_type = discretization_type;
+    this->b_function_space_type = function_space_type;
 }
 
 /*!
  * \brief Destructor.
  */
 template<class Scalar>
-DFuncKernel<Scalar>::~DFuncKernel()
+IntrepidKernel<Scalar>::~IntrepidKernel()
 { /* ... */ }
 
 /*!
@@ -75,7 +60,7 @@ DFuncKernel<Scalar>::~DFuncKernel()
  * at. ArrayDim[num_points][dimension].
  */
 template<class Scalar>
-void DFuncKernel<Scalar>::evaluateValueBasis( MDArray &dfunc_values, 
+void IntrepidKernel<Scalar>::evaluateValueBasis( MDArray &dfunc_values, 
 					      const MDArray &coords )
 {
     d_basis->getValues( dfunc_values, 
@@ -93,7 +78,7 @@ void DFuncKernel<Scalar>::evaluateValueBasis( MDArray &dfunc_values,
  * at. ArrayDim[num_points][dimension].
  */
 template<class Scalar>
-void DFuncKernel<Scalar>::evaluateGradBasis( MDArray &dfunc_grad_values, 
+void IntrepidKernel<Scalar>::evaluateGradBasis( MDArray &dfunc_grad_values, 
 					     const MDArray &coords )
 {
     assert( FOOD_HGRAD == d_basis_function_space );
@@ -112,7 +97,7 @@ void DFuncKernel<Scalar>::evaluateGradBasis( MDArray &dfunc_grad_values,
  * at. ArrayDim[num_points][dimension].
  */
 template<class Scalar>
-void DFuncKernel<Scalar>::evaluateDivBasis( MDArray &dfunc_div_values, 
+void IntrepidKernel<Scalar>::evaluateDivBasis( MDArray &dfunc_div_values, 
 					    const MDArray &coords )
 {
     assert( FOOD_HDIV == d_basis_function_space );
@@ -131,7 +116,7 @@ void DFuncKernel<Scalar>::evaluateDivBasis( MDArray &dfunc_div_values,
  * at. ArrayDim[num_points][dimension].
  */
 template<class Scalar>
-void DFuncKernel<Scalar>::evaluateCurlBasis( MDArray &dfunc_curl_values, 
+void IntrepidKernel<Scalar>::evaluateCurlBasis( MDArray &dfunc_curl_values, 
 					     const MDArray &coords )
 {
     assert( FOOD_HCURL == d_basis_function_space );
@@ -144,7 +129,7 @@ void DFuncKernel<Scalar>::evaluateCurlBasis( MDArray &dfunc_curl_values,
  * \brief Transform evaluated basis values to physical frame.
  */
 template<class Scalar>
-void DFuncKernel<Scalar>::transformValue( MDArray &transformed_eval,
+void IntrepidKernel<Scalar>::transformValue( MDArray &transformed_eval,
 					  const MDArray &reference_coords,
 					  const MDArray &cell_nodes,
 					  const MDArray &basis_eval )
@@ -176,7 +161,7 @@ void DFuncKernel<Scalar>::transformValue( MDArray &transformed_eval,
 		jacobian, 
 		reference_coords,
 		cell_nodes,
-		*d_cell_topology );
+		d_intrepid_basis->getBaseCellTopology() );
 
 	    Intrepid::CellTools<double>::setJacobianDet( jacobian_det, jacobian );
 
@@ -191,7 +176,7 @@ void DFuncKernel<Scalar>::transformValue( MDArray &transformed_eval,
 		jacobian, 
 		reference_coords,
 		cell_nodes,
-		*d_cell_topology );
+		d_intrepid_basis->getBaseCellTopology() );
 
 	    Intrepid::CellTools<double>::setJacobianInv( jacobian_inv, jacobian );
 
@@ -210,9 +195,9 @@ void DFuncKernel<Scalar>::transformValue( MDArray &transformed_eval,
 
 } // end namespace FOOD
 
-#endif // end FOOD_DFUNCKERNEL_DEF_HPP
+#endif // end FOOD_INTREPIDKERNEL_DEF_HPP
 
 //---------------------------------------------------------------------------//
-// end DFuncKernel_Def.hpp
+// end IntrepidKernel_Def.hpp
 //---------------------------------------------------------------------------//
 
