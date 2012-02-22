@@ -19,12 +19,6 @@
 #include <iBase.h>
 #include <iMesh.h>
 
-#include <Teuchos_RCP.hpp>
-
-#include <Shards_CellTopology.hpp>
-
-#include <Intrepid_FieldContainer.hpp>
-
 namespace FOOD
 {
 

@@ -16,7 +16,7 @@
 #include <cmath>
 #include <sstream>
 
-#include <Types.hpp>
+#include <DiscretizationTypes.hpp>
 #include <CellTopologyFactory.hpp>
 #include <BasisFactory.hpp>
 

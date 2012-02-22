@@ -1,6 +1,6 @@
 SET(SUBPACKAGES_DIRS_CLASSIFICATIONS_OPTREQS
   Discretization   discretization   SS  REQUIRED
-  Core             core             SS  REQUIRED
+  Field            field            SS  REQUIRED
   Search           search           SS  REQUIRED
   Transfer         transfer         SS  REQUIRED
   ) 

@@ -17,7 +17,8 @@
 #include <sstream>
 #include <cassert>
 
-#include <Types.hpp>
+#include <DiscretizationTypes.hpp>
+#include <FieldTypes.hpp>
 #include <Quantity.hpp>
 #include <Unit.hpp>
 #include <Domain.hpp>

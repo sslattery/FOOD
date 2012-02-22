@@ -17,6 +17,15 @@
 namespace FOOD
 {
 
+// Coordinate type.
+enum FOOD_CoordType {
+    FOOD_CoordType_MIN = 0,
+    FOOD_CARTESIAN =  FOOD_CoordType_MIN,
+    FOOD_CYLINDRICAL,
+    FOOD_SPHERICAL,
+    FOOD_CoordType_MAX =  FOOD_SPHERICAL
+};
+
 // Distribution function kernel discretization type.
 enum FOOD_DiscretizationType {
     FOOD_DiscretizationType_MIN = 0,

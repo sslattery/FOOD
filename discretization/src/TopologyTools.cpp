@@ -17,7 +17,11 @@
 #include "TopologyTools.hpp"
 
 #include <Teuchos_ENull.hpp>
+#include <Teuchos_RCP.hpp>
 
+#include <Shards_CellTopology.hpp>
+
+#include <Intrepid_FieldContainer.hpp>
 #include <Intrepid_CellTools.hpp>
 
 namespace FOOD
@@ -211,8 +215,8 @@ bool TopologyTools::pointInRefElement( const iMesh_Instance mesh,
     }
 
     CellTopologyFactory topo_factory;
-    RCP_CellTopology cell_topo = topo_factory.create( topology, 
-						      num_linear_nodes );
+    Teuchos::RCP<shards::CellTopology> cell_topo = 
+	topo_factory.create( topology, num_linear_nodes );
 
     int coords_allocated = 0;
     int coords_size = 0;
@@ -231,14 +235,14 @@ bool TopologyTools::pointInRefElement( const iMesh_Instance mesh,
     cell_node_dimensions[0] = 1;
     cell_node_dimensions[1] = (int) linear_nodes.size();
     cell_node_dimensions[2] = 3;
-    MDArray cell_nodes( Teuchos::Array<int>(cell_node_dimensions), 
-			coord_array );
+    Intrepid::FieldContainer<double> cell_nodes( 
+	Teuchos::Array<int>(cell_node_dimensions), coord_array );
 
-    MDArray find_coords(1,3);
+    Intrepid::FieldContainer<double> find_coords(1,3);
     find_coords(0,0) = coords[0];
     find_coords(0,1) = coords[1];
     find_coords(0,2) = coords[2];
-    MDArray reference_points(1,3);
+    Intrepid::FieldContainer<double> reference_points(1,3);
     Intrepid::CellTools<double>::mapToReferenceFrame( 
 	reference_points,
 	find_coords,

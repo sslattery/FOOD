@@ -5,14 +5,14 @@
  * License as published by the Free Software Foundation; either
  * version 3.0 of the License, or (at your option) any later version.
  *
- * \file   CoreTypes.hpp
+ * \file   FieldTypes.hpp
  * \author Stuart Slattery
- * \brief  Enumerated types for the FOOD core subpackage.
+ * \brief  Enumerated types for the FOOD field subpackage.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef FOOD_CORETYPES_HPP
-#define FOOD_CORETYPES_HPP
+#ifndef FOOD_FIELDTYPES_HPP
+#define FOOD_FIELDTYPES_HPP
 
 namespace FOOD
 {
@@ -39,15 +39,6 @@ enum FOOD_AlgType {
     FOOD_AlgType_MAX =  FOOD_COMPLEX
 };
 
-// Coordinate type.
-enum FOOD_CoordType {
-    FOOD_CoordType_MIN = 0,
-    FOOD_CARTESIAN =  FOOD_CoordType_MIN,
-    FOOD_CYLINDRICAL,
-    FOOD_SPHERICAL,
-    FOOD_CoordType_MAX =  FOOD_SPHERICAL
-};
-
 // Storage order.
 enum FOOD_StorageHint {
     FOOD_StorageHint_MIN = 0,
@@ -60,8 +51,8 @@ enum FOOD_StorageHint {
 
 } // end namespace FOOD
 
-#endif // end FOOD_CORETYPES_HPP
+#endif // end FOOD_FIELDTYPES_HPP
 
 //---------------------------------------------------------------------------//
-// end CoreTypes.hpp
+// end FieldTypes.hpp
 //---------------------------------------------------------------------------//

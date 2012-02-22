@@ -14,7 +14,7 @@
 #ifndef FOOD_TENSORTEMPLATE_HPP
 #define FOOD_TENSORTEMPLATE_HPP
 
-#include "Types.hpp"
+#include "FieldTypes.hpp"
 #include "Quantity.hpp"
 
 #include <Teuchos_RCP.hpp>

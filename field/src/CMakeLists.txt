@@ -21,11 +21,11 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
   Domain.hpp
+  FieldTypes.hpp
   Quantity.hpp
   TensorField.hpp
   TensorField_Def.hpp
   TensorTemplate.hpp
-  CoreTypes.hpp
   TypeTraits.hpp
   Unit.hpp
   )
@@ -56,7 +56,7 @@ ENDIF()
 #
 
 TRIBITS_ADD_LIBRARY(
-  food_core
+  food_field
   HEADERS ${HEADERS}
   SOURCES ${SOURCES}
   )

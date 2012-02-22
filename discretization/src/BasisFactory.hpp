@@ -14,7 +14,7 @@
 #ifndef FOOD_BASISFACTORY_HPP
 #define FOOD_BASISFACTORY_HPP
 
-#include "Types.hpp"
+#include "DiscretizationTypes.hpp"
 
 #include <iBase.h>
 #include <iMesh.h>

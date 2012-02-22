@@ -14,7 +14,7 @@
 #ifndef FOOD_DFUNCKERNEL_HPP
 #define FOOD_DFUNCKERNEL_HPP
 
-#include "Types.hpp"
+#include "DiscretizationTypes.hpp"
 
 #include <iBase.h>
 #include <iMesh.h>

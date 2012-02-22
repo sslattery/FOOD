@@ -16,7 +16,7 @@
 
 #include <cstddef>
 
-#include "Types.hpp"
+#include "DiscretizationTypes.hpp"
 
 #include <iBase.h>
 #include <iMesh.h>

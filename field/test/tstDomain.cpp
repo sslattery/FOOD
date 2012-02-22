@@ -16,6 +16,7 @@
 #include <cmath>
 #include <sstream>
 
+#include <DiscretizationTypes.hpp>
 #include <Domain.hpp>
 
 #include <iMesh.h>

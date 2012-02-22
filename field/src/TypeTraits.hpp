@@ -14,7 +14,7 @@
 #ifndef FOOD_TYPETRAITS_HPP
 #define FOOD_TYPETRAITS_HPP
 
-#include "Types.hpp"
+#include "FieldTypes.hpp"
 
 #include <iBase.h>
 
