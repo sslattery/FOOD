@@ -17,10 +17,9 @@
 
 #include <cassert>
 
-#include "BasisFactory.hpp"
+#include "TopologyTools.hpp"
 
 #include <Teuchos_Tuple.hpp>
-#include <Teuchos_ArrayRCP.hpp>
 
 #include <Intrepid_FunctionSpaceTools.hpp>
 
@@ -58,25 +57,71 @@ IntrepidKernel<Scalar>::~IntrepidKernel()
  * set of parametric coordinates.  
  */
 template<class Scalar>
-void IntrepidKernel<Scalar>::dfuncValue( Scalar **values, 
-					 int *num_values,
+void IntrepidKernel<Scalar>::dfuncValue( Teuchos::ArrayRCP<Scalar> values, 
 					 const double param_coords[3] )
 {
-    num_values = this->b_cardinality;
-
-    Teuchos::Tuple<int,2> value_dimensions = { num_values, 1 };
-    MDArray dfunc_values( value_dimensions );
-
     MDArray coords(1,3);
-    coords(0,0) = param_coords[0];
-    coords(1,0) = param_coords[1];
-    coords(2,0) = param_coords[2];
+    if ( this->b_function_space_type == FOOD_HGRAD )
+    {
 
-    d_basis->getValues( dfunc_values, 
-			coords, 
-			Intrepid::OPERATOR_VALUE );
+	Teuchos::Tuple<int,2> grad_value_dimensions;
+	grad_value_dimensions[0] = this->b_cardinality;
+	grad_value_dimensions[1] = 1;
+	MDArray grad_values( grad_value_dimensions );
 
-    values = dfunc_values->getData()->get();
+	coords(0,0) = param_coords[0];
+	coords(1,0) = param_coords[1];
+	coords(2,0) = param_coords[2];
+
+	d_intrepid_basis->getValues( grad_values, 
+				     coords, 
+				     Intrepid::OPERATOR_VALUE );
+
+	values = grad_values.getData();
+    }
+    else if ( this->b_function_space_type == FOOD_HDIV )
+    {
+
+	Teuchos::Tuple<int,3> div_value_dimensions;
+	div_value_dimensions[0] = this->b_cardinality;
+	div_value_dimensions[1] = 1;
+	div_value_dimensions[2] = 3;
+	MDArray div_values( div_value_dimensions );
+
+	coords(0,0) = param_coords[0];
+	coords(1,0) = param_coords[1];
+	coords(2,0) = param_coords[2];
+
+	d_intrepid_basis->getValues( div_values, 
+				     coords, 
+				     Intrepid::OPERATOR_VALUE );
+
+	values = div_values.getData();
+    }
+    else if ( this->b_function_space_type == FOOD_HCURL )
+    {
+	Teuchos::Tuple<int,3> curl_value_dimensions;
+	curl_value_dimensions[0] = this->b_cardinality;
+	curl_value_dimensions[1] = 1;
+	curl_value_dimensions[2] = 3;
+	MDArray curl_values( curl_value_dimensions );
+
+	coords(0,0) = param_coords[0];
+	coords(1,0) = param_coords[1];
+	coords(2,0) = param_coords[2];
+
+	d_intrepid_basis->getValues( curl_values, 
+				     coords, 
+				     Intrepid::OPERATOR_VALUE );
+
+	values = curl_values.getData();
+    }
+    else
+    {	    
+	assert( this->b_function_space_type == FOOD_HGRAD ||
+		this->b_function_space_type == FOOD_HDIV  ||
+		this->b_function_space_type == FOOD_HCURL );
+    }
 }
 
 /*!
@@ -86,64 +131,68 @@ void IntrepidKernel<Scalar>::dfuncValue( Scalar **values,
  * distribution function kernel.) 
  */
 template<class Scalar>
-void IntrepidKernel<Scalar>::dfuncOperator( Scalar **values, 
-					    int *num_values,
+void IntrepidKernel<Scalar>::dfuncOperator( Teuchos::ArrayRCP<Scalar> values, 
 					    const double param_coords[3] )
 {
-    switch( this->b_function_space_type )
+    MDArray coords(1,3);
+    if ( this->b_function_space_type == FOOD_HGRAD )
     {
-	case FOOD_HGRAD:
+	Teuchos::Tuple<int,3> grad_dimensions;
+	grad_dimensions[0] = this->b_cardinality;
+	grad_dimensions[1] = 1;
+	grad_dimensions[2] = 3;
+	MDArray dfunc_grad( grad_dimensions );
 
-	    num_values = 3*this->b_cardinality;
-
-	    Teuchos::Tuple<int,3> grad_dimensions = { this->b_cardinality, 1, 3 };
-	    MDArray dfunc_grad( grad_dimensions );
-
-	    MDArray coords(1,3);
-	    coords(0,0) = param_coords[0];
-	    coords(1,0) = param_coords[1];
-	    coords(2,0) = param_coords[2];
+	coords(0,0) = param_coords[0];
+	coords(1,0) = param_coords[1];
+	coords(2,0) = param_coords[2];
     
-	    d_intrepid_basis->getValues( dfunc_grad, 
-					 coords, 
-					 Intrepid::OPERATOR_GRAD );
+	d_intrepid_basis->getValues( dfunc_grad, 
+				     coords, 
+				     Intrepid::OPERATOR_GRAD );
 
-	    values = dfunc_grad->getData()->get();
-	    break;
+	values = dfunc_grad.getData();
+    }
+    else if ( this->b_function_space_type == FOOD_HDIV )
+    {
+	Teuchos::Tuple<int,2> div_dimensions;
+	div_dimensions[0] = this->b_cardinality;
+	div_dimensions[1] = 1;
+	MDArray dfunc_div( div_dimensions );
 
-	case FOOD_HDIV:
+	coords(0,0) = param_coords[0];
+	coords(1,0) = param_coords[1];
+	coords(2,0) = param_coords[2];
 
-	    num_values = 3*this->b_cardinality;
+	d_intrepid_basis->getValues( dfunc_div, 
+				     coords, 
+				     Intrepid::OPERATOR_DIV );
+	    
+	values = dfunc_div.getData();
+    }
+    else if ( this->b_function_space_type == FOOD_HCURL )
+    {
+	Teuchos::Tuple<int,3> curl_dimensions;
+	curl_dimensions[0] = this->b_cardinality;
+	curl_dimensions[1] = 1;
+	curl_dimensions[2] = 3;
+	MDArray dfunc_curl( curl_dimensions );
 
-	    Teuchos::Tuple<int,3> div_dimensions = { this->b_cardinality, 1, 3 };
-	    MDArray dfunc_div( div_dimensions );
+	coords(0,0) = param_coords[0];
+	coords(1,0) = param_coords[1];
+	coords(2,0) = param_coords[2];
 
-	    MDArray coords(1,3);
-	    coords(0,0) = param_coords[0];
-	    coords(1,0) = param_coords[1];
-	    coords(2,0) = param_coords[2];
+	d_intrepid_basis->getValues( dfunc_curl,
+				     coords, 
+				     Intrepid::OPERATOR_CURL );
 
-	    d_intrepid_basis->getValues( dfunc_div, 
-					 coords, 
-					 Intrepid::OPERATOR_DIV );
-	    break;
-
-	case FOOD_HCURL:
-
-	    num_values = 3*this->b_cardinality;
-
-	    Teuchos::Tuple<int,3> curl_dimensions = { this->b_cardinality, 1, 3 };
-	    MDArray dfunc_curl( curl_dimensions );
-
-	    MDArray coords(1,3);
-	    coords(0,0) = param_coords[0];
-	    coords(1,0) = param_coords[1];
-	    coords(2,0) = param_coords[2];
-
-	    d_intrepid_basis->getValues( dfunc_curl_values, 
-					 coords, 
-					 Intrepid::OPERATOR_CURL );
-	    break;
+	values = dfunc_curl.getData();
+    }
+    else
+    {
+	assert( this->b_function_space_type == FOOD_HGRAD ||
+		this->b_function_space_type == FOOD_HDIV  ||
+		this->b_function_space_type == FOOD_HCURL );
     }
 }
 
@@ -190,12 +239,12 @@ void IntrepidKernel<Scalar>::transformPoint(
 			   &error );
     assert( iBase_SUCCESS == error );
 
-    Teuchos::Tuple<int,3> cell_node_dimensions = { 1, element_nodes_size, 3 };
+    Teuchos::Tuple<int,3> cell_node_dimensions;
+    cell_node_dimensions[0] = 1;
+    cell_node_dimensions[1] = element_nodes_size;
+    cell_node_dimensions[2] = 3;
     MDArray cell_nodes( Teuchos::Array<int>(cell_node_dimensions), 
 			coord_array );
-
-    free( element_nodes );
-    free( coord_array );
 
     MDArray reference_point( 1, 3 );
     MDArray coords( 1, 3 );
@@ -207,12 +256,15 @@ void IntrepidKernel<Scalar>::transformPoint(
 	reference_point,
 	coords,
 	cell_nodes,
-	d_intrepid_basis->getBaseTopology(),
+	d_intrepid_basis->getBaseCellTopology(),
 	0 );
 
     param_coords[0] = reference_point(0,0);
     param_coords[1] = reference_point(0,1);
     param_coords[2] = reference_point(0,2);
+
+    free( element_nodes );
+    free( coord_array );
 }
 
 /*!
@@ -222,76 +274,10 @@ void IntrepidKernel<Scalar>::transformPoint(
  */
 template<class Scalar>
 void IntrepidKernel<Scalar>::transformValue( 
-    Scalar **transformed_values, 
-    const Scalar *values,
-    const int num_values,
+    Teuchos::ArrayRCP<Scalar> transformed_values, 
+    const Teuchos::ArrayRCP<Scalar> values,
     const double param_coords[3],
-    const iBase_EntityHandle physical_cell )
-{
-    MDArray jacobian( 1, 1, 3, 3 );
-    MDArray jacobian_det( 1, 1 );
-    MDArray jacobian_inv( 1, 1, 3, 3 );
-
-    switch ( d_basis_function_space )
-    {
-	case FOOD_HGRAD:
-
-	    Intrepid::FunctionSpaceTools::HGRADtransformVALUE<Scalar,MDArray,MDArray>( 
-		transformed_eval, basis_eval );
-
-	    break;
-
-	case FOOD_HDIV:
-
-	    Intrepid::CellTools<double>::setJacobian( 
-		jacobian, 
-		reference_coords,
-		cell_nodes,
-		d_intrepid_basis->getBaseCellTopology() );
-
-	    Intrepid::CellTools<double>::setJacobianDet( jacobian_det, jacobian );
-
-	    Intrepid::FunctionSpaceTools::HDIVtransformVALUE<Scalar,MDArray,MDArray>( 
-		transformed_eval, jacobian, jacobian_det, basis_eval );
-
-	    break;
-
-	case FOOD_HCURL:
-
-	    Intrepid::CellTools<double>::setJacobian( 
-		jacobian, 
-		reference_coords,
-		cell_nodes,
-		d_intrepid_basis->getBaseCellTopology() );
-
-	    Intrepid::CellTools<double>::setJacobianInv( jacobian_inv, jacobian );
-
-	    Intrepid::FunctionSpaceTools::HCURLtransformVALUE<Scalar,MDArray,MDArray>( 
-		transformed_eval, jacobian_inv, basis_eval );
-
-	    break;
-
-	default:
-	    
-	    assert( d_basis_function_space == FOOD_HGRAD ||
-		    d_basis_function_space == FOOD_HDIV  ||
-		    d_basis_function_space == FOOD_HCURL );
-    }
-}
-
-/*!
- * \brief Transform the operator value of a distribution function kernel
- * at a given set of parametric coordinates back to the physical frame for
- * the given physical cell. The operator is defined by the function
- * space. (i.e. FOOD_HDIV space returns the divergence of the distribution
- * function kernel.)  
- */
-template<class Scalar>
-void IntrepidKernel<Scalar>::transformOperator( 
-    Scalar **transformed_values,
-    const Scalar *values,
-    const int num_values,
-    const double param_coords[3],
+    const iMesh_Instance mesh,
     const iBase_EntityHandle physical_cell )
 {
     int error = 0;
@@ -325,12 +311,138 @@ void IntrepidKernel<Scalar>::transformOperator(
 			   &error );
     assert( iBase_SUCCESS == error );
 
-    Teuchos::Tuple<int,3> cell_node_dimensions = { 1, element_nodes_size, 3 };
+    Teuchos::Tuple<int,3> cell_node_dimensions;
+    cell_node_dimensions[0] = 1;
+    cell_node_dimensions[1] = element_nodes_size;
+    cell_node_dimensions[2] = 3;
     MDArray cell_nodes( Teuchos::Array<int>(cell_node_dimensions), 
 			coord_array );
 
+    MDArray jacobian( 1, 1, 3, 3 );
+    MDArray jacobian_det( 1, 1 );
+    MDArray jacobian_inv( 1, 1, 3, 3 );
+    MDArray reference_coords( 1, 3 );
+    reference_coords(0,0) = param_coords[0];
+    reference_coords(0,1) = param_coords[1];
+    reference_coords(0,2) = param_coords[2];
+
+    if ( this->b_function_space_type == FOOD_HGRAD )
+    {
+	Teuchos::Tuple<int,2> grad_value_dimensions;
+	grad_value_dimensions[0] = this->b_cardinality;
+	grad_value_dimensions[1] = 1;
+	MDArray transformed_grad( grad_value_dimensions );
+	MDArray basis_grad( grad_value_dimensions );
+	Intrepid::FunctionSpaceTools::HGRADtransformVALUE<Scalar,MDArray,MDArray>( 
+	    transformed_grad, basis_grad );
+	    
+	transformed_values = transformed_grad.getData();
+    }
+    else if ( this->b_function_space_type == FOOD_HDIV )
+    {
+	Intrepid::CellTools<double>::setJacobian( 
+	    jacobian, 
+	    reference_coords,
+	    cell_nodes,
+	    d_intrepid_basis->getBaseCellTopology() );
+
+	Intrepid::CellTools<double>::setJacobianDet( jacobian_det, jacobian );
+
+	Teuchos::Tuple<int,3> div_value_dimensions;
+	div_value_dimensions[0] = this->b_cardinality;
+	div_value_dimensions[1] = 1;
+	div_value_dimensions[2] = 3;
+	MDArray transformed_div( div_value_dimensions );
+	MDArray basis_div( div_value_dimensions );
+	Intrepid::FunctionSpaceTools::HDIVtransformVALUE<Scalar,MDArray,MDArray>( 
+	    transformed_div, jacobian, jacobian_det, basis_div );
+
+	transformed_values = transformed_div.getData();
+    }
+    else if ( this->b_function_space_type == FOOD_HCURL )
+    {
+	Intrepid::CellTools<double>::setJacobian( 
+	    jacobian, 
+	    reference_coords,
+	    cell_nodes,
+	    d_intrepid_basis->getBaseCellTopology() );
+
+	Intrepid::CellTools<double>::setJacobianInv( jacobian_inv, jacobian );
+
+	Teuchos::Tuple<int,3> curl_value_dimensions;
+	curl_value_dimensions[0] = this->b_cardinality;
+	curl_value_dimensions[1] = 1;
+	curl_value_dimensions[2] = 3;
+	MDArray transformed_curl( curl_value_dimensions );
+	MDArray basis_curl( curl_value_dimensions );
+	Intrepid::FunctionSpaceTools::HCURLtransformVALUE<Scalar,MDArray,MDArray>( 
+	    transformed_curl, jacobian_inv, basis_curl );
+
+	transformed_values = transformed_curl.getData();
+    }
+    else
+    {	    
+	assert( this->b_function_space_type == FOOD_HGRAD ||
+		this->b_function_space_type == FOOD_HDIV  ||
+		this->b_function_space_type == FOOD_HCURL );
+    }
+
     free( coord_array );
     free( element_nodes );
+}
+
+/*!
+ * \brief Transform the operator value of a distribution function kernel
+ * at a given set of parametric coordinates back to the physical frame for
+ * the given physical cell. The operator is defined by the function
+ * space. (i.e. FOOD_HDIV space returns the divergence of the distribution
+ * function kernel.)  
+ */
+template<class Scalar>
+void IntrepidKernel<Scalar>::transformOperator( 
+    Teuchos::ArrayRCP<Scalar> transformed_values,
+    const Teuchos::ArrayRCP<Scalar> values,
+    const double param_coords[3],
+    const iMesh_Instance mesh,
+    const iBase_EntityHandle physical_cell )
+{
+    int error = 0;
+
+    iBase_EntityHandle *element_nodes = 0;
+    int element_nodes_allocated = 0;
+    int element_nodes_size = 0;
+    iMesh_getEntAdj( mesh,
+		     physical_cell,
+		     iBase_VERTEX,
+		     &element_nodes,
+		     &element_nodes_allocated,
+		     &element_nodes_size,
+		     &error );
+    assert( iBase_SUCCESS == error );
+
+    TopologyTools::MBCN2Shards( element_nodes, 
+				element_nodes_size,
+				this->b_topology );
+
+    int coords_allocated = 0;
+    int coords_size = 0;
+    double *coord_array = 0;
+    iMesh_getVtxArrCoords( mesh,
+			   element_nodes,
+			   element_nodes_size,
+			   iBase_INTERLEAVED,
+			   &coord_array,
+			   &coords_allocated,
+			   &coords_size,
+			   &error );
+    assert( iBase_SUCCESS == error );
+
+    Teuchos::Tuple<int,3> cell_node_dimensions;
+    cell_node_dimensions[0] = 1;
+    cell_node_dimensions[1] = element_nodes_size;
+    cell_node_dimensions[2] = 3;
+    MDArray cell_nodes( Teuchos::Array<int>(cell_node_dimensions), 
+			coord_array );
 
     MDArray jacobian( 1, 1, 3, 3 );
     MDArray jacobian_det( 1, 1 );
@@ -340,35 +452,45 @@ void IntrepidKernel<Scalar>::transformOperator(
     reference_point(0,1) = param_coords[1];
     reference_point(0,2) = param_coords[2];
 
-    switch ( d_basis_function_space )
+    if ( this->b_function_space_type == FOOD_HGRAD )
     {
-	case FOOD_HGRAD:
+	Intrepid::CellTools<double>::setJacobian( 
+	    jacobian, 
+	    reference_point,
+	    cell_nodes,
+	    d_intrepid_basis->getBaseCellTopology() );
 
-	    Intrepid::CellTools<double>::setJacobian( 
-		jacobian, 
-		reference_point,
-		cell_nodes,
-		d_intrepid_basis->getCellTopology() );
+	Intrepid::CellTools<double>::setJacobianInv( jacobian_inv, 
+						     jacobian );
 
-	    Intrepid::CellTools<double>::setJacobianInv( jacobian_inv, 
-							 jacobian );
+	Teuchos::Tuple<int,3> grad_dimensions;
+	grad_dimensions[0] = this->b_cardinality;
+	grad_dimensions[1] = 1;
+	grad_dimensions[2] = 3;
+	MDArray transformed_grad( grad_dimensions );
+	MDArray basis_grad( grad_dimensions );
+	Intrepid::FunctionSpaceTools::HGRADtransformGRAD<double>( 
+	    transformed_grad, jacobian_inv, basis_grad );
 
-	    MDArray transformed_eval( 1, this->b_cardinality, 1, 3 );
-	    num_values = 3*this->b_cardinality;
-	    Intrepid::FunctionSpaceTools::HGRADtransformGRAD<double>( 
-		transformed_eval, jacobian_inv, basis_eval );
-	    break;
+	transformed_values = transformed_grad.getData();
+    }
+    else if ( this->b_function_space_type == FOOD_HDIV )
+    {
 
-	case FOOD_HDIV:
-	    
-	    break;
+    }
+    else if ( this->b_function_space_type == FOOD_HCURL )
+    {
 
-	case FOOD_HCURL:
-	    
-	    break;
+    }
+    else
+    {
+	assert( this->b_function_space_type == FOOD_HGRAD ||
+		this->b_function_space_type == FOOD_HDIV  ||
+		this->b_function_space_type == FOOD_HCURL );
     }
 
-    values = transformed_eval->getData()->get();
+    free( coord_array );
+    free( element_nodes );
 }
 
 /*!
@@ -376,38 +498,28 @@ void IntrepidKernel<Scalar>::transformOperator(
  * and physical frame distribution function kernel values.
  */
 template<class Scalar>
-void IntrepidKernel<Scalar>::evaluate( Scalar **function_values,
-				       const Scalar* coeffs,
-				       const int num_coeffs,
-				       const Scalar* dfunc_values,
-				       const int num_dfunc_values )
+void IntrepidKernel<Scalar>::evaluate( Teuchos::ArrayRCP<Scalar> function_values,
+				       const Teuchos::ArrayRCP<Scalar> coeffs,
+				       const Teuchos::ArrayRCP<Scalar> dfunc_values )
 {
     int dim1 = this->b_cardinality;
-    int dim2 = num_dfunc_values / dim1;
+    int dim2 = (int) dfunc_values.size() / dim1;
 
-    assert( num_coeffs == dim1 );
-    assert( num_dfunc_values == dim1 );
+    assert( dim1 == (int) coeffs.size() );
 
-    MDArray component_values( 1, 1, 1 );
-    MDArray component_coeffs( 1, dim1 );
-
+    MDArray function_coeffs( 1, dim1 );
     for ( int m = 0; m < dim1; ++m )
     {
-	component_coeffs(0,m) = coeffs[m];
+	function_coeffs(0,m) = coeffs[m];
     }
+    MDArray basis_eval( 1, dim1, dim2 );
 
-    MDArray physical_eval( 1, dim1, 1, dim2 );
-    Intrepid::FunctionSpaceTools::evaluate<Scalar>( component_values,
-						    component_coeffs, 
-						    physical_eval );
+    MDArray function_eval( 1, dim1, 1, dim2 );
+    Intrepid::FunctionSpaceTools::evaluate<Scalar>( function_eval,
+						    function_coeffs, 
+						    basis_eval );
 
-    for ( int p = 0; p < coords.dimension(0); ++p )
-    {
-	for ( int d = 0; d < coords.dimension(1); ++d )
-	{
-	    dfunc_values(0,p,n,d) = component_values(0,p,d);
-	}
-    }
+    function_values = function_eval.getData();
 }
 
 } // end namespace FOOD

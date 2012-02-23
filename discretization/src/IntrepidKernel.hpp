@@ -5,21 +5,26 @@
  * License as published by the Free Software Foundation; either
  * version 3.0 of the License, or (at your option) any later version.
  *
- * \file InterpidKernel.hpp
+ * \file IntrepidKernel.hpp
  * \author Stuart Slattery
  * \brief Distribution function kernel declaration for Intrepid basis
  * implemenentations.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef FOOD_INTERPIDKERNEL_HPP
-#define FOOD_INTERPIDKERNEL_HPP
+#ifndef FOOD_INTREPIDKERNEL_HPP
+#define FOOD_INTREPIDKERNEL_HPP
 
 #include "DFuncKernel.hpp"
 
-#include "Teuchos_RCP.hpp"
+#include <iBase.h>
+#include <iMesh.h>
 
-#include "Intrepid_Basis.hpp"
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_ArrayRCP.hpp>
+
+#include <Intrepid_Basis.hpp>
+#include <Intrepid_FieldContainer.hpp>
 
 namespace FOOD
 {
@@ -45,21 +50,22 @@ class IntrepidKernel : public DFuncKernel<Scalar>
   public:
 
     // Constructor.
-    IntrepidKernel( RCP_IntrepidBasis intrepid_basis );
+    IntrepidKernel( RCP_IntrepidBasis intrepid_basis,
+		    const int entity_topology, 
+		    const int discretization_type,
+		    const int function_space_type );
 
     // Destructor.
     ~IntrepidKernel();
 
     // Evaluate the value of the distribution function kernel at a given set
     // of parametric coordinates.  
-    void dfuncValue( Scalar **values, 
-		     int *num_values,
+    void dfuncValue( Teuchos::ArrayRCP<Scalar> values, 
 		     const double param_coords[3] );
 
     // Evaluate the operator value of a distribution function kernel at a
     // given set of parametric coordinates. 
-    void dfuncOperator( Scalar **values, 
-			int *num_values,
+    void dfuncOperator( Teuchos::ArrayRCP<Scalar> values, 
 			const double param_coords[3] );
 
     // Transform a point from the physical frame in a physical cell to the
@@ -73,9 +79,8 @@ class IntrepidKernel : public DFuncKernel<Scalar>
     // Transform the value of the distribution function kernel at a given set
     // of parametric coordinates back to the physical frame for the given
     // physical cell. 
-    void transformValue( Scalar **transformed_values, 
-			 const Scalar *values,
-			 const int num_values,
+    void transformValue( Teuchos::ArrayRCP<Scalar> transformed_values, 
+			 const Teuchos::ArrayRCP<Scalar> values,
 			 const double param_coords[3],
 			 const iMesh_Instance mesh,
 			 const iBase_EntityHandle physical_cell );
@@ -83,27 +88,24 @@ class IntrepidKernel : public DFuncKernel<Scalar>
     // Transform the operator value of a distribution function kernel at a
     // given set of parametric coordinates back to the physical frame for the
     // given physical cell.
-    void transformOperator( Scalar **transformed_values,
-			    const Scalar *values,
-			    const int num_values,
+    void transformOperator( Teuchos::ArrayRCP<Scalar> transformed_values,
+			    const Teuchos::ArrayRCP<Scalar> values,
 			    const double param_coords[3],
 			    const iMesh_Instance mesh,
 			    const iBase_EntityHandle physical_cell );
 
     // Evaluate the distribution function using function coefficients and
     // physical frame distribution function kernel values. 
-    void evaluate( Scalar **function_values,
-		   const Scalar* coeffs,
-		   const int num_coeffs,
-		   const Scalar* dfunc_values,
-		   const int num_dfunc_values );
+    void evaluate( Teuchos::ArrayRCP<Scalar> function_values,
+		   const Teuchos::ArrayRCP<Scalar> coeffs,
+		   const Teuchos::ArrayRCP<Scalar> dfunc_values );
 };
 
 } // end namespace FOOD
 
 #include "IntrepidKernel_Def.hpp"
 
-#endif // end FOOD_INTERPIDKERNEL_HPP
+#endif // end FOOD_INTREPIDKERNEL_HPP
 
 //---------------------------------------------------------------------------//
 // end IntrepidKernel.hpp
