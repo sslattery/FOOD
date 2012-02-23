@@ -513,6 +513,15 @@ void IntrepidKernel<Scalar>::evaluate( Teuchos::ArrayRCP<Scalar> function_values
 	function_coeffs(0,m) = coeffs[m];
     }
     MDArray basis_eval( 1, dim1, dim2 );
+    int n = 0;
+    for ( int i = 0; i < dim1; ++i )
+    {
+	for ( int j = 0; j < dim2; ++j )
+	{
+	    basis_eval( 0, i, 0, j ) = dfunc_values[n];
+	    ++n;
+	}
+    }
 
     MDArray function_eval( 1, dim1, 1, dim2 );
     Intrepid::FunctionSpaceTools::evaluate<Scalar>( function_eval,

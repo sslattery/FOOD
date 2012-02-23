@@ -72,7 +72,7 @@ DFuncKernelFactory<Scalar>::create( const int entity_topology,
 				    const int degree )
 
 {
-    typedef IntrepidKernel::MDArray MDArray;
+    typedef typename IntrepidKernel<Scalar>::MDArray MDArray;
     Teuchos::RCP< DFuncKernel<Scalar> > new_dfunckernel;
     
     switch ( function_space_type )
@@ -93,11 +93,11 @@ DFuncKernelFactory<Scalar>::create( const int entity_topology,
 				new_dfunckernel = Teuchos::rcp( 
 				    new IntrepidKernel<Scalar>(
 					Teuchos::rcp( 
-					    new Intrepid::Basis_HGRAD_LINE_C1_FEM<Scalar,MDArray>(),
+					    new Intrepid::Basis_HGRAD_LINE_C1_FEM<Scalar,MDArray>() ),
 					    entity_topology,
 					    discretization_type,
 					    function_space_type )
-					);
+				    );
 			    }
 			    else
 			    {
@@ -122,22 +122,22 @@ DFuncKernelFactory<Scalar>::create( const int entity_topology,
 				new_dfunckernel = Teuchos::rcp( 
 				    new IntrepidKernel<Scalar>(
 					Teuchos::rcp(
-					    new Intrepid::Basis_HGRAD_TRI_C1_FEM<Scalar,MDArray>(),
+					    new Intrepid::Basis_HGRAD_TRI_C1_FEM<Scalar,MDArray>() ),
 					    entity_topology,
 					    discretization_type,
 					    function_space_type )
-					);
+				    );
 			    }
 			    else if ( degree == 2 )
 			    {
 				new_dfunckernel = Teuchos::rcp( 
 				    new IntrepidKernel<Scalar>(
 					Teuchos::rcp(
-					    new Intrepid::Basis_HGRAD_TRI_C2_FEM<Scalar,MDArray>(),
+					    new Intrepid::Basis_HGRAD_TRI_C2_FEM<Scalar,MDArray>() ),
 					    entity_topology,
 					    discretization_type,
 					    function_space_type )
-					);
+				    );
 			    }
 			    else
 			    {
@@ -165,22 +165,22 @@ DFuncKernelFactory<Scalar>::create( const int entity_topology,
 				new_dfunckernel = Teuchos::rcp( 
 				    new IntrepidKernel<Scalar>(
 					Teuchos::rcp(
-					    new Intrepid::Basis_HGRAD_QUAD_C1_FEM<Scalar,MDArray>(),
+					    new Intrepid::Basis_HGRAD_QUAD_C1_FEM<Scalar,MDArray>() ),
 					    entity_topology,
 					    discretization_type,
 					    function_space_type )
-					);
+				    );
 			    }
 			    else if ( degree == 2 )
 			    {
 				new_dfunckernel = Teuchos::rcp( 
 				    new IntrepidKernel<Scalar>(
 					Teuchos::rcp(
-					    new Intrepid::Basis_HGRAD_QUAD_C2_FEM<Scalar,MDArray>(),
+					    new Intrepid::Basis_HGRAD_QUAD_C2_FEM<Scalar,MDArray>() ),
 					    entity_topology,
 					    discretization_type,
 					    function_space_type )
-					    );
+					);
 			    }
 			    else
 			    {
@@ -208,7 +208,7 @@ DFuncKernelFactory<Scalar>::create( const int entity_topology,
 				new_dfunckernel = Teuchos::rcp( 
 				    new IntrepidKernel<Scalar>( 
 					Teuchos::rcp(
-					    new Intrepid::Basis_HGRAD_TET_C1_FEM<Scalar,MDArray>(),
+					    new Intrepid::Basis_HGRAD_TET_C1_FEM<Scalar,MDArray>() ),
 					    entity_topology,
 					    discretization_type,
 					    function_space_type )
@@ -219,7 +219,7 @@ DFuncKernelFactory<Scalar>::create( const int entity_topology,
 				new_dfunckernel = Teuchos::rcp( 
 				    new IntrepidKernel<Scalar>(
 					Teuchos::rcp(
-					    new Intrepid::Basis_HGRAD_TET_C2_FEM<Scalar,MDArray>(),
+					    new Intrepid::Basis_HGRAD_TET_C2_FEM<Scalar,MDArray>() ),
 					    entity_topology,
 					    discretization_type,
 					    function_space_type )
@@ -251,7 +251,7 @@ DFuncKernelFactory<Scalar>::create( const int entity_topology,
 				new_dfunckernel = Teuchos::rcp( 
 				    new IntrepidKernel<Scalar>(
 					Teuchos::rcp(
-					    new Intrepid::Basis_HGRAD_HEX_C1_FEM<Scalar,MDArray>(),
+					    new Intrepid::Basis_HGRAD_HEX_C1_FEM<Scalar,MDArray>() ),
 					    entity_topology,
 					    discretization_type,
 					    function_space_type )
@@ -262,7 +262,7 @@ DFuncKernelFactory<Scalar>::create( const int entity_topology,
 				new_dfunckernel = Teuchos::rcp( 
 				    new IntrepidKernel<Scalar>(
 					Teuchos::rcp(
-					    new Intrepid::Basis_HGRAD_HEX_C2_FEM<Scalar,MDArray>(),
+					    new Intrepid::Basis_HGRAD_HEX_C2_FEM<Scalar,MDArray>() ),
 					    entity_topology,
 					    discretization_type,
 					    function_space_type )
@@ -310,11 +310,11 @@ DFuncKernelFactory<Scalar>::create( const int entity_topology,
 				new_dfunckernel = Teuchos::rcp( 
 				    new IntrepidKernel<Scalar>(
 					Teuchos::rcp(
-					    new Intrepid::Basis_HDIV_TRI_I1_FEM<Scalar,MDArray>(),
+					    new Intrepid::Basis_HDIV_TRI_I1_FEM<Scalar,MDArray>() ),
 					    entity_topology,
 					    discretization_type,
 					    function_space_type )
-					);
+				    );
 			    }
 			    else
 			    {
@@ -341,7 +341,7 @@ DFuncKernelFactory<Scalar>::create( const int entity_topology,
 				new_dfunckernel = Teuchos::rcp( 
 				    new IntrepidKernel<Scalar>(
 					Teuchos::rcp(
-					    new Intrepid::Basis_HDIV_QUAD_I1_FEM<Scalar,MDArray>(),
+					    new Intrepid::Basis_HDIV_QUAD_I1_FEM<Scalar,MDArray>() ),
 					    entity_topology,
 					    discretization_type,
 					    function_space_type )
@@ -372,7 +372,7 @@ DFuncKernelFactory<Scalar>::create( const int entity_topology,
 				new_dfunckernel = Teuchos::rcp( 
 				    new IntrepidKernel<Scalar>(
 					Teuchos::rcp(
-					    new Intrepid::Basis_HDIV_TET_I1_FEM<Scalar,MDArray>(),
+					    new Intrepid::Basis_HDIV_TET_I1_FEM<Scalar,MDArray>() ),
 					    entity_topology,
 					    discretization_type,
 					    function_space_type )
@@ -403,7 +403,7 @@ DFuncKernelFactory<Scalar>::create( const int entity_topology,
 				new_dfunckernel = Teuchos::rcp( 
 				    new IntrepidKernel<Scalar>(
 					Teuchos::rcp(
-					    new Intrepid::Basis_HDIV_HEX_I1_FEM<Scalar,MDArray>(),
+					    new Intrepid::Basis_HDIV_HEX_I1_FEM<Scalar,MDArray>() ),
 					    entity_topology,
 					    discretization_type,
 					    function_space_type )
@@ -448,7 +448,7 @@ DFuncKernelFactory<Scalar>::create( const int entity_topology,
 				new_dfunckernel = Teuchos::rcp( 
 				    new IntrepidKernel<Scalar>(
 					Teuchos::rcp(
-					    new Intrepid::Basis_HCURL_TRI_I1_FEM<Scalar,MDArray>(),
+					    new Intrepid::Basis_HCURL_TRI_I1_FEM<Scalar,MDArray>() ),
 					    entity_topology,
 					    discretization_type,
 					    function_space_type )
@@ -479,7 +479,7 @@ DFuncKernelFactory<Scalar>::create( const int entity_topology,
 				new_dfunckernel = Teuchos::rcp( 
 				    new IntrepidKernel<Scalar>(
 					Teuchos::rcp(
-					    new Intrepid::Basis_HCURL_QUAD_I1_FEM<Scalar,MDArray>(),
+					    new Intrepid::Basis_HCURL_QUAD_I1_FEM<Scalar,MDArray>() ),
 					    entity_topology,
 					    discretization_type,
 					    function_space_type )
@@ -510,7 +510,7 @@ DFuncKernelFactory<Scalar>::create( const int entity_topology,
 				new_dfunckernel = Teuchos::rcp( 
 				    new IntrepidKernel<Scalar>(
 					Teuchos::rcp(
-					    new Intrepid::Basis_HCURL_TET_I1_FEM<Scalar,MDArray>(),
+					    new Intrepid::Basis_HCURL_TET_I1_FEM<Scalar,MDArray>() ),
 					    entity_topology,
 					    discretization_type,
 					    function_space_type )
@@ -541,7 +541,7 @@ DFuncKernelFactory<Scalar>::create( const int entity_topology,
 				new_dfunckernel = Teuchos::rcp( 
 				    new IntrepidKernel<Scalar>(
 					Teuchos::rcp(
-					    new Intrepid::Basis_HCURL_HEX_I1_FEM<Scalar,MDArray>(),
+					    new Intrepid::Basis_HCURL_HEX_I1_FEM<Scalar,MDArray>() ),
 					    entity_topology,
 					    discretization_type,
 					    function_space_type )

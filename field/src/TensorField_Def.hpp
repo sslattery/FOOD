@@ -221,36 +221,34 @@ void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
     }
 
     // 2) Get the basis values at the pre-image set in the reference frame.
-    Scalar *values;
-    int num_values = 0;
-    d_dfunckernel->dfuncValue( &values, &num_values, param_coords );
+    Teuchos::ArrayRCP<Scalar> values;
+    d_dfunckernel->dfuncValue( values, param_coords );
 
     // 3) Transform evaluated basis values to the physical frame.
-    Scalar *transformed_values;
-    d_dfunckernel->transformValue( &transformed_values,
+    Teuchos::ArrayRCP<Scalar> transformed_values;
+    d_dfunckernel->transformValue( transformed_values,
 				   values,
-				   num_values,
 				   param_coords,
 				   d_domain->getMesh(),
 				   entity );
-    free( values );
 
     // 4) Evaluate the field using tensor components (the DOF for this
     // entity).
-    dfunc_values.resize(1);
+    int dimension = values.size()/d_dfunckernel->getCardinality();
+    int dfunc_values_size = d_tensor_template->getNumComponents()*dimension;
+			    
+    dfunc_values.resize( dfunc_values_size );
     Teuchos::ArrayRCP<Scalar> entity_coeffs = getEntDF( entity );
+    Teuchos::ArrayRCP<Scalar> component_values;
 
-    for ( int n = 0; n < d_tensor_template->getNumComponent(); ++n )
+    for ( int n = 0; n < d_tensor_template->getNumComponents(); ++n )
     {
-	d_dfunckernel->evaluate( &dfunc_values,
+	component_values = dfunc_values.persistingView( n*dimension, 
+							dimension );
+	d_dfunckernel->evaluate( component_values,
 				 entity_coeffs,
-				 (int) entity_coeffs.size(),
-				 transformed_values,
-				 num_values );
+				 transformed_values );
     }
-			     
-    // Cleanup.
-    free( transformed_values );
 }
 
 /*!
@@ -263,123 +261,46 @@ void TensorField<Scalar>::evaluateGradDF( const iBase_EntityHandle entity,
 					  const int is_param,
 					  Teuchos::ArrayRCP<Scalar> dfunc_values )
 {
-    assert( FOOD_HGRAD == d_dfunckernel->getBasisFunctionSpace() );
-    int error = 0;
-
-    // 1) Get the entity nodes and their coordinates.
-    iBase_EntityHandle *element_nodes = 0;
-    int element_nodes_allocated = 0;
-    int element_nodes_size = 0;
-    iMesh_getEntAdj( d_domain->getMesh(),
-		     entity,
-		     iBase_VERTEX,
-		     &element_nodes,
-		     &element_nodes_allocated,
-		     &element_nodes_size,
-		     &error );
-    assert( iBase_SUCCESS == error );
-
-    TopologyTools::MBCN2Shards( element_nodes, 
-				element_nodes_size,
-				d_dfunckernel->getEvalTopology() );
-
-    int coords_allocated = element_nodes_size*3;
-    int coords_size = 0;
-    double *coord_array = 0;
-    iMesh_getVtxArrCoords( d_domain->getMesh(),
-			   element_nodes,
-			   element_nodes_size,
-			   iBase_INTERLEAVED,
-			   &coord_array,
-			   &coords_allocated,
-			   &coords_size,
-			   &error );
-    assert( iBase_SUCCESS == error );
-
-    Teuchos::Tuple<int,3> cell_node_dimensions;
-    cell_node_dimensions[0] = 1;
-    cell_node_dimensions[1] = element_nodes_size;
-    cell_node_dimensions[2] = coords.dimension(1);
-    MDArray cell_nodes( Teuchos::Array<int>(cell_node_dimensions), 
-			coord_array );
-
-    // 2) Obtain pre-images of the set of evaluation points in the reference
+    // 1) Obtain pre-images of the set of evaluation points in the reference
     // frame. 
-    MDArray reference_points( coords.dimension(0), coords.dimension(1) );
-    Intrepid::CellTools<double>::mapToReferenceFrame( 
-	reference_points,
-	coords,
-	cell_nodes,
-	*d_dfunckernel->getCellTopology(),
-	0 );
-
-    // 3) Evaluate the basis at the pre-image set in the reference frame.
-    MDArray basis_eval( d_dfunckernel->getBasisCardinality(),
-			coords.dimension(0),
-			coords.dimension(1) );
-    d_dfunckernel->evaluateGradBasis( basis_eval, reference_points );
-
-    // 4) Transform evaluated basis values to the physical frame.
-    MDArray jacobian( 1, 
-		      coords.dimension(0),
-		      coords.dimension(1),
-		      coords.dimension(1) );
-    Intrepid::CellTools<double>::setJacobian( 
-	jacobian, 
-	reference_points,
-	cell_nodes,
-	*d_dfunckernel->getCellTopology() );
-
-    MDArray jacobian_inv( 1, 
-			  coords.dimension(0),
-			  coords.dimension(1),
-			  coords.dimension(1) );
-    Intrepid::CellTools<double>::setJacobianInv( jacobian_inv, jacobian );
-
-    MDArray transformed_eval( 1, 
-			      d_dfunckernel->getBasisCardinality(),
-			      coords.dimension(0),
-			      coords.dimension(1) );
-    Intrepid::FunctionSpaceTools::HGRADtransformGRAD<double>( 
-	transformed_eval, jacobian_inv, basis_eval );
-
-    // 5) Evaluate the field using tensor components (the DOF for this
-    // entity).
-    MDArray entity_dofs = getEntDF( entity, error );
-    assert( iBase_SUCCESS == error );
-
-    MDArray component_values( 1, coords.dimension(0), coords.dimension(1) );
-    MDArray component_coeffs( 1, d_dfunckernel->getBasisCardinality() );
-    for ( int n = 0; n < (int) d_tensor_template->getNumComponents(); ++n )
+    double param_coords[3] = coords;
+    if ( !is_param )
     {
-	for ( int p = 0; p < coords.dimension(0); ++p )
-	{
-	    for ( int d = 0; d < coords.dimension(1); ++d )
-	    {
-		component_values(0,p,d) = 0.0;
-	    }
-	}
-
-	for ( int m = 0; m < (int) d_dfunckernel->getBasisCardinality(); ++m )
-	{
-	    component_coeffs(0,m) = entity_dofs(0,m,n);
-	}
-
-	Intrepid::FunctionSpaceTools::evaluate<Scalar>( component_values,
-							component_coeffs, 
-							transformed_eval );
-
-	for ( int p = 0; p < coords.dimension(0); ++p )
-	{
-	    for ( int d = 0; d < coords.dimension(1); ++d )
-	    {
-		dfunc_values(0,p,n,d) = component_values(0,p,d);
-	    }
-	}
+	d_dfunckernel->transformPoint( param_coords,
+				       coords,
+				       d_domain->getMesh(),
+				       entity );
     }
 
-    free( element_nodes );
-    free( coord_array );
+    // 2) Get the basis operators at the pre-image set in the reference frame.
+    Teuchos::ArrayRCP<Scalar> operators;
+    d_dfunckernel->dfuncOperator( operators, param_coords );
+
+    // 3) Transform evaluated basis operators to the physical frame.
+    Teuchos::ArrayRCP<Scalar> transformed_operators;
+    d_dfunckernel->transformOperator( transformed_operators,
+				      operators,
+				      param_coords,
+				      d_domain->getMesh(),
+				      entity );
+
+    // 4) Evaluate the field using tensor components (the DOF for this
+    // entity).
+    int dimension = operators.size()/d_dfunckernel->getCardinality();
+    int dfunc_values_size = d_tensor_template->getNumComponents()*dimension;
+			    
+    dfunc_values.resize( dfunc_values_size );
+    Teuchos::ArrayRCP<Scalar> entity_coeffs = getEntDF( entity );
+    Teuchos::ArrayRCP<Scalar> component_operators;
+
+    for ( int n = 0; n < d_tensor_template->getNumComponents(); ++n )
+    {
+	component_operators = dfunc_values.persistingView( n*dimension, 
+							   dimension );
+	d_dfunckernel->evaluate( component_operators,
+				 entity_coeffs,
+				 transformed_operators );
+    }
 }
 
 /*! 
