@@ -105,8 +105,8 @@ class TensorField
 			  int &error );
 
     // Attach this field to array data and tag the mesh.
-    void attachToArrayData( Teuchos::ArrayRCP<Scalar> dof_array,
-			    int storage_order,
+    void attachToArrayData( const Teuchos::ArrayRCP<Scalar> &dof_array,
+			    const int storage_order,
 			    int &error );
 
     // Evaluate the degrees of freedom of this field at a set of coordinates
@@ -114,21 +114,14 @@ class TensorField
     void evaluateDF( const iBase_EntityHandle entity,
 		     const double coords[3],
 		     const int is_param,
-	             Teuchos::ArrayRCP<Scalar> dfunc_values );
+	             Teuchos::ArrayRCP<Scalar> &dfunc_values );
 
     // Evaluate gradient of the degrees of freedom of this field at a set of
     // coordinates in a particular entity. 
     void evaluateGradDF( const iBase_EntityHandle entity,
 			 const double coords[3],
 			 const int is_param,
-			 Teuchos::ArrayRCP<Scalar> dfunc_values );
-
-    // Evaluate the Hessian of the degrees of freedom of this field at a set
-    // of coordinates in a particular entity. 
-    void evaluateHessianDF( const iBase_EntityHandle entity,
-			    const double coords[3],
-			    const int is_param,
-			    Teuchos::ArrayRCP<Scalar> dfunc_values );
+			 Teuchos::ArrayRCP<Scalar> &dfunc_values );
 
     //! Get the communicator this tensor field is defined on.
     RCP_Communicator getComm() const
@@ -139,16 +132,16 @@ class TensorField
     { return d_dofs; }
 
     //! Get const degrees of freedom for this field.
-    Teuchos::ArrayRCP<Scalar> getConstDF()
+    Teuchos::ArrayRCP<Scalar> getConstDF() const
     { return d_dofs; }
 
     //! Get a view of all the degrees of freedom for this field.
     Teuchos::ArrayView<Scalar> getDFView()
-    { return d_dofs.getData()(); }
+    { return d_dofs(); }
 
     //! Get a const view of all the degrees of freedom for this field.
     Teuchos::ArrayView<const Scalar> getDFConstView() const
-    { return d_dofs.getData()(); }
+    { return d_dofs(); }
 
     // Get degrees of freedom for a particular entity in the domain.
     Teuchos::ArrayRCP<Scalar> getEntDF( iBase_EntityHandle entity ) const;

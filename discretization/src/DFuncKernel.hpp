@@ -44,6 +44,9 @@ class DFuncKernel
     // Distribution function kernel degree.
     int b_degree;
 
+    // Distribution function kernel cell type. (enum)
+    std::size_t b_type;
+
     // Distribution function kernel cell topology. (enum)
     std::size_t b_topology;
 
@@ -77,7 +80,7 @@ class DFuncKernel
      * \brief Evaluate the value of the distribution function kernel at a
      * given set of parametric coordinates. 
      */
-    virtual void dfuncValue( Teuchos::ArrayRCP<Scalar> values, 
+    virtual void dfuncValue( Teuchos::ArrayRCP<Scalar> &values, 
 			     const double param_coords[3] ) = 0;
 
     /*!
@@ -86,7 +89,7 @@ class DFuncKernel
      * function space. (i.e. FOOD_HDIV space returns the divergence of the
      * distribution function kernel.) 
      */
-    virtual void dfuncOperator( Teuchos::ArrayRCP<Scalar> values,
+    virtual void dfuncOperator( Teuchos::ArrayRCP<Scalar> &values,
 				const double param_coords[3] ) = 0;
 
     /*!
@@ -104,8 +107,8 @@ class DFuncKernel
      * given set of parametric coordinates back to the physical frame for the
      * given physical cell. 
      */
-    virtual void transformValue( Teuchos::ArrayRCP<Scalar> transformed_values, 
-				 const Teuchos::ArrayRCP<Scalar> values,
+    virtual void transformValue( Teuchos::ArrayRCP<Scalar> &transformed_values, 
+				 const Teuchos::ArrayRCP<Scalar> &values,
 				 const double param_coords[3],
 				 const iMesh_Instance mesh,
 				 const iBase_EntityHandle physical_cell ) = 0;
@@ -117,8 +120,8 @@ class DFuncKernel
      * space. (i.e. FOOD_HDIV space returns the divergence of the distribution
      * function kernel.)  
      */
-    virtual void transformOperator( Teuchos::ArrayRCP<Scalar> transformed_values,
-				    const Teuchos::ArrayRCP<Scalar> values,
+    virtual void transformOperator( Teuchos::ArrayRCP<Scalar> &transformed_values,
+				    const Teuchos::ArrayRCP<Scalar> &values,
 				    const double param_coords[3],
 				    const iMesh_Instance mesh,
 				    const iBase_EntityHandle physical_cell ) = 0;
@@ -127,9 +130,9 @@ class DFuncKernel
      * \brief Evaluate the distribution function using function coefficients
      * and physical frame distribution function kernel values.
      */
-    virtual void evaluate( Teuchos::ArrayRCP<Scalar> function_values,
-			   const Teuchos::ArrayRCP<Scalar> coeffs,
-			   const Teuchos::ArrayRCP<Scalar> dfunc_values ) = 0;
+    virtual void evaluate( Teuchos::ArrayRCP<Scalar> &function_values,
+			   const Teuchos::ArrayRCP<Scalar> &coeffs,
+			   const Teuchos::ArrayRCP<Scalar> &dfunc_values ) = 0;
 
     //! Get the distribution function kernel cardinality.
     virtual int getCardinality() const
@@ -139,8 +142,12 @@ class DFuncKernel
     virtual int getDegree() const
     { return b_degree; }
 
+    //! Get the distribution function kernel cell type.
+    virtual int getEntityType() const
+    { return b_type; }
+
     //! Get the distribution function kernel cell topology.
-    virtual int getTopology() const
+    virtual int getEntityTopology() const
     { return b_topology; }
 
     //! Get the canonical numbering scheme for the reference cell.
@@ -166,4 +173,4 @@ class DFuncKernel
 
 //---------------------------------------------------------------------------//
 // end DFuncKernel.hpp
-//---------------------------------------------------------------------------//
+//-----------------------------------v----------------------------------------//

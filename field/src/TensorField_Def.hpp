@@ -69,7 +69,7 @@ void TensorField<Scalar>::attachToTagData( iBase_TagHandle dof_tag,
     int num_domain_entity = 0;
     iMesh_getNumOfTopo( d_domain->getMesh(),
 			d_domain->getMeshSet(),
-			d_dfunckernel->getDFEntityTopology(),
+			iMesh_POINT,
 			&num_domain_entity,
 			&error );
     assert( iBase_SUCCESS == error );
@@ -95,8 +95,8 @@ void TensorField<Scalar>::attachToTagData( iBase_TagHandle dof_tag,
     int entities_size = 0;
     iMesh_getEntities( d_domain->getMesh(),
 		       d_domain->getMeshSet(),
-		       d_dfunckernel->getDFEntityType(),
-		       d_dfunckernel->getDFEntityTopology(),
+		       iBase_VERTEX,
+		       iMesh_POINT,
 		       &dof_entities,
 		       &entities_allocated,
 		       &entities_size,
@@ -131,8 +131,8 @@ void TensorField<Scalar>::attachToTagData( iBase_TagHandle dof_tag,
  */
 template<class Scalar>
 void TensorField<Scalar>::attachToArrayData(
-    Teuchos::ArrayRCP<Scalar> dof_array, 
-    int storage_order,
+    const Teuchos::ArrayRCP<Scalar> &dof_array, 
+    const int storage_order,
     int &error )
 {
     error = 0;
@@ -155,12 +155,13 @@ void TensorField<Scalar>::attachToArrayData(
     int num_domain_entity = 0;
     iMesh_getNumOfTopo( d_domain->getMesh(),
 			d_domain->getMeshSet(),
-			d_dfunckernel->getDFEntityTopology(),
+			iMesh_POINT,
 			&num_domain_entity,
 			&error );
     assert( iBase_SUCCESS == error );
 
     int dof_size = num_tensor_component*num_domain_entity;
+
     assert( (int) dof_array.size() == dof_size );
     d_dofs.clear();
 
@@ -169,8 +170,8 @@ void TensorField<Scalar>::attachToArrayData(
     int entities_size = 0;
     iMesh_getEntities( d_domain->getMesh(),
 		       d_domain->getMeshSet(),
-		       d_dfunckernel->getDFEntityType(),
-		       d_dfunckernel->getDFEntityTopology(),
+		       iBase_VERTEX,
+		       iMesh_POINT,
 		       &dof_entities,
 		       &entities_allocated,
 		       &entities_size,
@@ -207,11 +208,11 @@ template<class Scalar>
 void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
 				      const double coords[3],
 				      const int is_param,
-				      Teuchos::ArrayRCP<Scalar> dfunc_values )
+				      Teuchos::ArrayRCP<Scalar> &dfunc_values )
 {
     // 1) Obtain pre-images of the set of evaluation points in the reference
     // frame. 
-    double param_coords[3] = coords;
+    double param_coords[3] = { coords[0], coords[1], coords[2] };
     if ( !is_param )
     {
 	d_dfunckernel->transformPoint( param_coords,
@@ -234,20 +235,29 @@ void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
 
     // 4) Evaluate the field using tensor components (the DOF for this
     // entity).
+    int num_component = d_tensor_template->getNumComponents();
     int dimension = values.size()/d_dfunckernel->getCardinality();
-    int dfunc_values_size = d_tensor_template->getNumComponents()*dimension;
+    int dfunc_values_size = num_component*dimension;
 			    
     dfunc_values.resize( dfunc_values_size );
     Teuchos::ArrayRCP<Scalar> entity_coeffs = getEntDF( entity );
+    Teuchos::ArrayRCP<Scalar> component_coeffs(d_dfunckernel->getCardinality());
     Teuchos::ArrayRCP<Scalar> component_values;
-
-    for ( int n = 0; n < d_tensor_template->getNumComponents(); ++n )
+    for ( int n = 0; n < num_component; ++n )
     {
-	component_values = dfunc_values.persistingView( n*dimension, 
+	component_values = dfunc_values.persistingView( n*dimension,
 							dimension );
-	d_dfunckernel->evaluate( component_values,
-				 entity_coeffs,
-				 transformed_values );
+
+	for ( int d = 0; d < dimension; ++d )
+	{
+	    for ( int m = 0; m < d_dfunckernel->getCardinality(); ++m )
+	    {
+		component_coeffs[m] = entity_coeffs[d + m*dimension];
+	    }
+	    d_dfunckernel->evaluate( component_values,
+				     component_coeffs,
+				     transformed_values );
+	}
     }
 }
 
@@ -259,11 +269,11 @@ template<class Scalar>
 void TensorField<Scalar>::evaluateGradDF( const iBase_EntityHandle entity,
 					  const double coords[3],
 					  const int is_param,
-					  Teuchos::ArrayRCP<Scalar> dfunc_values )
+					  Teuchos::ArrayRCP<Scalar> &dfunc_values )
 {
     // 1) Obtain pre-images of the set of evaluation points in the reference
     // frame. 
-    double param_coords[3] = coords;
+    double param_coords[3] = { coords[0], coords[1], coords[2] };
     if ( !is_param )
     {
 	d_dfunckernel->transformPoint( param_coords,
@@ -293,7 +303,7 @@ void TensorField<Scalar>::evaluateGradDF( const iBase_EntityHandle entity,
     Teuchos::ArrayRCP<Scalar> entity_coeffs = getEntDF( entity );
     Teuchos::ArrayRCP<Scalar> component_operators;
 
-    for ( int n = 0; n < d_tensor_template->getNumComponents(); ++n )
+    for ( int n = 0; n < (int) d_tensor_template->getNumComponents(); ++n )
     {
 	component_operators = dfunc_values.persistingView( n*dimension, 
 							   dimension );
@@ -312,7 +322,7 @@ TensorField<Scalar>::getEntDF( iBase_EntityHandle entity ) const
 {
     int error = 0;
 
-    int dof_size = d_dfunckernel->getBasisCardinality()*
+    int dof_size = d_dfunckernel->getCardinality()*
 		   d_tensor_template->getNumComponents();
 
     Teuchos::ArrayRCP<Scalar> entity_dofs( dof_size );
@@ -322,7 +332,7 @@ TensorField<Scalar>::getEntDF( iBase_EntityHandle entity ) const
     int dof_entities_size = 0;
     iMesh_getEntAdj( d_domain->getMesh(),
 		     entity,
-		     d_dfunckernel->getDFEntityTopology(),
+		     iMesh_POINT,
 		     &dof_entities,
 		     &dof_entities_allocated,
 		     &dof_entities_size,
@@ -356,7 +366,7 @@ TensorField<Scalar>::getEntArrDF( iBase_EntityHandle *entities,
 {
     int error = 0;
 
-    int num_dof_ents = num_entities*d_dfunckernel->getBasisCardinality();
+    int num_dof_ents = num_entities*d_dfunckernel->getCardinality();
     std::vector<iBase_EntityHandle> total_dof_entities;
 
     int dof_size = num_dof_ents*d_tensor_template->getNumComponents();
@@ -369,7 +379,7 @@ TensorField<Scalar>::getEntArrDF( iBase_EntityHandle *entities,
 	int dof_entities_size = 0;
 	iMesh_getEntAdj( d_domain->getMesh(),
 			 entities[n],
-			 d_dfunckernel->getDFEntityTopology(),
+			 iMesh_POINT,
 			 &dof_entities,
 			 &dof_entities_allocated,
 			 &dof_entities_size,

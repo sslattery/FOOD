@@ -14,6 +14,8 @@
 #ifndef FOOD_CONSISTENTSCHEME_DEF_HPP
 #define FOOD_CONSISTENTSCHEME_DEF_HPP
 
+#include <Teuchos_ArrayRCP.hpp>
+
 namespace FOOD
 {
 
@@ -74,8 +76,8 @@ void ConsistentScheme<Scalar>::setup()
     d_kdtree = Teuchos::rcp( 
 	new KDTree<3>( d_dof_domain->getDomain()->getMesh(),
 		       d_dof_domain->getDomain()->getMeshSet(),
-		       d_dof_domain->getDFuncKernel()->getEvalType(),
-		       d_dof_domain->getDFuncKernel()->getEvalTopology() ) );
+		       d_dof_domain->getDFuncKernel()->getEntityType(),
+		       d_dof_domain->getDFuncKernel()->getEntityTopology() ) );
     d_kdtree->buildTree();
 
     // Generate a mapping for interpolation.
@@ -141,25 +143,20 @@ void ConsistentScheme<Scalar>::transferValueDF()
     int num_components = d_dof_domain->getTensorTemplate()->getNumComponents();
     int dof_size = range_vertices_size*num_components;
     Teuchos::ArrayRCP<double> interpolated_vals(dof_size, 0.0);
-    MDArray local_vals( 1, 1, num_components );
-    MDArray local_coords( 1, 3 );
+    Teuchos::ArrayRCP<double> ent_vals;
     for ( int p = 0; p < range_vertices_size; ++p )
     {
-	local_coords(0,0) = coord_array[3*p];
-	local_coords(0,1) = coord_array[3*p+1];
-	local_coords(0,2) = coord_array[3*p+2];
+	double local_coords[3] = { coord_array[3*p],
+				   coord_array[3*p+1],
+				   coord_array[3*p+2] };
 
 	if ( d_map[ range_vertices[p] ] )
 	{
+	    ent_vals = interpolated_vals.persistingView(p, num_components);
 	    d_dof_domain->evaluateDF( d_map[ range_vertices[p] ],
 				      local_coords,
 				      false,
-				      local_vals );
-
-	    for ( int n = 0; n < num_components; ++n )
-	    {
-		interpolated_vals[p*num_components + n] = local_vals(0,0,n);
-	    }
+				      ent_vals );
 	}
     }
     d_dof_range->attachToArrayData( interpolated_vals,
@@ -179,74 +176,74 @@ void ConsistentScheme<Scalar>::transferValueDF()
 template<class Scalar>
 void ConsistentScheme<Scalar>::transferGradDF()
 {
-    int error = 0;
+    // int error = 0;
 
-    // Get the range mesh vertices for interpolation.
-    iBase_EntityHandle *range_vertices = 0;
-    int range_vertices_allocated = 0;
-    int range_vertices_size = 0;
-    iMesh_getEntities( d_dof_range->getDomain()->getMesh(),
-		       d_dof_range->getDomain()->getMeshSet(),
-		       iBase_VERTEX,
-		       iMesh_POINT,
-		       &range_vertices,
-		       &range_vertices_allocated,
-		       &range_vertices_size,
-		       &error );
-    assert( iBase_SUCCESS == error );
+    // // Get the range mesh vertices for interpolation.
+    // iBase_EntityHandle *range_vertices = 0;
+    // int range_vertices_allocated = 0;
+    // int range_vertices_size = 0;
+    // iMesh_getEntities( d_dof_range->getDomain()->getMesh(),
+    // 		       d_dof_range->getDomain()->getMeshSet(),
+    // 		       iBase_VERTEX,
+    // 		       iMesh_POINT,
+    // 		       &range_vertices,
+    // 		       &range_vertices_allocated,
+    // 		       &range_vertices_size,
+    // 		       &error );
+    // assert( iBase_SUCCESS == error );
 
-    int coords_allocated = range_vertices_size*3;
-    int coords_size = 0;
-    double *coord_array = 0;
-    iMesh_getVtxArrCoords( d_dof_range->getDomain()->getMesh(),
-			   range_vertices,
-			   range_vertices_size,
-			   iBase_INTERLEAVED,
-			   &coord_array,
-			   &coords_allocated,
-			   &coords_size,
-			   &error );
-    assert( iBase_SUCCESS == error );
+    // int coords_allocated = range_vertices_size*3;
+    // int coords_size = 0;
+    // double *coord_array = 0;
+    // iMesh_getVtxArrCoords( d_dof_range->getDomain()->getMesh(),
+    // 			   range_vertices,
+    // 			   range_vertices_size,
+    // 			   iBase_INTERLEAVED,
+    // 			   &coord_array,
+    // 			   &coords_allocated,
+    // 			   &coords_size,
+    // 			   &error );
+    // assert( iBase_SUCCESS == error );
 
-    // Do the interpolation.
-    int dim_size = 3;
-    int num_components = 
-	d_dof_domain->getTensorTemplate()->getNumComponents();
-    int dof_size = range_vertices_size*num_components*dim_size;
-    Teuchos::ArrayRCP<double> interpolated_vals(dof_size, 0.0);
-    MDArray local_vals( 1, 1, num_components, dim_size );
-    MDArray local_coords( 1, dim_size );
-    for ( int p = 0; p < range_vertices_size; ++p )
-    {
-	local_coords(0,0) = coord_array[dim_size*p];
-	local_coords(0,1) = coord_array[dim_size*p+1];
-	local_coords(0,2) = coord_array[dim_size*p+2];
+    // // Do the interpolation.
+    // int dim_size = 3;
+    // int num_components = 
+    // 	d_dof_domain->getTensorTemplate()->getNumComponents();
+    // int dof_size = range_vertices_size*num_components*dim_size;
+    // Teuchos::ArrayRCP<double> interpolated_vals(dof_size, 0.0);
+    // MDArray local_vals( 1, 1, num_components, dim_size );
+    // MDArray local_coords( 1, dim_size );
+    // for ( int p = 0; p < range_vertices_size; ++p )
+    // {
+    // 	local_coords(0,0) = coord_array[dim_size*p];
+    // 	local_coords(0,1) = coord_array[dim_size*p+1];
+    // 	local_coords(0,2) = coord_array[dim_size*p+2];
 
-	if ( d_map[ range_vertices[p] ] )
-	{
-	    d_dof_domain->evaluateGradDF( d_map[ range_vertices[p] ],
-					  local_coords,
-					  false,
-					  local_vals );
+    // 	if ( d_map[ range_vertices[p] ] )
+    // 	{
+    // 	    d_dof_domain->evaluateGradDF( d_map[ range_vertices[p] ],
+    // 					  local_coords,
+    // 					  false,
+    // 					  local_vals );
 
-	    for ( int n = 0; n < num_components; ++n )
-	    {
-		for ( int d = 0; d < dim_size; ++d )
-		{
-		    interpolated_vals[p*num_components*dim_size + n*dim_size + d] = 
-			local_vals(0,0,n,d);
-		}
-	    }
-	}
-    }
-    d_dof_range->attachToArrayData( interpolated_vals,
-				    iBase_INTERLEAVED,
-				    error );
-    assert( iBase_SUCCESS == error );
+    // 	    for ( int n = 0; n < num_components; ++n )
+    // 	    {
+    // 		for ( int d = 0; d < dim_size; ++d )
+    // 		{
+    // 		    interpolated_vals[p*num_components*dim_size + n*dim_size + d] = 
+    // 			local_vals(0,0,n,d);
+    // 		}
+    // 	    }
+    // 	}
+    // }
+    // d_dof_range->attachToArrayData( interpolated_vals,
+    // 				    iBase_INTERLEAVED,
+    // 				    error );
+    // assert( iBase_SUCCESS == error );
 
-    // Cleanup.
-    free( range_vertices );
-    free( coord_array );
+    // // Cleanup.
+    // free( range_vertices );
+    // free( coord_array );
 }
 
 } // end namespace FOOD

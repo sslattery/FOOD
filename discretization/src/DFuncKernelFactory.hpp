@@ -35,7 +35,8 @@ class DFuncKernelFactory
 
     // Factory method.
     Teuchos::RCP< DFuncKernel<Scalar> > 
-    create( const int entity_topology,
+    create( const int entity_type,
+	    const int entity_topology,
 	    const int discretization_type,
 	    const int function_space_type,
 	    const int degree );

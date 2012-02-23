@@ -51,6 +51,7 @@ class IntrepidKernel : public DFuncKernel<Scalar>
 
     // Constructor.
     IntrepidKernel( RCP_IntrepidBasis intrepid_basis,
+		    const int entity_type, 
 		    const int entity_topology, 
 		    const int discretization_type,
 		    const int function_space_type );
@@ -60,12 +61,12 @@ class IntrepidKernel : public DFuncKernel<Scalar>
 
     // Evaluate the value of the distribution function kernel at a given set
     // of parametric coordinates.  
-    void dfuncValue( Teuchos::ArrayRCP<Scalar> values, 
+    void dfuncValue( Teuchos::ArrayRCP<Scalar> &values, 
 		     const double param_coords[3] );
 
     // Evaluate the operator value of a distribution function kernel at a
     // given set of parametric coordinates. 
-    void dfuncOperator( Teuchos::ArrayRCP<Scalar> values, 
+    void dfuncOperator( Teuchos::ArrayRCP<Scalar> &values, 
 			const double param_coords[3] );
 
     // Transform a point from the physical frame in a physical cell to the
@@ -79,8 +80,8 @@ class IntrepidKernel : public DFuncKernel<Scalar>
     // Transform the value of the distribution function kernel at a given set
     // of parametric coordinates back to the physical frame for the given
     // physical cell. 
-    void transformValue( Teuchos::ArrayRCP<Scalar> transformed_values, 
-			 const Teuchos::ArrayRCP<Scalar> values,
+    void transformValue( Teuchos::ArrayRCP<Scalar> &transformed_values, 
+			 const Teuchos::ArrayRCP<Scalar> &values,
 			 const double param_coords[3],
 			 const iMesh_Instance mesh,
 			 const iBase_EntityHandle physical_cell );
@@ -88,17 +89,17 @@ class IntrepidKernel : public DFuncKernel<Scalar>
     // Transform the operator value of a distribution function kernel at a
     // given set of parametric coordinates back to the physical frame for the
     // given physical cell.
-    void transformOperator( Teuchos::ArrayRCP<Scalar> transformed_values,
-			    const Teuchos::ArrayRCP<Scalar> values,
+    void transformOperator( Teuchos::ArrayRCP<Scalar> &transformed_values,
+			    const Teuchos::ArrayRCP<Scalar> &values,
 			    const double param_coords[3],
 			    const iMesh_Instance mesh,
 			    const iBase_EntityHandle physical_cell );
 
     // Evaluate the distribution function using function coefficients and
     // physical frame distribution function kernel values. 
-    void evaluate( Teuchos::ArrayRCP<Scalar> function_values,
-		   const Teuchos::ArrayRCP<Scalar> coeffs,
-		   const Teuchos::ArrayRCP<Scalar> dfunc_values );
+    void evaluate( Teuchos::ArrayRCP<Scalar> &function_values,
+		   const Teuchos::ArrayRCP<Scalar> &coeffs,
+		   const Teuchos::ArrayRCP<Scalar> &dfunc_values );
 };
 
 } // end namespace FOOD

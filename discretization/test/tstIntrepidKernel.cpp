@@ -57,13 +57,15 @@ TEUCHOS_UNIT_TEST( IntrepidKernel, intrepid_kernel_test)
 	Teuchos::rcp( 
 	    new FOOD::IntrepidKernel<double>( 
 		Teuchos::rcp( new Intrepid::Basis_HGRAD_HEX_C1_FEM<double,MDArray>() ),
+		iBase_REGION,
 		iMesh_HEXAHEDRON,
 		FOOD::FOOD_FEM,
 		FOOD::FOOD_HGRAD ) );
 
     TEST_ASSERT( kernel->getCardinality()        == 8 );
     TEST_ASSERT( kernel->getDegree()             == 1 );
-    TEST_ASSERT( kernel->getTopology()           == iMesh_HEXAHEDRON );
+    TEST_ASSERT( kernel->getEntityType()         == iBase_REGION );
+    TEST_ASSERT( kernel->getEntityTopology()     == iMesh_HEXAHEDRON );
     TEST_ASSERT( kernel->getCNType()             == FOOD::FOOD_SHARDSCN );
     TEST_ASSERT( kernel->getCoordType()          == FOOD::FOOD_CARTESIAN );
     TEST_ASSERT( kernel->getDiscretizationType() == FOOD::FOOD_FEM );

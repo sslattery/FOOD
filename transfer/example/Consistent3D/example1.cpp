@@ -19,6 +19,7 @@
 #include <Domain.hpp>
 #include <TensorTemplate.hpp>
 #include <DFuncKernel.hpp>
+#include <DFuncKernelFactory.hpp>
 #include <TensorField.hpp>
 #include <ConsistentScheme.hpp>
 
@@ -59,6 +60,9 @@ int main(int argc, char* argv[])
 
     int error;
 
+    // Setup a kernel factory.
+    FOOD::DFuncKernelFactory<double> kernel_factory;
+
     // The tensor template can be shared by both the range and
     // domain. 
     Teuchos::RCP<FOOD::TensorTemplate> tensor_template = Teuchos::rcp(
@@ -91,22 +95,17 @@ int main(int argc, char* argv[])
     Teuchos::RCP<FOOD::Domain> func_dmn_domain = Teuchos::rcp(
 	new FOOD::Domain(domain_mesh, func_dmn_root_set, FOOD::FOOD_MBCN) );
 
-    Teuchos::RCP< FOOD::DFuncKernel<double> > func_dmn_dfunckernel =
-	Teuchos::rcp( new FOOD::DFuncKernel<double>( iBase_REGION,
-						     iMesh_TETRAHEDRON,
-						     iBase_VERTEX,
-						     iMesh_POINT,
-						     FOOD::FOOD_CARTESIAN,
-						     FOOD::FOOD_FEM,
-						     FOOD::FOOD_HGRAD,
-						     FOOD::FOOD_SHARDSCN,
-						     1 ) );
+    Teuchos::RCP< FOOD::DFuncKernel<double> > func_dmn_dfunckernel = 
+	kernel_factory.create( iBase_REGION,
+			       iMesh_TETRAHEDRON,
+			       FOOD::FOOD_FEM,
+			       FOOD::FOOD_HGRAD,
+			       1 );
 
     Teuchos::RCP< FOOD::TensorField<double> > func_dmn_field = Teuchos::rcp(
 	new FOOD::TensorField<double>( getDefaultComm<int>(),
 				       func_dmn_domain,
 				       func_dmn_dfunckernel,
-				       FOOD::FOOD_CARTESIAN, 
 				       tensor_template,
 				       Teuchos::null,
 				       "FUNC_DMN_FIELD" ) );
@@ -146,22 +145,17 @@ int main(int argc, char* argv[])
     Teuchos::RCP<FOOD::Domain> func_rng_domain = Teuchos::rcp(
 	new FOOD::Domain(func_rng_mesh, func_rng_root_set, FOOD::FOOD_MBCN) );
 
-    Teuchos::RCP< FOOD::DFuncKernel<double> > func_rng_dfunckernel =
-	Teuchos::rcp( new FOOD::DFuncKernel<double>( iBase_REGION,
-						     iMesh_HEXAHEDRON,
-						     iBase_VERTEX,
-						     iMesh_POINT,
-						     FOOD::FOOD_CARTESIAN,
-						     FOOD::FOOD_FEM,
-						     FOOD::FOOD_HGRAD,
-						     FOOD::FOOD_SHARDSCN,
-						     2 ) );
+    Teuchos::RCP< FOOD::DFuncKernel<double> > func_rng_dfunckernel = 
+	kernel_factory.create( iBase_REGION,
+			       iMesh_HEXAHEDRON,
+			       FOOD::FOOD_FEM,
+			       FOOD::FOOD_HGRAD,
+			       2 );
 
     Teuchos::RCP< FOOD::TensorField<double> > func_rng_field = Teuchos::rcp(
 	new FOOD::TensorField<double>( getDefaultComm<int>(),
 				       func_rng_domain,
 				       func_rng_dfunckernel,
-				       FOOD::FOOD_CARTESIAN, 
 				       tensor_template,
 				       Teuchos::null,
 				       "FUNC_RNG_FIELD" ) );
@@ -183,7 +177,6 @@ int main(int argc, char* argv[])
 	new FOOD::TensorField<double>( getDefaultComm<int>(),
 				       func_rng_domain,
 				       func_rng_dfunckernel,
-				       FOOD::FOOD_CARTESIAN, 
 				       grad_tensor_template,
 				       Teuchos::null,
 				       "FUNC_RNG_GRAD_FIELD" ) );
@@ -204,10 +197,6 @@ int main(int argc, char* argv[])
     FOOD::ConsistentScheme<double> fem_interp( func_dmn_field, func_rng_field );
     fem_interp.setup();
     fem_interp.transferValueDF();
-
-    FOOD::ConsistentScheme<double> fem_interp_grad( func_dmn_field, func_rng_grad_field );
-    fem_interp_grad.setup();
-    fem_interp_grad.transferGradDF();
 
     // Write the interpolated mesh to file.
     std::string interp_file = "example1_output.vtk";

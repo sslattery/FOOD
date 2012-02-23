@@ -26,8 +26,6 @@
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_ArrayRCP.hpp>
 
-#include <Intrepid_FieldContainer.hpp>
-
 namespace FOOD
 {
 
@@ -42,7 +40,6 @@ class ConsistentScheme : public DataTransferScheme<Scalar>
     typedef TensorField<Scalar>                      TensorField_t;
     typedef Teuchos::RCP<TensorField_t>              RCP_TensorField;
     typedef Teuchos::RCP< KDTree<3> >                RCP_KDTree;
-    typedef Intrepid::FieldContainer<Scalar>         MDArray;
     //@}
 
   private:
