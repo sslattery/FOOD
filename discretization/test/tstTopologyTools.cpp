@@ -47,6 +47,24 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 // TESTS
 //---------------------------------------------------------------------------//
 
+TEUCHOS_UNIT_TEST( TopologyTools, num_linear_nodes )
+{
+    TEST_ASSERT( FOOD::TopologyTools::numLinearNodes( iMesh_POINT )         
+		 == 1 );
+    TEST_ASSERT( FOOD::TopologyTools::numLinearNodes( iMesh_LINE_SEGMENT )  
+		 == 2 );
+    TEST_ASSERT( FOOD::TopologyTools::numLinearNodes( iMesh_TRIANGLE )      
+		 == 3 );
+    TEST_ASSERT( FOOD::TopologyTools::numLinearNodes( iMesh_QUADRILATERAL ) 
+		 == 4 );
+    TEST_ASSERT( FOOD::TopologyTools::numLinearNodes( iMesh_TETRAHEDRON )   
+		 == 4 );
+    TEST_ASSERT( FOOD::TopologyTools::numLinearNodes( iMesh_HEXAHEDRON )    
+		 == 8 );
+    TEST_ASSERT( FOOD::TopologyTools::numLinearNodes( 99 )                  
+		 == 0 );
+}
+
 TEUCHOS_UNIT_TEST( TopologyTools, hex_query )
 {
     // Create a hex-8 element.

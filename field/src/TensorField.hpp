@@ -34,8 +34,6 @@
 
 #include <Tpetra_Map.hpp>
 
-#include <Intrepid_FieldContainer.hpp>
-
 namespace FOOD
 {
 
@@ -57,7 +55,6 @@ class TensorField
     typedef Teuchos::RCP<Unit>                       RCP_Unit;
     typedef Tpetra::Map<OrdinalType>                 Map_t;
     typedef Teuchos::RCP<const Map_t>                RCP_Map;
-    typedef Intrepid::FieldContainer<Scalar>         MDArray;
     //@}
 
   private:
@@ -67,7 +64,7 @@ class TensorField
 
     // The degrees of freedom represented by this field. Stored in a
     // multidimensional array access wrapper. Shallow copy of tag data.
-    MDArray d_dofs;
+    Teuchos::ArrayRCP<Scalar> d_dofs;
 
     // Tpetra map for the degrees of freedom represented by this field.
     RCP_Map d_dof_map;
@@ -77,9 +74,6 @@ class TensorField
 
     // The distribution function kernel to be used to evaluate this field.
     RCP_DFuncKernel d_dfunckernel;
-
-    // The coordinate system for physical field coordinates.
-    std::size_t d_coord_type;
 
     // The tensor template for this field.
     RCP_TensorTemplate d_tensor_template;
@@ -99,7 +93,6 @@ class TensorField
     TensorField( RCP_Communicator comm,
 		 RCP_Domain domain,
 		 RCP_DFuncKernel dfunckernel,
-		 const int coord_type,
 		 RCP_TensorTemplate tensor_template,
 		 RCP_Unit unit,
 		 const std::string &name );
@@ -119,34 +112,34 @@ class TensorField
     // Evaluate the degrees of freedom of this field at a set of coordinates
     // in a particular entity.
     void evaluateDF( const iBase_EntityHandle entity,
-		     const MDArray &coords,
+		     const double coords[3],
 		     const int is_param,
-	             MDArray &dfunc_values );
+	             Teuchos::ArrayRCP<Scalar> dfunc_values );
 
     // Evaluate gradient of the degrees of freedom of this field at a set of
     // coordinates in a particular entity. 
     void evaluateGradDF( const iBase_EntityHandle entity,
-			 const MDArray &coords,
+			 const double coords[3],
 			 const int is_param,
-			 MDArray &dfunc_values );
+			 Teuchos::ArrayRCP<Scalar> dfunc_values );
 
     // Evaluate the Hessian of the degrees of freedom of this field at a set
     // of coordinates in a particular entity. 
     void evaluateHessianDF( const iBase_EntityHandle entity,
-			    const MDArray &coords,
+			    const double coords[3],
 			    const int is_param,
-			    MDArray &dfunc_values );
+			    Teuchos::ArrayRCP<Scalar> dfunc_values );
 
     //! Get the communicator this tensor field is defined on.
     RCP_Communicator getComm() const
     { return d_comm; }
 
     //! Get the degrees of freedom for this field.
-    MDArray getDF()
+    Teuchos::ArrayRCP<Scalar> getDF()
     { return d_dofs; }
 
     //! Get const degrees of freedom for this field.
-    MDArray getConstDF()
+    Teuchos::ArrayRCP<Scalar> getConstDF()
     { return d_dofs; }
 
     //! Get a view of all the degrees of freedom for this field.
@@ -158,13 +151,12 @@ class TensorField
     { return d_dofs.getData()(); }
 
     // Get degrees of freedom for a particular entity in the domain.
-    MDArray getEntDF( iBase_EntityHandle entity, int &error ) const;
+    Teuchos::ArrayRCP<Scalar> getEntDF( iBase_EntityHandle entity ) const;
 
     // Get degrees of freedom for an array of entities in the
     // domain. Returned implicitly interleaved. 
-    MDArray getEntArrDF( iBase_EntityHandle *entities,
-			 int num_entities,
-			 int &error ) const;
+    Teuchos::ArrayRCP<Scalar> getEntArrDF( iBase_EntityHandle *entities,
+					   int num_entities ) const;
 
     //! Get the Tpetra map for the degrees of freedom.
     RCP_Map getDFMap() const
@@ -177,10 +169,6 @@ class TensorField
     //! Get the distribution function kernel this field is defined on.
     RCP_DFuncKernel getDFuncKernel() const
     { return d_dfunckernel; }
-
-    //! Get the coordinate system for physics field coordinates.
-    int getCoordType() const
-    { return d_coord_type; }
 
     //! Get the tensor template for this field.
     RCP_TensorTemplate getTensorTemplate() const

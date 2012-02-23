@@ -75,9 +75,9 @@ class DFuncKernel
      * \brief Evaluate the value of the distribution function kernel at a
      * given set of parametric coordinates. 
      */
-    virtual void evaluateValue( Scalar **values, 
-				int *num_values,
-				const double param_coords[3] ) = 0;
+    virtual void dfuncValue( Scalar **values, 
+			     int *num_values,
+			     const double param_coords[3] ) = 0;
 
     /*!
      * \brief Evaluate the operator value of a distribution function kernel at
@@ -85,9 +85,9 @@ class DFuncKernel
      * function space. (i.e. FOOD_HDIV space returns the divergence of the
      * distribution function kernel.) 
      */
-    virtual void evaluateOperator( Scalar **values, 
-				   int *num_values,
-				   const double param_coords[3] ) = 0;
+    virtual void dfuncOperator( Scalar **values, 
+				int *num_values,
+				const double param_coords[3] ) = 0;
 
     /*!
      * \brief Transform a point from the physical frame in a physical cell to
@@ -96,6 +96,7 @@ class DFuncKernel
     */
     virtual void transformPoint( double param_coords[3],
 				 const double physical_coords[3],
+				 const iMesh_Instance mesh,
 				 const iBase_EntityHandle physical_cell ) = 0;
 
     /*!
@@ -107,6 +108,7 @@ class DFuncKernel
 				 const Scalar *values,
 				 const int num_values,
 				 const double param_coords[3],
+				 const iMesh_Instance mesh,
 				 const iBase_EntityHandle physical_cell ) = 0;
 
     /*!
@@ -120,7 +122,18 @@ class DFuncKernel
 				    const Scalar *values,
 				    const int num_values,
 				    const double param_coords[3],
+				    const iMesh_Instance mesh,
 				    const iBase_EntityHandle physical_cell ) = 0;
+
+    /*!
+     * \brief Evaluate the distribution function using function coefficients
+     * and physical frame distribution function kernel values.
+     */
+    virtual void evaluate( Scalar **function_values,
+			   const Scalar* coeffs,
+			   const int num_coeffs,
+			   const Scalar* dfunc_values,
+			   const int num_dfunc_values ) = 0;
 
     //! Get the distribution function kernel cardinality.
     virtual int getCardinality() const

@@ -5,9 +5,9 @@
 // version 3.0 of the License, or (at your option) any later version.
 //
 /*!
- * \file   mesh/test/tstBasisFactory.cpp
+ * \file   mesh/test/tstDFuncKernelFactory.cpp
  * \author Stuart Slattery
- * \brief  BasisFactory class unit tests.
+ * \brief  DFuncKernelFactory class unit tests.
  */
 //---------------------------------------------------------------------------//
 
@@ -18,7 +18,7 @@
 
 #include <DiscretizationTypes.hpp>
 #include <CellTopologyFactory.hpp>
-#include <BasisFactory.hpp>
+#include <DFuncKernelFactory.hpp>
 
 #include <iBase.h>
 #include <iMesh.h>
@@ -31,7 +31,7 @@
 
 #include <Shards_Array.hpp>
 
-#include <Intrepid_Basis.hpp>
+#include <Intrepid_DFuncKernel.hpp>
 #include <Intrepid_Cubature.hpp>
 #include <Intrepid_DefaultCubatureFactory.hpp>
 #include <Intrepid_FieldContainer.hpp>
@@ -54,7 +54,7 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 // TESTS
 //---------------------------------------------------------------------------//
 
-TEUCHOS_UNIT_TEST( BasisFactory, factory_test )
+TEUCHOS_UNIT_TEST( DFuncKernelFactory, factory_test )
 {
     typedef Intrepid::FieldContainer<double> DoubleContainer;
 
@@ -75,19 +75,19 @@ TEUCHOS_UNIT_TEST( BasisFactory, factory_test )
     int num_cube_points = cubature->getNumPoints();
     TEST_ASSERT( num_cube_points == 4 );
 
-    // Select a discrete basis.
-    FOOD::BasisFactory<double,DoubleContainer> basis_factory;
-    Teuchos::RCP< Intrepid::Basis<double,DoubleContainer> > basis = 
-	basis_factory.create( iMesh_TETRAHEDRON,
+    // Select a discrete dfunckernel.
+    FOOD::DFuncKernelFactory<double,DoubleContainer> dfunckernel_factory;
+    Teuchos::RCP< Intrepid::DFuncKernel<double,DoubleContainer> > dfunckernel = 
+	dfunckernel_factory.create( iMesh_TETRAHEDRON,
 			      FOOD::FOOD_FEM,
 			      FOOD::FOOD_HGRAD,
 			      1 );
-    int num_fields = basis->getCardinality();
+    int num_fields = dfunckernel->getCardinality();
     TEST_ASSERT( num_fields == 4 );
 
-    // Evaluate the basis.
+    // Evaluate the dfunckernel.
 }
 
 //---------------------------------------------------------------------------//
-//                        end of tstBasisFactory.cpp
+//                        end of tstDFuncKernelFactory.cpp
 //---------------------------------------------------------------------------//

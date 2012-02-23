@@ -52,21 +52,22 @@ class IntrepidKernel : public DFuncKernel<Scalar>
 
     // Evaluate the value of the distribution function kernel at a given set
     // of parametric coordinates.  
-    void evaluateValue( Scalar **values, 
-			int *num_values,
-			const double param_coords[3] );
+    void dfuncValue( Scalar **values, 
+		     int *num_values,
+		     const double param_coords[3] );
 
     // Evaluate the operator value of a distribution function kernel at a
     // given set of parametric coordinates. 
-    void evaluateOperator( Scalar **values, 
-			   int *num_values,
-			   const double param_coords[3] );
+    void dfuncOperator( Scalar **values, 
+			int *num_values,
+			const double param_coords[3] );
 
     // Transform a point from the physical frame in a physical cell to the
     // reference frame of the reference cell for the distribution function
     // kernel topology.
     void transformPoint( double param_coords[3],
 			 const double physical_coords[3],
+			 const iMesh_Instance mesh,
 			 const iBase_EntityHandle physical_cell );
 
     // Transform the value of the distribution function kernel at a given set
@@ -76,6 +77,7 @@ class IntrepidKernel : public DFuncKernel<Scalar>
 			 const Scalar *values,
 			 const int num_values,
 			 const double param_coords[3],
+			 const iMesh_Instance mesh,
 			 const iBase_EntityHandle physical_cell );
 
     // Transform the operator value of a distribution function kernel at a
@@ -85,7 +87,16 @@ class IntrepidKernel : public DFuncKernel<Scalar>
 			    const Scalar *values,
 			    const int num_values,
 			    const double param_coords[3],
+			    const iMesh_Instance mesh,
 			    const iBase_EntityHandle physical_cell );
+
+    // Evaluate the distribution function using function coefficients and
+    // physical frame distribution function kernel values. 
+    void evaluate( Scalar **function_values,
+		   const Scalar* coeffs,
+		   const int num_coeffs,
+		   const Scalar* dfunc_values,
+		   const int num_dfunc_values );
 };
 
 } // end namespace FOOD

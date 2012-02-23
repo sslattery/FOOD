@@ -24,6 +24,7 @@ APPEND_SET(HEADERS
   DFuncKernel.hpp
   DFuncKernelFactory.hpp
   DFuncKernelFactory_Def.hpp
+  DiscretizationTypes.hpp
   IntrepidKernel.hpp
   IntrepidKernel_Def.hpp
   DiscretizationTypes.hpp
