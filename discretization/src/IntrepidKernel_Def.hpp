@@ -63,17 +63,16 @@ void IntrepidKernel<Scalar>::dfuncValue( Teuchos::ArrayRCP<Scalar> &values,
 					 const double param_coords[3] )
 {
     MDArray coords(1,3);
+    coords(0,0) = param_coords[0];
+    coords(0,1) = param_coords[1];
+    coords(0,2) = param_coords[2];
+
     if ( this->b_function_space_type == FOOD_HGRAD )
     {
-
 	Teuchos::Tuple<int,2> grad_value_dimensions;
 	grad_value_dimensions[0] = this->b_cardinality;
 	grad_value_dimensions[1] = 1;
 	MDArray grad_values( grad_value_dimensions );
-
-	coords(0,0) = param_coords[0];
-	coords(0,1) = param_coords[1];
-	coords(0,2) = param_coords[2];
 
 	d_intrepid_basis->getValues( grad_values, 
 				     coords, 
@@ -90,10 +89,6 @@ void IntrepidKernel<Scalar>::dfuncValue( Teuchos::ArrayRCP<Scalar> &values,
 	div_value_dimensions[2] = 3;
 	MDArray div_values( div_value_dimensions );
 
-	coords(0,0) = param_coords[0];
-	coords(0,1) = param_coords[1];
-	coords(0,2) = param_coords[2];
-
 	d_intrepid_basis->getValues( div_values, 
 				     coords, 
 				     Intrepid::OPERATOR_VALUE );
@@ -107,10 +102,6 @@ void IntrepidKernel<Scalar>::dfuncValue( Teuchos::ArrayRCP<Scalar> &values,
 	curl_value_dimensions[1] = 1;
 	curl_value_dimensions[2] = 3;
 	MDArray curl_values( curl_value_dimensions );
-
-	coords(0,0) = param_coords[0];
-	coords(0,1) = param_coords[1];
-	coords(0,2) = param_coords[2];
 
 	d_intrepid_basis->getValues( curl_values, 
 				     coords, 
@@ -137,6 +128,10 @@ void IntrepidKernel<Scalar>::dfuncOperator( Teuchos::ArrayRCP<Scalar> &values,
 					    const double param_coords[3] )
 {
     MDArray coords(1,3);
+    coords(0,0) = param_coords[0];
+    coords(0,1) = param_coords[1];
+    coords(0,2) = param_coords[2];
+
     if ( this->b_function_space_type == FOOD_HGRAD )
     {
 	Teuchos::Tuple<int,3> grad_dimensions;
@@ -144,10 +139,6 @@ void IntrepidKernel<Scalar>::dfuncOperator( Teuchos::ArrayRCP<Scalar> &values,
 	grad_dimensions[1] = 1;
 	grad_dimensions[2] = 3;
 	MDArray dfunc_grad( grad_dimensions );
-
-	coords(0,0) = param_coords[0];
-	coords(0,1) = param_coords[1];
-	coords(0,2) = param_coords[2];
     
 	d_intrepid_basis->getValues( dfunc_grad, 
 				     coords, 
@@ -162,10 +153,6 @@ void IntrepidKernel<Scalar>::dfuncOperator( Teuchos::ArrayRCP<Scalar> &values,
 	div_dimensions[1] = 1;
 	MDArray dfunc_div( div_dimensions );
 
-	coords(0,0) = param_coords[0];
-	coords(0,1) = param_coords[1];
-	coords(0,2) = param_coords[2];
-
 	d_intrepid_basis->getValues( dfunc_div, 
 				     coords, 
 				     Intrepid::OPERATOR_DIV );
@@ -179,10 +166,6 @@ void IntrepidKernel<Scalar>::dfuncOperator( Teuchos::ArrayRCP<Scalar> &values,
 	curl_dimensions[1] = 1;
 	curl_dimensions[2] = 3;
 	MDArray dfunc_curl( curl_dimensions );
-
-	coords(0,0) = param_coords[0];
-	coords(0,1) = param_coords[1];
-	coords(0,2) = param_coords[2];
 
 	d_intrepid_basis->getValues( dfunc_curl,
 				     coords, 
