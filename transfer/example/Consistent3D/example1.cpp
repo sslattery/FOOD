@@ -32,8 +32,6 @@
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_CommHelpers.hpp>
 
-#include <Intrepid_FieldContainer.hpp>
-
 template<class Ordinal>
 Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 {
@@ -55,8 +53,6 @@ int main(int argc, char* argv[])
 
     if ( getDefaultComm<int>()->getRank() == 0 )
     {
-
-    typedef Intrepid::FieldContainer<double> MDArray;
 
     int error;
 
