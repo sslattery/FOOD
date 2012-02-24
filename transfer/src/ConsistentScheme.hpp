@@ -71,10 +71,6 @@ class ConsistentScheme : public DataTransferScheme<Scalar>
     // to the range.
     void transferValueDF();
 
-    // Perform gradient interpolation of the degrees of freedom from the
-    // domain to the range.
-    void transferGradDF();
-
     // Get the tensor field corresponding to the domain.
     RCP_TensorField getDomainField() const
     { return d_dof_domain; }

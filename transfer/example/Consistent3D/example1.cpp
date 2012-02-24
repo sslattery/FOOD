@@ -64,10 +64,6 @@ int main(int argc, char* argv[])
     Teuchos::RCP<FOOD::TensorTemplate> tensor_template = Teuchos::rcp(
 	new FOOD::TensorTemplate(1, 3, FOOD::FOOD_REAL, Teuchos::null) );
 
-    // Need another one for the gradient. Here the gradient is rank 2 tensor.
-    Teuchos::RCP<FOOD::TensorTemplate> grad_tensor_template = Teuchos::rcp(
-	new FOOD::TensorTemplate(2, 9, FOOD::FOOD_REAL, Teuchos::null) );
-
     // Set up the func_dmn mesh.
     iMesh_Instance domain_mesh;
     iMesh_newMesh("", &domain_mesh, &error, 0);
@@ -166,27 +162,6 @@ int main(int argc, char* argv[])
     assert( iBase_SUCCESS == error );
 
     func_rng_field->attachToTagData( func_rng_tag, error );
-    assert( iBase_SUCCESS == error );
-
-    // Setup the gradient field.
-    Teuchos::RCP< FOOD::TensorField<double> > func_rng_grad_field = Teuchos::rcp(
-	new FOOD::TensorField<double>( getDefaultComm<int>(),
-				       func_rng_domain,
-				       func_rng_dfunckernel,
-				       grad_tensor_template,
-				       Teuchos::null,
-				       "FUNC_RNG_GRAD_FIELD" ) );
-
-    std::string func_rng_grad_tag_name = "grad_range";
-    iBase_TagHandle func_rng_grad_tag;
-    iMesh_getTagHandle( func_rng_domain->getMesh(),
-			&func_rng_grad_tag_name[0],
-			&func_rng_grad_tag,
-			&error,
-			(int) func_rng_grad_tag_name.size() );
-    assert( iBase_SUCCESS == error );
-
-    func_rng_grad_field->attachToTagData( func_rng_grad_tag, error );
     assert( iBase_SUCCESS == error );
 
     // Do interpolation.

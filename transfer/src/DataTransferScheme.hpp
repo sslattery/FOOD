@@ -50,10 +50,6 @@ class DataTransferScheme
     // Transfer the value of the degrees of freedom from the domain to the range. 
     virtual void transferValueDF() = 0;
 
-    // Transfer the gradient of the degrees of freedom from the domain to the
-    // range. 
-    virtual void transferGradDF() = 0;
-
     // Get the tensor field corresponding to the domain.
     virtual RCP_TensorField getDomainField() const = 0;
 
