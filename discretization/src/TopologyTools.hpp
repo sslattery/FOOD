@@ -33,10 +33,10 @@ void MBCN2Shards( iBase_EntityHandle *element_nodes,
 		  const int num_nodes,
 		  const int entity_topology );
 
-// Point in volume query on a reference element.
-bool pointInRefElement( const iMesh_Instance mesh,
-			const iBase_EntityHandle entity,
-			const double coords[3] );
+// Point in volume query on an entity.
+bool pointInVolume( const iMesh_Instance mesh,
+		    const iBase_EntityHandle entity,
+		    const double coords[3] );
 
 } // end namespace TopologyTools
 

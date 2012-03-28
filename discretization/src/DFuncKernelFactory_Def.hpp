@@ -14,8 +14,7 @@
 #ifndef FOOD_DFUNCKERNELFACTORY_DEF_HPP
 #define FOOD_DFUNCKERNELFACTORY_DEF_HPP
 
-#include <cassert>
-
+#include "Exception.hpp"
 #include "DiscretizationTypes.hpp"
 #include "IntrepidKernel.hpp"
 
@@ -102,14 +101,16 @@ DFuncKernelFactory<Scalar>::create( const int entity_type,
 			    }
 			    else
 			    {
-				assert( degree == 1 );
+				testPrecondition( degree == 1,
+						  "Invalid degree" );
 			    }
 
 			    break;
 
 			default:
 
-			    assert ( FOOD_FEM == discretization_type );
+			    testPrecondition ( FOOD_FEM == discretization_type,
+					       "Invalid discretization_type" );
 		    }
 
 		case iMesh_TRIANGLE:
@@ -144,15 +145,17 @@ DFuncKernelFactory<Scalar>::create( const int entity_type,
 			    }
 			    else
 			    {
-				assert( degree == 1 ||
-					degree == 2 );
+				testPrecondition( degree == 1 ||
+						  degree == 2,
+						  "Invalid degree" );
 			    }
 
 			    break;
 
 			default:
 
-			    assert ( FOOD_FEM == discretization_type );
+			    testPrecondition ( FOOD_FEM == discretization_type,
+					       "Invalid discretization type" );
 		    }
 
 		    break;
@@ -189,15 +192,17 @@ DFuncKernelFactory<Scalar>::create( const int entity_type,
 			    }
 			    else
 			    {
-				assert( degree == 1 ||
-					degree == 2 );
+				testPrecondition( degree == 1 ||
+						  degree == 2,
+						  "Invalid degree" );
 			    }
 
 			    break;
 
 			default:
 
-			    assert ( FOOD_FEM == discretization_type );
+			    testPrecondition ( FOOD_FEM == discretization_type,
+					       "Invalid discretization type" );
 		    }
 
 		    break;
@@ -234,15 +239,17 @@ DFuncKernelFactory<Scalar>::create( const int entity_type,
 			    }
 			    else
 			    {
-				assert( degree == 1 ||
-					degree == 2 );
+				testPrecondition( degree == 1 ||
+						  degree == 2,
+						  "Invalid Degree" );
 			    }
 
 			    break;
 
 			default:
 
-			    assert ( FOOD_FEM == discretization_type );
+			    testPrecondition ( FOOD_FEM == discretization_type,
+					       "Invalid discretization type" );
 		    }
 
 		    break;
@@ -279,26 +286,29 @@ DFuncKernelFactory<Scalar>::create( const int entity_type,
 			    }
 			    else
 			    {
-				assert( degree == 1 ||
-					degree == 2 );
+				testPrecondition( degree == 1 ||
+						  degree == 2,
+						  "Invalid degree" );
 			    }
 
 			    break;
 
 			default:
 
-			    assert ( FOOD_FEM == discretization_type );
+			    testPrecondition ( FOOD_FEM == discretization_type,
+					       "Invalid discretization type" );
 		    }
 
 		    break;
 
 		default:
 
-		    assert( iMesh_LINE_SEGMENT  == entity_topology ||
-			    iMesh_TRIANGLE      == entity_topology ||
-			    iMesh_QUADRILATERAL == entity_topology ||
-			    iMesh_TETRAHEDRON   == entity_topology ||
-			    iMesh_HEXAHEDRON    == entity_topology );
+		    testPrecondition( iMesh_LINE_SEGMENT  == entity_topology ||
+				      iMesh_TRIANGLE      == entity_topology ||
+				      iMesh_QUADRILATERAL == entity_topology ||
+				      iMesh_TETRAHEDRON   == entity_topology ||
+				      iMesh_HEXAHEDRON    == entity_topology,
+				      "Invalid mesh topology" );
 	    }
 	
 	    break;
@@ -328,14 +338,16 @@ DFuncKernelFactory<Scalar>::create( const int entity_type,
 			    }
 			    else
 			    {
-				assert( degree == 1 );
+				testPrecondition( degree == 1,
+						  "Invalid degree" );
 			    }
 
 			    break;
 
 			default:
 
-			    assert ( FOOD_FEM == discretization_type );
+			    testPrecondition ( FOOD_FEM == discretization_type,
+					       "Invalid discretization type" );
 		    }
 
 		    break;
@@ -360,14 +372,16 @@ DFuncKernelFactory<Scalar>::create( const int entity_type,
 			    }
 			    else
 			    {
-				assert( degree == 1 );
+				testPrecondition( degree == 1,
+						  "Invalid degree" );
 			    }
 
 			    break;
 
 			default:
 
-			    assert ( FOOD_FEM == discretization_type );
+			    testPrecondition ( FOOD_FEM == discretization_type,
+					       "Invalid discretization type" );
 		    }
 
 		    break;
@@ -392,14 +406,16 @@ DFuncKernelFactory<Scalar>::create( const int entity_type,
 			    }
 			    else
 			    {
-				assert( degree == 1 );
+				testPrecondition( degree == 1,
+						  "Invalid degree" );
 			    }
 
 			    break;
 
 			default:
 
-			    assert ( FOOD_FEM == discretization_type );
+			    testPrecondition ( FOOD_FEM == discretization_type,
+					       "Invalid discretization type" );
 		    }
 
 		    break;
@@ -424,24 +440,27 @@ DFuncKernelFactory<Scalar>::create( const int entity_type,
 			    }
 			    else
 			    {
-				assert( degree == 1 );
+				testPrecondition( degree == 1,
+						  "Invalid degree" );
 			    }
 
 			    break;
 
 			default:
 
-			    assert ( FOOD_FEM == discretization_type );
+			    testPrecondition ( FOOD_FEM == discretization_type,
+					       "Invalid discretization type" );
 		    }
 
 		    break;
 
 		default:
 
-		    assert( iMesh_TRIANGLE      == entity_topology ||
-			    iMesh_QUADRILATERAL == entity_topology ||
-			    iMesh_TETRAHEDRON   == entity_topology ||
-			    iMesh_HEXAHEDRON    == entity_topology );
+		    testPrecondition( iMesh_TRIANGLE      == entity_topology ||
+				      iMesh_QUADRILATERAL == entity_topology ||
+				      iMesh_TETRAHEDRON   == entity_topology ||
+				      iMesh_HEXAHEDRON    == entity_topology,
+				      "Invalid mesh topology" );
 	    }
 
 	    break;
@@ -470,14 +489,16 @@ DFuncKernelFactory<Scalar>::create( const int entity_type,
 			    }
 			    else
 			    {
-				assert( degree == 1 );
+				testPrecondition( degree == 1,
+						  "Invalid degree" );
 			    }
 
 			    break;
 
 			default:
 
-			    assert ( FOOD_FEM == discretization_type );
+			    testPrecondition ( FOOD_FEM == discretization_type,
+					       "Invalid discretization type" );
 		    }
 
 		    break;
@@ -502,14 +523,16 @@ DFuncKernelFactory<Scalar>::create( const int entity_type,
 			    }
 			    else
 			    {
-				assert( degree == 1 );
+				testPrecondition( degree == 1,
+						  "Invalid degree" );
 			    }
 
 			    break;
 
 			default:
 
-			    assert ( FOOD_FEM == discretization_type );
+			    testPrecondition ( FOOD_FEM == discretization_type,
+					       "Invalid discretization type" );
 		    }
 
 		    break;
@@ -534,14 +557,16 @@ DFuncKernelFactory<Scalar>::create( const int entity_type,
 			    }
 			    else
 			    {
-				assert( degree == 1 );
+				testPrecondition( degree == 1,
+						  "Invalid degree" );
 			    }
 
 			    break;
 
 			default:
 
-			    assert ( FOOD_FEM == discretization_type );
+			    testPrecondition ( FOOD_FEM == discretization_type,
+					       "Invalid discretization type" );
 		    }
 
 		    break;
@@ -566,33 +591,37 @@ DFuncKernelFactory<Scalar>::create( const int entity_type,
 			    }
 			    else
 			    {
-				assert( degree == 1 );
+				testPrecondition( degree == 1,
+						  "Invalid degree" );
 			    }
 
 			    break;
 
 			default:
 
-			    assert ( FOOD_FEM == discretization_type );
+			    testPrecondition ( FOOD_FEM == discretization_type,
+					       "Invalid discretization type" );
 		    }
 
 		    break;
 
 		default:
 
-		    assert( iMesh_TRIANGLE      == entity_topology ||
-			    iMesh_QUADRILATERAL == entity_topology ||
-			    iMesh_TETRAHEDRON   == entity_topology ||
-			    iMesh_HEXAHEDRON    == entity_topology );
+		    testPrecondition( iMesh_TRIANGLE      == entity_topology ||
+				      iMesh_QUADRILATERAL == entity_topology ||
+				      iMesh_TETRAHEDRON   == entity_topology ||
+				      iMesh_HEXAHEDRON    == entity_topology,
+				      "Invalid mesh topology" );
 	    }
 
 	    break;
 
 	default:
 
-	    assert( FOOD_HGRAD == function_space_type ||
-		    FOOD_HDIV  == function_space_type ||
-		    FOOD_HCURL == function_space_type );
+	    testPrecondition( FOOD_HGRAD == function_space_type ||
+			      FOOD_HDIV  == function_space_type ||
+			      FOOD_HCURL == function_space_type,
+			      "Invalid function space type" );
     }
 
     return new_dfunckernel;

@@ -103,11 +103,11 @@ TEUCHOS_UNIT_TEST( TopologyTools, hex_query )
     TEST_ASSERT( iBase_SUCCESS == error );
 
     double point1[3] = { 0.5, 0.5, 0.5 };
-    TEST_ASSERT( FOOD::TopologyTools::pointInRefElement( 
+    TEST_ASSERT( FOOD::TopologyTools::pointInVolume( 
 		     mesh, hex_element, point1 ) == true );
 
     double point2[3] = { 0.25, 1.5, -0.5 };
-    TEST_ASSERT( FOOD::TopologyTools::pointInRefElement( 
+    TEST_ASSERT( FOOD::TopologyTools::pointInVolume( 
 		     mesh, hex_element, point2 ) == false );
 }
 
@@ -156,11 +156,11 @@ TEUCHOS_UNIT_TEST( TopologyTools, quadratic_hex_query )
     TEST_ASSERT( iBase_NEW == status );
 
     double point1[3] = { 0.5, 0.5, 0.5 };
-    TEST_ASSERT( FOOD::TopologyTools::pointInRefElement( 
+    TEST_ASSERT( FOOD::TopologyTools::pointInVolume( 
 		     mesh, hex_element, point1 ) == true );
 
     double point2[3] = { 0.25, 1.5, -0.5 };
-    TEST_ASSERT( FOOD::TopologyTools::pointInRefElement( 
+    TEST_ASSERT( FOOD::TopologyTools::pointInVolume( 
 		     mesh, hex_element, point2 ) == false );
 }
 

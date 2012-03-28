@@ -15,8 +15,8 @@
 #ifndef FOOD_INTREPIDKERNEL_DEF_HPP
 #define FOOD_INTREPIDKERNEL_DEF_HPP
 
-#include <cassert>
 
+#include "Exception.hpp"
 #include "TopologyTools.hpp"
 
 #include <Teuchos_Tuple.hpp>
@@ -111,9 +111,10 @@ void IntrepidKernel<Scalar>::dfuncValue( Teuchos::ArrayRCP<Scalar> &values,
     }
     else
     {	    
-	assert( this->b_function_space_type == FOOD_HGRAD ||
-		this->b_function_space_type == FOOD_HDIV  ||
-		this->b_function_space_type == FOOD_HCURL );
+	testPrecondition( this->b_function_space_type == FOOD_HGRAD ||
+			  this->b_function_space_type == FOOD_HDIV  ||
+			  this->b_function_space_type == FOOD_HCURL,
+			  "Invalid function space type" );
     }
 }
 
@@ -175,9 +176,10 @@ void IntrepidKernel<Scalar>::dfuncOperator( Teuchos::ArrayRCP<Scalar> &values,
     }
     else
     {
-	assert( this->b_function_space_type == FOOD_HGRAD ||
-		this->b_function_space_type == FOOD_HDIV  ||
-		this->b_function_space_type == FOOD_HCURL );
+	testPrecondition( this->b_function_space_type == FOOD_HGRAD ||
+			  this->b_function_space_type == FOOD_HDIV  ||
+			  this->b_function_space_type == FOOD_HCURL,
+			  "Invalid function space type" );
     }
 }
 
@@ -205,7 +207,8 @@ void IntrepidKernel<Scalar>::transformPoint(
 		     &element_nodes_allocated,
 		     &element_nodes_size,
 		     &error );
-    assert( iBase_SUCCESS == error );
+    verboseAssert( iBase_SUCCESS == error,
+		   "Failure retrieving physical cell adjacencies." );
 
     TopologyTools::MBCN2Shards( element_nodes, 
 				element_nodes_size,
@@ -222,7 +225,8 @@ void IntrepidKernel<Scalar>::transformPoint(
 			   &coords_allocated,
 			   &coords_size,
 			   &error );
-    assert( iBase_SUCCESS == error );
+    verboseAssert( iBase_SUCCESS == error,
+		   "Failure getting vertex array coordinates" );
 
     Teuchos::Tuple<int,3> cell_node_dimensions;
     cell_node_dimensions[0] = 1;
@@ -277,7 +281,8 @@ void IntrepidKernel<Scalar>::transformValue(
 		     &element_nodes_allocated,
 		     &element_nodes_size,
 		     &error );
-    assert( iBase_SUCCESS == error );
+    verboseAssert( iBase_SUCCESS == error,
+		   "Failure getting physical cell adjacencies" );
 
     TopologyTools::MBCN2Shards( element_nodes, 
 				element_nodes_size,
@@ -294,7 +299,8 @@ void IntrepidKernel<Scalar>::transformValue(
 			   &coords_allocated,
 			   &coords_size,
 			   &error );
-    assert( iBase_SUCCESS == error );
+    verboseAssert( iBase_SUCCESS == error,
+		   "Failure getting vertex array coordinates" );
 
     Teuchos::Tuple<int,3> cell_node_dimensions;
     cell_node_dimensions[0] = 1;
@@ -384,9 +390,10 @@ void IntrepidKernel<Scalar>::transformValue(
     }
     else
     {	    
-	assert( this->b_function_space_type == FOOD_HGRAD ||
-		this->b_function_space_type == FOOD_HDIV  ||
-		this->b_function_space_type == FOOD_HCURL );
+	testPrecondition( this->b_function_space_type == FOOD_HGRAD ||
+			  this->b_function_space_type == FOOD_HDIV  ||
+			  this->b_function_space_type == FOOD_HCURL,
+			  "Invalid function space type" );
     }
 
     free( coord_array );
@@ -420,7 +427,8 @@ void IntrepidKernel<Scalar>::transformOperator(
 		     &element_nodes_allocated,
 		     &element_nodes_size,
 		     &error );
-    assert( iBase_SUCCESS == error );
+    verboseAssert( iBase_SUCCESS == error,
+		   "Failure getting physical cell adjacent entities" );
 
     TopologyTools::MBCN2Shards( element_nodes, 
 				element_nodes_size,
@@ -437,7 +445,8 @@ void IntrepidKernel<Scalar>::transformOperator(
 			   &coords_allocated,
 			   &coords_size,
 			   &error );
-    assert( iBase_SUCCESS == error );
+    verboseAssert( iBase_SUCCESS == error,
+		   "Failure getting vertex array coordinates" );
 
     Teuchos::Tuple<int,3> cell_node_dimensions;
     cell_node_dimensions[0] = 1;
@@ -491,9 +500,10 @@ void IntrepidKernel<Scalar>::transformOperator(
     }
     else
     {
-	assert( this->b_function_space_type == FOOD_HGRAD ||
-		this->b_function_space_type == FOOD_HDIV  ||
-		this->b_function_space_type == FOOD_HCURL );
+	testPrecondition( this->b_function_space_type == FOOD_HGRAD ||
+			  this->b_function_space_type == FOOD_HDIV  ||
+			  this->b_function_space_type == FOOD_HCURL,
+			  "Invalid function space type" );
     }
 
     free( coord_array );
@@ -511,7 +521,8 @@ void IntrepidKernel<Scalar>::evaluate(
     const Teuchos::ArrayRCP<Scalar> &dfunc_values )
 {
     int dim1 = this->b_cardinality;
-    assert( dim1 == (int) coeffs.size() );
+    testPrecondition( dim1 == (int) coeffs.size(),
+	"Function coefficients size does not match basis cardinality" );
     
     MDArray function_coeffs( 1, dim1 );
     for ( int m = 0; m < dim1; ++m )

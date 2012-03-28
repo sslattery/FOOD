@@ -1,8 +1,9 @@
 SET(SUBPACKAGES_DIRS_CLASSIFICATIONS_OPTREQS
+  Utils            utils            SS  REQUIRED
   Discretization   discretization   SS  REQUIRED
   Field            field            SS  REQUIRED
   Search           search           SS  REQUIRED
-  Transfer         transfer         SS  REQUIRED
+  Transfer         transfer         SS  OPTIONAL
   ) 
 
 SET(LIB_REQUIRED_DEP_PACKAGES)

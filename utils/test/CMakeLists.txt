@@ -1,0 +1,2 @@
+INCLUDE(TribitsAddExecutableAndTest)
+INCLUDE(TribitsAddAdvancedTest)

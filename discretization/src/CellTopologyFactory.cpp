@@ -11,8 +11,7 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <cassert>
-
+#include "Exception.hpp"
 #include "CellTopologyFactory.hpp"
 
 #include <iMesh.h>
@@ -184,11 +183,12 @@ CellTopologyFactory::create( const int entity_topology,
 
 	default:
 	    
-	    assert( iMesh_LINE_SEGMENT  == entity_topology ||
-		    iMesh_TRIANGLE      == entity_topology ||
-		    iMesh_QUADRILATERAL == entity_topology ||
-		    iMesh_TETRAHEDRON   == entity_topology ||
-		    iMesh_HEXAHEDRON    == entity_topology );
+	    testPrecondition( iMesh_LINE_SEGMENT  == entity_topology ||
+			      iMesh_TRIANGLE      == entity_topology ||
+			      iMesh_QUADRILATERAL == entity_topology ||
+			      iMesh_TETRAHEDRON   == entity_topology ||
+			      iMesh_HEXAHEDRON    == entity_topology ,
+			      "Invalid mesh topology" );
     }
 
     return new_topology;
