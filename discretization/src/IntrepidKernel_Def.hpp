@@ -15,6 +15,7 @@
 #ifndef FOOD_INTREPIDKERNEL_DEF_HPP
 #define FOOD_INTREPIDKERNEL_DEF_HPP
 
+#include <cassert>
 
 #include "Exception.hpp"
 #include "TopologyTools.hpp"
@@ -207,8 +208,7 @@ void IntrepidKernel<Scalar>::transformPoint(
 		     &element_nodes_allocated,
 		     &element_nodes_size,
 		     &error );
-    verboseAssert( iBase_SUCCESS == error,
-		   "Failure retrieving physical cell adjacencies." );
+    assert( iBase_SUCCESS == error );
 
     TopologyTools::MBCN2Shards( element_nodes, 
 				element_nodes_size,
@@ -225,8 +225,7 @@ void IntrepidKernel<Scalar>::transformPoint(
 			   &coords_allocated,
 			   &coords_size,
 			   &error );
-    verboseAssert( iBase_SUCCESS == error,
-		   "Failure getting vertex array coordinates" );
+    assert( iBase_SUCCESS == error );
 
     Teuchos::Tuple<int,3> cell_node_dimensions;
     cell_node_dimensions[0] = 1;
@@ -281,8 +280,7 @@ void IntrepidKernel<Scalar>::transformValue(
 		     &element_nodes_allocated,
 		     &element_nodes_size,
 		     &error );
-    verboseAssert( iBase_SUCCESS == error,
-		   "Failure getting physical cell adjacencies" );
+    assert( iBase_SUCCESS == error );
 
     TopologyTools::MBCN2Shards( element_nodes, 
 				element_nodes_size,
@@ -299,8 +297,7 @@ void IntrepidKernel<Scalar>::transformValue(
 			   &coords_allocated,
 			   &coords_size,
 			   &error );
-    verboseAssert( iBase_SUCCESS == error,
-		   "Failure getting vertex array coordinates" );
+    assert( iBase_SUCCESS == error );
 
     Teuchos::Tuple<int,3> cell_node_dimensions;
     cell_node_dimensions[0] = 1;
@@ -427,8 +424,7 @@ void IntrepidKernel<Scalar>::transformOperator(
 		     &element_nodes_allocated,
 		     &element_nodes_size,
 		     &error );
-    verboseAssert( iBase_SUCCESS == error,
-		   "Failure getting physical cell adjacent entities" );
+    assert( iBase_SUCCESS == error );
 
     TopologyTools::MBCN2Shards( element_nodes, 
 				element_nodes_size,
@@ -445,8 +441,7 @@ void IntrepidKernel<Scalar>::transformOperator(
 			   &coords_allocated,
 			   &coords_size,
 			   &error );
-    verboseAssert( iBase_SUCCESS == error,
-		   "Failure getting vertex array coordinates" );
+    assert( iBase_SUCCESS == error );
 
     Teuchos::Tuple<int,3> cell_node_dimensions;
     cell_node_dimensions[0] = 1;

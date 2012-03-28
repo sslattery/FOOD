@@ -64,9 +64,6 @@ void testPostcondition( bool throw_if_false, const std::string &msg );
 // Test for a Invariant exception.
 void testInvariant( bool throw_if_false, const std::string &msg );
 
-//Assert with more information.
-void verboseAssert( bool assert_if_false, const std::string &msg );
-
 } // end namespace FOOD
 
 #endif // end FOOD_EXCEPTION_HPP

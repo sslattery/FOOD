@@ -3,7 +3,7 @@ SET(SUBPACKAGES_DIRS_CLASSIFICATIONS_OPTREQS
   Discretization   discretization   SS  REQUIRED
   Field            field            SS  REQUIRED
   Search           search           SS  REQUIRED
-  Transfer         transfer         SS  OPTIONAL
+  Transfer         transfer         EX  OPTIONAL
   ) 
 
 SET(LIB_REQUIRED_DEP_PACKAGES)

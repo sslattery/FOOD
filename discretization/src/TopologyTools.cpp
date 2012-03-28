@@ -12,6 +12,7 @@
 //---------------------------------------------------------------------------//
 
 #include <vector>
+#include <cassert>
 
 #include "Exception.hpp"
 #include "CellTopologyFactory.hpp"
@@ -191,8 +192,7 @@ bool TopologyTools::pointInVolume( const iMesh_Instance mesh,
     int error = 0;
     int topology = 0;
     iMesh_getEntTopo( mesh, entity, &topology, &error );
-    verboseAssert( iBase_SUCCESS == error,
-		   "Failure getting mesh topology" );
+    assert( iBase_SUCCESS == error );
 
     iBase_EntityHandle *element_nodes = 0;
     int element_nodes_allocated = 0;
@@ -204,8 +204,7 @@ bool TopologyTools::pointInVolume( const iMesh_Instance mesh,
 		     &element_nodes_allocated,
 		     &element_nodes_size,
 		     &error );
-    verboseAssert( iBase_SUCCESS == error,
-		   "Failure getting entity adjacencies" );
+    assert( iBase_SUCCESS == error );
 
     MBCN2Shards( element_nodes, element_nodes_size, topology );
 
@@ -232,8 +231,7 @@ bool TopologyTools::pointInVolume( const iMesh_Instance mesh,
 			   &coords_allocated,
 			   &coords_size,
 			   &error );
-    verboseAssert( iBase_SUCCESS == error,
-		   "Failure getting adjacent vertex coordinates" );
+    assert( iBase_SUCCESS == error );
 
     Teuchos::Tuple<int,3> cell_node_dimensions;
     cell_node_dimensions[0] = 1;

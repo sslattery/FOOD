@@ -27,12 +27,9 @@
 #include <iBase.h>
 
 #include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ArrayRCP.hpp>
-
-#include <Tpetra_Map.hpp>
 
 namespace FOOD
 {
@@ -46,28 +43,18 @@ class TensorField
     //@{
     //! Typedefs.
     typedef unsigned long int                        OrdinalType;
-    typedef Teuchos::Comm<int>                       Communicator_t;
-    typedef Teuchos::RCP<const Communicator_t>       RCP_Communicator;
     typedef Teuchos::RCP<Domain>                     RCP_Domain;
     typedef DFuncKernel<Scalar>                      DFuncKernel_t;
     typedef Teuchos::RCP<DFuncKernel_t>              RCP_DFuncKernel;
     typedef Teuchos::RCP<TensorTemplate>             RCP_TensorTemplate;
     typedef Teuchos::RCP<Unit>                       RCP_Unit;
-    typedef Tpetra::Map<OrdinalType>                 Map_t;
-    typedef Teuchos::RCP<const Map_t>                RCP_Map;
     //@}
 
   private:
 
-    // The communicator this field is defined on.
-    RCP_Communicator d_comm;
-
     // The degrees of freedom represented by this field. Stored in a
     // multidimensional array access wrapper. Shallow copy of tag data.
     Teuchos::ArrayRCP<Scalar> d_dofs;
-
-    // Tpetra map for the degrees of freedom represented by this field.
-    RCP_Map d_dof_map;
 
     // The domain this field is defined on.
     RCP_Domain d_domain;
@@ -90,11 +77,9 @@ class TensorField
   public:
 
     // Constructor.
-    TensorField( RCP_Communicator comm,
-		 RCP_Domain domain,
+    TensorField( RCP_Domain domain,
 		 RCP_DFuncKernel dfunckernel,
 		 RCP_TensorTemplate tensor_template,
-		 RCP_Unit unit,
 		 const std::string &name );
 
     // Destructor.
@@ -123,10 +108,6 @@ class TensorField
 			 const int is_param,
 			 Teuchos::ArrayRCP<Scalar> &dfunc_values );
 
-    //! Get the communicator this tensor field is defined on.
-    RCP_Communicator getComm() const
-    { return d_comm; }
-
     //! Get the degrees of freedom for this field.
     Teuchos::ArrayRCP<Scalar> getDF()
     { return d_dofs; }
@@ -151,10 +132,6 @@ class TensorField
     Teuchos::ArrayRCP<Scalar> getEntArrDF( iBase_EntityHandle *entities,
 					   int num_entities ) const;
 
-    //! Get the Tpetra map for the degrees of freedom.
-    RCP_Map getDFMap() const
-    { return d_dof_map; }
-
     //! Get the domain this field is defined on.
     RCP_Domain getDomain() const
     { return d_domain; }
@@ -166,6 +143,10 @@ class TensorField
     //! Get the tensor template for this field.
     RCP_TensorTemplate getTensorTemplate() const
     { return d_tensor_template; }
+
+    //! Set the unit for this field.
+    void setUnit( RCP_Unit unit )
+    { d_unit = unit; }
 
     //! Get the unit for this field.
     RCP_Unit getUnit() const
@@ -179,11 +160,6 @@ class TensorField
     //! with.
     iBase_TagHandle getDFTag() const
     { return d_dof_tag; }
-
-  private:
-
-    // Map the degrees of freedom with globally unique ID's.
-    void mapDF();
 }; 
 
 } // end namespace FOOD

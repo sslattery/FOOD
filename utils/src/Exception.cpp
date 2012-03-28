@@ -50,18 +50,6 @@ void testInvariant( bool throw_if_false, const std::string &msg )
 				msg << std::endl );
 }
 
-/*!
- * \brief Assert with more information.
- */
-void verboseAssert( bool assert_if_false, const std::string &msg )
-{
-    if ( !assert_if_false )
-    {
-	std::cerr << msg << std::endl;
-    }
-    assert( assert_if_false );
-}
-
 } // end namespace FOOD
 
 //---------------------------------------------------------------------------//

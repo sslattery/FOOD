@@ -87,7 +87,7 @@ class DFuncKernel
      * \brief Evaluate the operator value of a distribution function kernel at
      * a given set of parametric coordinates. The operator is defined by the
      * function space. (i.e. FOOD_HDIV space returns the divergence of the
-     * distribution function kernel.) 
+     * distribution function kernel in Hilbert space.) 
      */
     virtual void dfuncOperator( Teuchos::ArrayRCP<Scalar> &values,
 				const double param_coords[3] ) = 0;

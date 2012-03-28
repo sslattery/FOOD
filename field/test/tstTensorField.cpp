@@ -591,14 +591,13 @@ TEUCHOS_UNIT_TEST( TensorField, constructor_test )
 			       1 );
 
     // Create the field and check basic accessors.
-    FOOD::TensorField<double> field( getDefaultComm<int>(),
-				     domain,
+    FOOD::TensorField<double> field( domain,
 				     dfunckernel,
 				     tensor_template,
-				     unit,
 				     "FOO_FIELD" );
 
-    TEST_ASSERT( field.getComm() == getDefaultComm<int>() );
+    field.setUnit( unit );
+
     TEST_ASSERT( field.getDomain() == domain );
     TEST_ASSERT( field.getTensorTemplate() == tensor_template );
     TEST_ASSERT( field.getUnit() == unit );
@@ -651,11 +650,9 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_vertex_tag_test )
 			       1 );
 
     // Create the field.
-    FOOD::TensorField<double> field( getDefaultComm<int>(),
-				     domain,
+    FOOD::TensorField<double> field( domain,
 				     dfunckernel,
 				     tensor_template,
-				     unit,
 				     "VERTEX_FIELD" );
 
     // Get the vertex tag to attach to the field.
@@ -673,19 +670,13 @@ TEUCHOS_UNIT_TEST( TensorField, dof_hex_mesh_vertex_tag_test )
     TEST_ASSERT( iBase_SUCCESS == error );
 
     // Test the tag attachment.
-    int myRank = getDefaultComm<int>()->getRank();
-    int mySize = getDefaultComm<int>()->getSize();
     int num_vertices = 1331;
 
-    TEST_ASSERT( (int) field.getDFMap()->getGlobalNumElements()
-		 == num_vertices*mySize );
     TEST_ASSERT( (int) field.getDFView().size() == num_vertices );
     TEST_ASSERT( (int) field.getDFConstView().size() == num_vertices );
 
     for (int i = 0; i < num_vertices; ++i)
     {
-	TEST_ASSERT( (int) field.getDFMap()->getNodeElementList()[i]
-		     == myRank*mySize + i );
 	TEST_ASSERT( field.getDFView()[i] == (double) i );
 	TEST_ASSERT( field.getDFConstView()[i] == (double) i );
     }
@@ -767,11 +758,9 @@ TEUCHOS_UNIT_TEST( TensorField, hex_evaluation_test )
 			       1 );
 
     // Create the field.
-    FOOD::TensorField<double> field( getDefaultComm<int>(),
-				     domain,
+    FOOD::TensorField<double> field( domain,
 				     dfunckernel,
 				     tensor_template,
-				     unit,
 				     "HEX_FIELD" );
 
     // Attach the field to array data. These are nodal values but they are
@@ -875,11 +864,9 @@ TEUCHOS_UNIT_TEST( TensorField, hex_vector_evaluation_test )
 			       1 );
 
     // Create the field.
-    FOOD::TensorField<double> field( getDefaultComm<int>(),
-				     domain,
+    FOOD::TensorField<double> field( domain,
 				     dfunckernel,
 				     tensor_template,
-				     Teuchos::null,
 				     "HEX_FIELD" );
 
     // Attach the field to array data. These are nodal values but they are
@@ -1003,11 +990,9 @@ TEUCHOS_UNIT_TEST( TensorField, quadratic_hex_evaluation_test )
 			       1 );
 
     // Create the field.
-    FOOD::TensorField<double> field( getDefaultComm<int>(),
-				     domain,
+    FOOD::TensorField<double> field( domain,
 				     dfunckernel,
 				     tensor_template,
-				     Teuchos::null,
 				     "HEX_FIELD" );
 
     // Attach the field to array data. These are nodal values but they are
@@ -1130,11 +1115,9 @@ TEUCHOS_UNIT_TEST( TensorField, hex_grad_eval_test )
 			       1 );
 
     // Create the field.
-    FOOD::TensorField<double> field( getDefaultComm<int>(),
-				     domain,
+    FOOD::TensorField<double> field( domain,
 				     dfunckernel,
 				     tensor_template,
-				     Teuchos::null,
 				     "HEX_FIELD" );
 
     // Attach the field to array data. These are nodal values but they are
