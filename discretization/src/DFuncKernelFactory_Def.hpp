@@ -21,6 +21,8 @@
 #include <iBase.h>
 #include <iMesh.h>
 
+#include <Teuchos_ENull.hpp>
+
 #include <Intrepid_FieldContainer.hpp>
 #include <Intrepid_Basis.hpp>
 #include <Intrepid_HCURL_HEX_I1_FEM.hpp>
@@ -623,6 +625,9 @@ DFuncKernelFactory<Scalar>::create( const int entity_type,
 			      FOOD_HCURL == function_space_type,
 			      "Invalid function space type" );
     }
+
+    testPostcondition( new_dfunckernel != Teuchos::null,
+		      "Failure creating distribution function kernel" );
 
     return new_dfunckernel;
 }

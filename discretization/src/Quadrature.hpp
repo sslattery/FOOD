@@ -1,0 +1,98 @@
+//---------------------------------------------------------------------------//
+/*!
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version.
+ *
+ * \file Quadrature.hpp
+ * \author Stuart Slattery
+ * \brief Interface definition for quadrature rules.
+ */
+//---------------------------------------------------------------------------//
+
+#ifndef FOOD_QUADRATURE_HPP
+#define FOOD_QUADRATURE_HPP
+
+#include <cstdlib>
+
+#include <iBase.h>
+#include <iMesh.h>
+
+#include <Teuchos_ArrayRCP.hpp>
+
+namespace FOOD
+{
+
+/*
+ * \brief Interface definition for quadrature rules associated with an iMesh
+ * topology. This is heavily based on the Intrepid defintion as the Intrepid
+ * data model is fairly complete. Templated on the degree of freedom data
+ * type. 
+ */
+template<class Scalar>
+class Quadrature
+{
+
+  protected:
+
+    // Number of quadrature rule points.
+    int b_num_points;
+
+    // Quadrature rule dimension.
+    int b_dimension;
+
+    // Quadrature cell type. (enum)
+    std::size_t b_type;
+
+    // Quadrature cell topology. (enum)
+    std::size_t b_topology;
+
+  public:
+
+    /*!
+     * \brief Default constructor.
+     */
+    Quadrature()
+    { /* ... */ }
+
+    /*!
+     * \brief Destructor.
+     */
+    virtual ~Quadrature()
+    { /* ... */ }
+
+    /*!
+     * \brief Get the quadrature rule.
+     * \param coordinates Interleaved quadrature point coordinates.
+     * \param weights Quadrature weights returned in the quadrature point
+     * order. 
+     */
+    virtual void 
+    getQuadratureRule( Teuchos::ArrayRCP<Scalar> &coordinates,
+		       Teuchos::ArrayRCP<Scalar> &weights ) const = 0;
+
+    //! Get the number of quadrature points.
+    virtual int getNumPoints() const
+    { return b_num_points; }
+
+    //! Get the quadrature rule dimension.
+    virtual int getDimension() const
+    { return b_dimension; }
+
+    //! Get the quadrature rule cell type.
+    virtual int getEntityType() const 
+    { return b_type; }
+
+    //! Get the quadrature rule cell topology.
+    virtual int getEntityTopology() const
+    { return b_topology; }
+};
+
+} // end namespace FOOD
+
+#endif // end FOOD_QUADRATURE_HPP
+
+//---------------------------------------------------------------------------//
+// end Quadrature.hpp
+//---------------------------------------------------------------------------//

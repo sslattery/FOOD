@@ -16,6 +16,8 @@
 
 #include <iMesh.h>
 
+#include <Teuchos_ENull.hpp>
+
 namespace FOOD
 {
 
@@ -190,6 +192,9 @@ CellTopologyFactory::create( const int entity_topology,
 			      iMesh_HEXAHEDRON    == entity_topology ,
 			      "Invalid mesh topology" );
     }
+
+    testPostcondition( new_topology != Teuchos::null,
+		       "Failure creating cell topology" );
 
     return new_topology;
 }

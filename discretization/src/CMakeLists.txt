@@ -27,7 +27,11 @@ APPEND_SET(HEADERS
   DiscretizationTypes.hpp
   IntrepidKernel.hpp
   IntrepidKernel_Def.hpp
-  DiscretizationTypes.hpp
+  IntrepidQuadrature.hpp
+  IntrepidQuadrature_Def.hpp
+  Quadrature.hpp
+  QuadratureFactory.hpp
+  QuadratureFactory_Def.hpp
   TopologyTools.hpp
   )
 
