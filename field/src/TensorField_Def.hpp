@@ -22,6 +22,8 @@
 #include "Quadrature.hpp"
 #include "QuadratureFactory.hpp"
 
+#include <Teuchos_TestForException.hpp>
+
 namespace FOOD
 {
 
@@ -234,9 +236,7 @@ void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
     // entity).
     int num_component = d_tensor_template->getNumComponents();
     int dimension = values.size()/d_dfunckernel->getCardinality();
-    int dfunc_values_size = num_component*dimension;
-			    
-    dfunc_values.resize( dfunc_values_size );
+
     Teuchos::ArrayRCP<Scalar> entity_coeffs = getEntDF( entity );
     Teuchos::ArrayRCP<Scalar> component_coeffs(d_dfunckernel->getCardinality());
     Teuchos::ArrayRCP<Scalar> component_values;
@@ -312,7 +312,7 @@ void TensorField<Scalar>::evaluateGradDF( const iBase_EntityHandle entity,
 
 /*!
  * \brief Integrate the degrees of freedom over the domain and apply to the
- * mesh. 
+ * mesh and return the tag for the integral data
  */
 template<class Scalar>
 void TensorField<Scalar>::integrateDF()
@@ -324,7 +324,7 @@ void TensorField<Scalar>::integrateDF()
     Teuchos::RCP< Quadrature<Scalar> > quadrature = 
 	quadrature_factory.create( d_dfunckernel->getEntityType(),
 				   d_dfunckernel->getEntityTopology(),
-				   d_dfunckernel->getDegree );
+				   d_dfunckernel->getDegree() );
 
     // Loop through the cells and compute the integral.
     iBase_EntityHandle *cells = 0;
@@ -344,28 +344,26 @@ void TensorField<Scalar>::integrateDF()
     Teuchos::ArrayRCP<Scalar> weights;
 
     int num_quad_points = quadrature->getNumPoints();
-    int dof_size = d_dfunckernel->getCardinality() * 
-		   d_tensor_template->getNumComponents() *
-		   num_quad_points;
+    int point_dof_size = d_dfunckernel->getCardinality() * 
+			 d_tensor_template->getNumComponents();
+    int dof_size = point_dof_size * num_quad_points;
 
-    Teuchos::ArrayRCP<Scalar> values( dof_size );
+    Teuchos::ArrayRCP<Scalar> values( dof_size, 0.0 );
     Teuchos::ArrayRCP<Scalar> point_values;
 
-    double coords[3];
-
-    Teuchos::ArrayRCP<Scalar> integral( num_cells );
+    Teuchos::ArrayRCP<Scalar> integral( num_cells, 0.0 );
     Teuchos::ArrayRCP<Scalar> cell_integral;
 
     for ( int n = 0; n < num_cells; ++n )
     {
 	quadrature->getQuadratureRule( points, weights );
-	
+
 	for ( int i = 0; i < num_quad_points; ++i )
 	{
-	    point_values = values.persistingView( dof_size*i/num_quad_points,
-						  dof_size/num_quad_points );
-	    coords = { points[3*i], points[3*i+1], points[3*i+2] };
-	    evaluateDF( cell, coords, true, point_values );
+	    point_values = values.persistingView( point_dof_size*i,
+						  point_dof_size );
+	    double coords[3] = { points[3*i], points[3*i+1], points[3*i+2] };
+	    evaluateDF( cells[n], coords, true, point_values );
 	}
 
 	cell_integral = integral.persistingView( n, 1 );
@@ -377,14 +375,25 @@ void TensorField<Scalar>::integrateDF()
     }
 
     // Tag the mesh with the integral.
-    std::string integral_name = d_name + "_integral";
+    iBase_TagHandle integral_tag;
+    std::string integral_name = d_name + "_INTEGRAL";
     iMesh_createTag( d_domain->getMesh(),
 		     &integral_name[0],
 		     TypeTraits<Scalar>::tag_size,
 		     TypeTraits<Scalar>::tag_type,
-		     &integral,
+		     &integral_tag,
 		     &error,
 		     (int) integral_name.size() );
+    assert( iBase_SUCCESS == error );
+
+    int integral_size = num_cells*sizeof(Scalar);
+    iMesh_setArrData( d_domain->getMesh(),
+		      cells,
+		      num_cells,
+		      integral_tag,
+		      integral.get(),
+		      integral_size,
+		      &error );
     assert( iBase_SUCCESS == error );
 
     // Clean up.

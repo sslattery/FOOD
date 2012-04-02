@@ -29,7 +29,7 @@ class TensorTemplate
 
     //@{
     //! Typedefs.
-    typedef Teuchos::RCP<Quantity>                    RCP_Quantity;
+    typedef Teuchos::RCP<Quantity>                RCP_Quantity;
     //@}
 
   public:
@@ -69,7 +69,7 @@ class TensorTemplate
     { return d_alg_type; }
 
     //! Set the physical quantity this tensor template represents.
-    void setQuantity( RCP_Quantity quantity ) const
+    void setQuantity( RCP_Quantity quantity )
     { d_quantity = quantity; }
 
     // Get the physical quantity this tensor template represents.

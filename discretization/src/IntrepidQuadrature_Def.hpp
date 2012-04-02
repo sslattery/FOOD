@@ -146,12 +146,13 @@ void IntrepidQuadrature<Scalar>::integrate(
 	1, cardinality, this->b_num_points );
     Intrepid::FunctionSpaceTools::multiplyMeasure<Scalar>( 
 	weighted_function, weighted_measure, function );
-   
-    MDArray integrated_function( 1 );
+
+    Teuchos::Tuple<int,1> integrated_function_dimensions;
+    integrated_function_dimensions[0] = 1;
+    MDArray integrated_function( integrated_function_dimensions,
+				 integrated_values );
     Intrepid::FunctionSpaceTools::integrate<Scalar>( 
 	integrated_function, function, weighted_function, Intrepid::COMP_CPP );
-
-    integrated_values = integrated_function.getData();
 }
 
 } // end namespace FOOD

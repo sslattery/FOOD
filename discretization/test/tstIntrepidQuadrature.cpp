@@ -84,7 +84,7 @@ TEUCHOS_UNIT_TEST( IntrepidQuadrature, integration_test )
 
     Intrepid::DefaultCubatureFactory<double> cub_factory;
     Teuchos::RCP< Intrepid::Cubature<double> > intrepid_cub =
-	cub_factory.create( *shards_topo, 2 );
+	cub_factory.create( *shards_topo, 1 );
 
     Teuchos::RCP< FOOD::Quadrature<double> > quadrature = Teuchos::rcp(
 	new FOOD::IntrepidQuadrature<double>( intrepid_cub, 
@@ -97,7 +97,7 @@ TEUCHOS_UNIT_TEST( IntrepidQuadrature, integration_test )
     iMesh_newMesh( "", &mesh, &error, 0);
     TEST_ASSERT( iBase_SUCCESS == error );
 
-    double vtx_coords[12] = { 0,0,0, 1,0,0, 1,1,0, 0,1,0 };
+    double vtx_coords[12] = { 0,0,0, 1,0,0, 0,1,0, 0,0,1 };
     int num_verts = 4;
     int new_coords_size = 3*num_verts;
     int new_vertex_handles_allocated = 0;
@@ -129,15 +129,15 @@ TEUCHOS_UNIT_TEST( IntrepidQuadrature, integration_test )
     int cardinality = 4;
     int values_size = cardinality*quadrature->getNumPoints();
     Teuchos::ArrayRCP<double> integrated_values;
-    Teuchos::ArrayRCP<double> values( values_size, 1.0 );
+    Teuchos::ArrayRCP<double> values( values_size, 1.2 );
     quadrature->integrate( integrated_values,
 			   values,
 			   cardinality,
 			   mesh,
 			   tetrahedron );
-    std::cout << "CELL INTEGRAL " << integrated_values[0] << std::endl;
+
     TEST_ASSERT( (int) integrated_values.size() == 1 );
-    TEST_ASSERT( integrated_values[0] == 1.0 );
+    TEST_ASSERT( abs( integrated_values[0] - 0.96 ) < 1.0e-4 );
 }
 
 //---------------------------------------------------------------------------//

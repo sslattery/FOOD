@@ -30,12 +30,13 @@
 #include <Teuchos_Tuple.hpp>
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_Describable.hpp>
 
 namespace FOOD
 {
 
 template<class Scalar>
-class TensorField
+class TensorField : public Teuchos::Describable
 {
 
   public:
