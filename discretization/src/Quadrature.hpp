@@ -72,6 +72,19 @@ class Quadrature
     getQuadratureRule( Teuchos::ArrayRCP<Scalar> &coordinates,
 		       Teuchos::ArrayRCP<Scalar> &weights ) const = 0;
 
+    /*!
+     * \brief Integrate over a cell.
+     * \param integrated_values Integration result.
+     * \param values Function coefficients.
+     * \param physical_cell The entity to integrate over.
+     */
+    virtual void 
+    integrate( Teuchos::ArrayRCP<Scalar> &integrated_values,
+	       const Teuchos::ArrayRCP<Scalar> &values,
+	       const int cardinality,
+	       const iMesh_Instance mesh,
+	       const iBase_EntityHandle physical_cell ) = 0;
+
     //! Get the number of quadrature points.
     virtual int getNumPoints() const
     { return b_num_points; }

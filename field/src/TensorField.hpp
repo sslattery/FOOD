@@ -108,6 +108,10 @@ class TensorField
 			 const int is_param,
 			 Teuchos::ArrayRCP<Scalar> &dfunc_values );
 
+    // Integrate the degrees of freedom over the domain and apply to the
+    // mesh.
+    void integrateDF();
+
     //! Get the degrees of freedom for this field.
     Teuchos::ArrayRCP<Scalar> getDF()
     { return d_dofs; }

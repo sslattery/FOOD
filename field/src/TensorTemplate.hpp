@@ -51,23 +51,26 @@ class TensorTemplate
     // Constructor.
     TensorTemplate( const int order, 
 		    const int num_comp, 
-		    const int alg_type, 
-		    RCP_Quantity quantity );
+		    const int alg_type );
 
     // Destructor.
     ~TensorTemplate();
 
-    // Get the order of this tensor template.
+    //! Get the order of this tensor template.
     std::size_t getOrder() const
     { return d_order; }
 
-    // Get the number of components in this tensor template.
+    //! Get the number of components in this tensor template.
     std::size_t getNumComponents() const
     { return d_num_comp; }
 
-    // Get the algebraic type of this tensor template.
+    //! Get the algebraic type of this tensor template.
     std::size_t getAlgType() const
     { return d_alg_type; }
+
+    //! Set the physical quantity this tensor template represents.
+    void setQuantity( RCP_Quantity quantity ) const
+    { d_quantity = quantity; }
 
     // Get the physical quantity this tensor template represents.
     RCP_Quantity getQuantity() const

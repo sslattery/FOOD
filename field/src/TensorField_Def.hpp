@@ -19,6 +19,9 @@
 
 #include "Exception.hpp"
 
+#include "Quadrature.hpp"
+#include "QuadratureFactory.hpp"
+
 namespace FOOD
 {
 
@@ -305,6 +308,87 @@ void TensorField<Scalar>::evaluateGradDF( const iBase_EntityHandle entity,
 				 entity_coeffs,
 				 transformed_operators );
     }
+}
+
+/*!
+ * \brief Integrate the degrees of freedom over the domain and apply to the
+ * mesh. 
+ */
+template<class Scalar>
+void TensorField<Scalar>::integrateDF()
+{
+    int error = 0;
+
+    // Setup the quadrature rule.
+    QuadratureFactory<Scalar> quadrature_factory;
+    Teuchos::RCP< Quadrature<Scalar> > quadrature = 
+	quadrature_factory.create( d_dfunckernel->getEntityType(),
+				   d_dfunckernel->getEntityTopology(),
+				   d_dfunckernel->getDegree );
+
+    // Loop through the cells and compute the integral.
+    iBase_EntityHandle *cells = 0;
+    int cells_allocated = 0;
+    int num_cells = 0;
+    iMesh_getEntities( d_domain->getMesh(),
+		       d_domain->getMeshSet(),
+		       d_dfunckernel->getEntityType(),
+		       d_dfunckernel->getEntityTopology(),
+		       &cells,
+		       &cells_allocated,
+		       &num_cells,
+		       &error );
+    assert( iBase_SUCCESS == error );
+
+    Teuchos::ArrayRCP<Scalar> points;
+    Teuchos::ArrayRCP<Scalar> weights;
+
+    int num_quad_points = quadrature->getNumPoints();
+    int dof_size = d_dfunckernel->getCardinality() * 
+		   d_tensor_template->getNumComponents() *
+		   num_quad_points;
+
+    Teuchos::ArrayRCP<Scalar> values( dof_size );
+    Teuchos::ArrayRCP<Scalar> point_values;
+
+    double coords[3];
+
+    Teuchos::ArrayRCP<Scalar> integral( num_cells );
+    Teuchos::ArrayRCP<Scalar> cell_integral;
+
+    for ( int n = 0; n < num_cells; ++n )
+    {
+	quadrature->getQuadratureRule( points, weights );
+	
+	for ( int i = 0; i < num_quad_points; ++i )
+	{
+	    point_values = values.persistingView( dof_size*i/num_quad_points,
+						  dof_size/num_quad_points );
+	    coords = { points[3*i], points[3*i+1], points[3*i+2] };
+	    evaluateDF( cell, coords, true, point_values );
+	}
+
+	cell_integral = integral.persistingView( n, 1 );
+	quadrature->integrate( cell_integral, 
+			       values, 
+			       d_dfunckernel->getCardinality(),
+			       d_domain->getMesh(),
+			       cells[n] );
+    }
+
+    // Tag the mesh with the integral.
+    std::string integral_name = d_name + "_integral";
+    iMesh_createTag( d_domain->getMesh(),
+		     &integral_name[0],
+		     TypeTraits<Scalar>::tag_size,
+		     TypeTraits<Scalar>::tag_type,
+		     &integral,
+		     &error,
+		     (int) integral_name.size() );
+    assert( iBase_SUCCESS == error );
+
+    // Clean up.
+    free( cells );
 }
 
 /*! 

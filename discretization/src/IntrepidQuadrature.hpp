@@ -61,6 +61,12 @@ class IntrepidQuadrature : public Quadrature<Scalar>
     void getQuadratureRule( Teuchos::ArrayRCP<Scalar> &coordinates,
 			    Teuchos::ArrayRCP<Scalar> &weights ) const;
 
+    // Integrate over a cell.
+    void integrate( Teuchos::ArrayRCP<Scalar> &integrated_values,
+		    const Teuchos::ArrayRCP<Scalar> &values,
+		    const int cardinality,
+		    const iMesh_Instance mesh,
+		    const iBase_EntityHandle physical_cell );
 };
 
 } // end namespace FOOD

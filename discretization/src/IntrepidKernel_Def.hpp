@@ -23,6 +23,7 @@
 #include <Teuchos_Tuple.hpp>
 
 #include <Intrepid_FunctionSpaceTools.hpp>
+#include <Intrepid_CellTools.hpp>
 
 namespace FOOD
 {
@@ -70,10 +71,7 @@ void IntrepidKernel<Scalar>::dfuncValue( Teuchos::ArrayRCP<Scalar> &values,
 
     if ( this->b_function_space_type == FOOD_HGRAD )
     {
-	Teuchos::Tuple<int,2> grad_value_dimensions;
-	grad_value_dimensions[0] = this->b_cardinality;
-	grad_value_dimensions[1] = 1;
-	MDArray grad_values( grad_value_dimensions );
+	MDArray grad_values( this->b_cardinality, 1 );
 
 	d_intrepid_basis->getValues( grad_values, 
 				     coords, 
@@ -83,12 +81,7 @@ void IntrepidKernel<Scalar>::dfuncValue( Teuchos::ArrayRCP<Scalar> &values,
     }
     else if ( this->b_function_space_type == FOOD_HDIV )
     {
-
-	Teuchos::Tuple<int,3> div_value_dimensions;
-	div_value_dimensions[0] = this->b_cardinality;
-	div_value_dimensions[1] = 1;
-	div_value_dimensions[2] = 3;
-	MDArray div_values( div_value_dimensions );
+	MDArray div_values( this->b_cardinality, 1, 3 );
 
 	d_intrepid_basis->getValues( div_values, 
 				     coords, 
@@ -98,11 +91,7 @@ void IntrepidKernel<Scalar>::dfuncValue( Teuchos::ArrayRCP<Scalar> &values,
     }
     else if ( this->b_function_space_type == FOOD_HCURL )
     {
-	Teuchos::Tuple<int,3> curl_value_dimensions;
-	curl_value_dimensions[0] = this->b_cardinality;
-	curl_value_dimensions[1] = 1;
-	curl_value_dimensions[2] = 3;
-	MDArray curl_values( curl_value_dimensions );
+	MDArray curl_values( this->b_cardinality, 1, 3 );
 
 	d_intrepid_basis->getValues( curl_values, 
 				     coords, 
@@ -136,11 +125,7 @@ void IntrepidKernel<Scalar>::dfuncOperator( Teuchos::ArrayRCP<Scalar> &values,
 
     if ( this->b_function_space_type == FOOD_HGRAD )
     {
-	Teuchos::Tuple<int,3> grad_dimensions;
-	grad_dimensions[0] = this->b_cardinality;
-	grad_dimensions[1] = 1;
-	grad_dimensions[2] = 3;
-	MDArray dfunc_grad( grad_dimensions );
+	MDArray dfunc_grad( this->b_cardinality, 1, 3 );
     
 	d_intrepid_basis->getValues( dfunc_grad, 
 				     coords, 
@@ -150,10 +135,7 @@ void IntrepidKernel<Scalar>::dfuncOperator( Teuchos::ArrayRCP<Scalar> &values,
     }
     else if ( this->b_function_space_type == FOOD_HDIV )
     {
-	Teuchos::Tuple<int,2> div_dimensions;
-	div_dimensions[0] = this->b_cardinality;
-	div_dimensions[1] = 1;
-	MDArray dfunc_div( div_dimensions );
+	MDArray dfunc_div( this->b_cardinality );
 
 	d_intrepid_basis->getValues( dfunc_div, 
 				     coords, 
@@ -163,11 +145,7 @@ void IntrepidKernel<Scalar>::dfuncOperator( Teuchos::ArrayRCP<Scalar> &values,
     }
     else if ( this->b_function_space_type == FOOD_HCURL )
     {
-	Teuchos::Tuple<int,3> curl_dimensions;
-	curl_dimensions[0] = this->b_cardinality;
-	curl_dimensions[1] = 1;
-	curl_dimensions[2] = 3;
-	MDArray dfunc_curl( curl_dimensions );
+	MDArray dfunc_curl( this->b_cardinality, 1, 3 );
 
 	d_intrepid_basis->getValues( dfunc_curl,
 				     coords, 
@@ -316,11 +294,7 @@ void IntrepidKernel<Scalar>::transformValue(
 
     if ( this->b_function_space_type == FOOD_HGRAD )
     {
-	Teuchos::Tuple<int,3> transformed_grad_dimensions;
-	transformed_grad_dimensions[0] = 1;
-	transformed_grad_dimensions[1] = this->b_cardinality;
-	transformed_grad_dimensions[2] = 1;
-	MDArray transformed_grad( transformed_grad_dimensions );
+	MDArray transformed_grad( 1, this->b_cardinality, 1 );
 
 	Teuchos::Tuple<int,2> grad_value_dimensions;
 	grad_value_dimensions[0] = this->b_cardinality;
@@ -343,12 +317,7 @@ void IntrepidKernel<Scalar>::transformValue(
 
 	Intrepid::CellTools<double>::setJacobianDet( jacobian_det, jacobian );
 
-	Teuchos::Tuple<int,4> transformed_div_dimensions;
-	transformed_div_dimensions[0] = 1;
-	transformed_div_dimensions[1] = this->b_cardinality;
-	transformed_div_dimensions[2] = 1;
-	transformed_div_dimensions[3] = 3;
-	MDArray transformed_div( transformed_div_dimensions );
+	MDArray transformed_div( 1, this->b_cardinality, 1, 3 );
 	Teuchos::Tuple<int,3> div_value_dimensions;
 	div_value_dimensions[0] = this->b_cardinality;
 	div_value_dimensions[1] = 1;
@@ -369,12 +338,7 @@ void IntrepidKernel<Scalar>::transformValue(
 
 	Intrepid::CellTools<double>::setJacobianInv( jacobian_inv, jacobian );
 
-	Teuchos::Tuple<int,4> transformed_curl_dimensions;
-	transformed_curl_dimensions[0] = 1;
-	transformed_curl_dimensions[1] = this->b_cardinality;
-	transformed_curl_dimensions[2] = 1;
-	transformed_curl_dimensions[3] = 3;
-	MDArray transformed_curl( transformed_curl_dimensions );
+	MDArray transformed_curl( 1, this->b_cardinality, 1, 3 );
 	Teuchos::Tuple<int,3> curl_value_dimensions;
 	curl_value_dimensions[0] = this->b_cardinality;
 	curl_value_dimensions[1] = 1;
@@ -469,12 +433,7 @@ void IntrepidKernel<Scalar>::transformOperator(
 	Intrepid::CellTools<double>::setJacobianInv( jacobian_inv, 
 						     jacobian );
 
-	Teuchos::Tuple<int,4> transformed_grad_dimensions;
-	transformed_grad_dimensions[0] = 1;
-	transformed_grad_dimensions[1] = this->b_cardinality;
-	transformed_grad_dimensions[2] = 1;
-	transformed_grad_dimensions[3] = 3;
-	MDArray transformed_grad( transformed_grad_dimensions );
+	MDArray transformed_grad( 1, this->b_cardinality, 1, 3 );
 	Teuchos::Tuple<int,3> grad_dimensions;
 	grad_dimensions[0] = this->b_cardinality;
 	grad_dimensions[1] = 1;
