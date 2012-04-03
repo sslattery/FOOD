@@ -37,7 +37,7 @@ class QuadratureFactory
     Teuchos::RCP< Quadrature<Scalar> > 
     create( const int entity_type,
 	    const int entity_topology,
-	    const int basis_degree );
+	    const int degree );
 };
 
 } // end namespace FOOD

@@ -225,7 +225,8 @@ void TensorField<Scalar>::evaluateDF( const iBase_EntityHandle entity,
     d_dfunckernel->dfuncValue( values, param_coords );
 
     // 3) Transform evaluated basis values to the physical frame.
-    Teuchos::ArrayRCP<Scalar> transformed_values;
+    Teuchos::ArrayRCP<Scalar> 
+	transformed_values( d_dfunckernel->getCardinality() );
     d_dfunckernel->transformValue( transformed_values,
 				   values,
 				   param_coords,
@@ -312,7 +313,7 @@ void TensorField<Scalar>::evaluateGradDF( const iBase_EntityHandle entity,
 
 /*!
  * \brief Integrate the degrees of freedom over the domain and apply to the
- * mesh and return the tag for the integral data
+ * mesh.
  */
 template<class Scalar>
 void TensorField<Scalar>::integrateDF()
@@ -320,11 +321,14 @@ void TensorField<Scalar>::integrateDF()
     int error = 0;
 
     // Setup the quadrature rule.
+    int kernel_degree = d_dfunckernel->getDegree();
+    int exact_degree = 2*kernel_degree;
+
     QuadratureFactory<Scalar> quadrature_factory;
     Teuchos::RCP< Quadrature<Scalar> > quadrature = 
 	quadrature_factory.create( d_dfunckernel->getEntityType(),
 				   d_dfunckernel->getEntityTopology(),
-				   d_dfunckernel->getDegree() );
+				   exact_degree );
 
     // Loop through the cells and compute the integral.
     iBase_EntityHandle *cells = 0;
@@ -348,14 +352,14 @@ void TensorField<Scalar>::integrateDF()
 			 d_tensor_template->getNumComponents();
     int dof_size = point_dof_size * num_quad_points;
 
-    Teuchos::ArrayRCP<Scalar> values( dof_size, 0.0 );
-    Teuchos::ArrayRCP<Scalar> point_values;
-
     Teuchos::ArrayRCP<Scalar> integral( num_cells, 0.0 );
+    Teuchos::ArrayRCP<Scalar> point_values;
     Teuchos::ArrayRCP<Scalar> cell_integral;
 
     for ( int n = 0; n < num_cells; ++n )
     {
+	Teuchos::ArrayRCP<Scalar> values( dof_size, 0.0 );
+
 	quadrature->getQuadratureRule( points, weights );
 
 	for ( int i = 0; i < num_quad_points; ++i )
@@ -369,9 +373,10 @@ void TensorField<Scalar>::integrateDF()
 	cell_integral = integral.persistingView( n, 1 );
 	quadrature->integrate( cell_integral, 
 			       values, 
-			       d_dfunckernel->getCardinality(),
+			       d_dfunckernel,
 			       d_domain->getMesh(),
 			       cells[n] );
+	std::cout << integral[n] << std::endl;
     }
 
     // Tag the mesh with the integral.

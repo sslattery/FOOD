@@ -29,6 +29,7 @@
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_CommHelpers.hpp>
 
+//---------------------------------------------------------------------------//
 template<class Ordinal>
 Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 {
@@ -39,6 +40,7 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 #endif
 }
 
+//---------------------------------------------------------------------------//
 // Integrate the field applied to a mesh.
 int main(int argc, char* argv[])
 {
@@ -79,7 +81,7 @@ int main(int argc, char* argv[])
 		0 );
     assert( iBase_SUCCESS == error );
 
-    // Set up the mesh field.
+    // Set up the field.
     Teuchos::RCP<FOOD::Domain> domain = Teuchos::rcp(
 	new FOOD::Domain(mesh, root_set, FOOD::FOOD_MBCN) );
 

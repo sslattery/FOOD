@@ -16,6 +16,7 @@
 #define FOOD_INTREPIDQUADRATURE_HPP
 
 #include "Quadrature.hpp"
+#include "DFuncKernel.hpp"
 
 #include <iBase.h>
 #include <iMesh.h>
@@ -40,6 +41,8 @@ class IntrepidQuadrature : public Quadrature<Scalar>
     typedef Intrepid::FieldContainer<Scalar>        MDArray;
     typedef Intrepid::Cubature<Scalar>              IntrepidCubature_t;
     typedef Teuchos::RCP<IntrepidCubature_t>        RCP_IntrepidCubature;
+    typedef DFuncKernel<Scalar>                     DFuncKernel_t;
+    typedef Teuchos::RCP<DFuncKernel_t>             RCP_DFuncKernel;
     //@}
 
   private:
@@ -51,6 +54,7 @@ class IntrepidQuadrature : public Quadrature<Scalar>
 
     // Constructor.
     IntrepidQuadrature( RCP_IntrepidCubature intrepid_cubature,
+			const int degree,
 			const int entity_type, 
 			const int entity_topology );
 
@@ -64,7 +68,7 @@ class IntrepidQuadrature : public Quadrature<Scalar>
     // Integrate over a cell.
     void integrate( Teuchos::ArrayRCP<Scalar> &integrated_values,
 		    const Teuchos::ArrayRCP<Scalar> &values,
-		    const int cardinality,
+		    const RCP_DFuncKernel &dfunckernel,
 		    const iMesh_Instance mesh,
 		    const iBase_EntityHandle physical_cell );
 };

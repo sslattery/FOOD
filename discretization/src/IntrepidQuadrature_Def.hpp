@@ -31,12 +31,14 @@ namespace FOOD
 template<class Scalar>
 IntrepidQuadrature<Scalar>::IntrepidQuadrature( 
     RCP_IntrepidCubature intrepid_cubature,
+    const int degree,
     const int entity_type, 
     const int entity_topology )
     : d_intrepid_cubature( intrepid_cubature )
 {
     this->b_num_points = d_intrepid_cubature->getNumPoints();
     this->b_dimension = d_intrepid_cubature->getDimension();
+    this->b_degree = degree;
     this->b_type = entity_type;
     this->b_topology = entity_topology;
 }
@@ -72,18 +74,18 @@ template<class Scalar>
 void IntrepidQuadrature<Scalar>::integrate(
     Teuchos::ArrayRCP<Scalar> &integrated_values,
     const Teuchos::ArrayRCP<Scalar> &values,
-    const int cardinality,
+    const RCP_DFuncKernel &dfunckernel,
     const iMesh_Instance mesh,
     const iBase_EntityHandle physical_cell )
 {
-    // get cubature
+    int error = 0;
+
+    // Get the cubature rule.
     MDArray cubature_points( this->b_num_points, this->b_dimension );
     MDArray cubature_weights( this->b_num_points );
     d_intrepid_cubature->getCubature( cubature_points, cubature_weights );
 
-    // compute jacobian
-    int error = 0;
-
+    // Get the cell nodes.
     iBase_EntityHandle *element_nodes = 0;
     int element_nodes_allocated = 0;
     int element_nodes_size = 0;
@@ -120,6 +122,7 @@ void IntrepidQuadrature<Scalar>::integrate(
     MDArray cell_nodes( Teuchos::Array<int>(cell_node_dimensions), 
 			coord_array );
 
+    // Integrate.
     CellTopologyFactory topo_factory;
     Teuchos::RCP<shards::CellTopology> cell_topo = 
 	topo_factory.create( this->b_topology, element_nodes_size );
@@ -136,6 +139,7 @@ void IntrepidQuadrature<Scalar>::integrate(
     Intrepid::FunctionSpaceTools::computeCellMeasure<Scalar>( 
 	weighted_measure, jacobian_det, cubature_weights );
 
+    int cardinality = dfunckernel->getCardinality();
     Teuchos::Tuple<int,3> function_dimensions;
     function_dimensions[0] = 1;
     function_dimensions[1] = cardinality;
@@ -152,7 +156,10 @@ void IntrepidQuadrature<Scalar>::integrate(
     MDArray integrated_function( integrated_function_dimensions,
 				 integrated_values );
     Intrepid::FunctionSpaceTools::integrate<Scalar>( 
-	integrated_function, function, weighted_function, Intrepid::COMP_CPP );
+	integrated_function, 
+	function, 
+	weighted_function, 
+	Intrepid::COMP_CPP );
 }
 
 } // end namespace FOOD

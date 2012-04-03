@@ -16,6 +16,8 @@
 
 #include <cstdlib>
 
+#include "DFuncKernel.hpp"
+
 #include <iBase.h>
 #include <iMesh.h>
 
@@ -34,6 +36,14 @@ template<class Scalar>
 class Quadrature
 {
 
+  public:
+
+    //@{
+    //! Typedefs.
+    typedef DFuncKernel<Scalar>                     DFuncKernel_t;
+    typedef Teuchos::RCP<DFuncKernel_t>             RCP_DFuncKernel;
+    //@}
+
   protected:
 
     // Number of quadrature rule points.
@@ -41,6 +51,9 @@ class Quadrature
 
     // Quadrature rule dimension.
     int b_dimension;
+
+    // Quadrature rule degree.
+    int b_degree;
 
     // Quadrature cell type. (enum)
     std::size_t b_type;
@@ -81,7 +94,7 @@ class Quadrature
     virtual void 
     integrate( Teuchos::ArrayRCP<Scalar> &integrated_values,
 	       const Teuchos::ArrayRCP<Scalar> &values,
-	       const int cardinality,
+	       const RCP_DFuncKernel &dfunckernel,
 	       const iMesh_Instance mesh,
 	       const iBase_EntityHandle physical_cell ) = 0;
 
@@ -92,6 +105,10 @@ class Quadrature
     //! Get the quadrature rule dimension.
     virtual int getDimension() const
     { return b_dimension; }
+
+    //! Get the quadrature rule degree.
+    virtual int getDegree() const
+    { return b_degree; }
 
     //! Get the quadrature rule cell type.
     virtual int getEntityType() const 
