@@ -168,7 +168,7 @@ void TensorField<Scalar>::attachToArrayData(
     d_dofs.clear();
 
     iBase_EntityHandle *dof_entities = 0;
-    int entities_allocated = num_domain_entity;
+    int entities_allocated = 0;
     int entities_size = 0;
     iMesh_getEntities( d_domain->getMesh(),
 		       d_domain->getMeshSet(),
