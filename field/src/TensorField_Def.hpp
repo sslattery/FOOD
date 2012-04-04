@@ -364,7 +364,6 @@ void TensorField<Scalar>::integrateCells()
 	    evaluateDF( cells[n], coords, true, value );
 	    integral[n] += weights[i]*value[0]/norm_factor;
 	}
-	std::cout << integral[n] << std::endl;
     }
 
     // Tag the mesh with the integral.
