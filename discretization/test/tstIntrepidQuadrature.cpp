@@ -64,7 +64,8 @@ TEUCHOS_UNIT_TEST( IntrepidQuadrature, intrepid_quadrature_test)
 	cub_factory.create( *shards_topo, 2 );
 
     Teuchos::RCP< FOOD::Quadrature<double> > quadrature = Teuchos::rcp(
-	new FOOD::IntrepidQuadrature<double>( intrepid_cub, 
+	new FOOD::IntrepidQuadrature<double>( intrepid_cub,
+					      2,
 					      iBase_REGION, 
 					      iMesh_TETRAHEDRON ) );
 
@@ -72,72 +73,6 @@ TEUCHOS_UNIT_TEST( IntrepidQuadrature, intrepid_quadrature_test)
     TEST_ASSERT( quadrature->getDimension() == 3 );
     TEST_ASSERT( quadrature->getEntityType() == iBase_REGION );
     TEST_ASSERT( quadrature->getEntityTopology() == iMesh_TETRAHEDRON );    
-}
-
-TEUCHOS_UNIT_TEST( IntrepidQuadrature, integration_test )
-{
-    FOOD::CellTopologyFactory cell_topo_factory;
-    Teuchos::RCP<shards::CellTopology> shards_topo = 
-	cell_topo_factory.create( 
-	    iMesh_TETRAHEDRON,
-	    FOOD::TopologyTools::numLinearNodes( iMesh_TETRAHEDRON ) );
-
-    Intrepid::DefaultCubatureFactory<double> cub_factory;
-    Teuchos::RCP< Intrepid::Cubature<double> > intrepid_cub =
-	cub_factory.create( *shards_topo, 1 );
-
-    Teuchos::RCP< FOOD::Quadrature<double> > quadrature = Teuchos::rcp(
-	new FOOD::IntrepidQuadrature<double>( intrepid_cub, 
-					      iBase_REGION, 
-					      iMesh_TETRAHEDRON ) );
-
-    // Create a tetrahedron.
-    int error;
-    iMesh_Instance mesh;
-    iMesh_newMesh( "", &mesh, &error, 0);
-    TEST_ASSERT( iBase_SUCCESS == error );
-
-    double vtx_coords[12] = { 0,0,0, 1,0,0, 0,1,0, 0,0,1 };
-    int num_verts = 4;
-    int new_coords_size = 3*num_verts;
-    int new_vertex_handles_allocated = 0;
-    int new_vertex_handles_size = 0;
-    iBase_EntityHandle *vertex_handles = 0;
-    iMesh_createVtxArr( mesh,
-			num_verts,
-			iBase_INTERLEAVED,
-			vtx_coords,
-			new_coords_size,
-			&vertex_handles,
-			&new_vertex_handles_allocated,
-			&new_vertex_handles_size,
-			&error );
-    TEST_ASSERT( iBase_SUCCESS == error );
-
-    int status = 0;
-    iBase_EntityHandle tetrahedron;
-    iMesh_createEnt( mesh,
-		     iMesh_TETRAHEDRON,
-		     vertex_handles,
-		     new_vertex_handles_size,
-		     &tetrahedron,
-		     &status,
-		     &error );  
-    TEST_ASSERT( iBase_SUCCESS == error );
-
-    // Integrate the tetrahedron.
-    int cardinality = 4;
-    int values_size = cardinality*quadrature->getNumPoints();
-    Teuchos::ArrayRCP<double> integrated_values;
-    Teuchos::ArrayRCP<double> values( values_size, 1.2 );
-    quadrature->integrate( integrated_values,
-			   values,
-			   cardinality,
-			   mesh,
-			   tetrahedron );
-
-    TEST_ASSERT( (int) integrated_values.size() == 1 );
-    TEST_ASSERT( abs( integrated_values[0] - 0.96 ) < 1.0e-4 );
 }
 
 //---------------------------------------------------------------------------//

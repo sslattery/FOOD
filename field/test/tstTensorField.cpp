@@ -1208,7 +1208,7 @@ TEUCHOS_UNIT_TEST( TensorField, integral_test )
     TEST_ASSERT( iBase_SUCCESS == error );
 
     // Integrate the field over the hex.
-    field.integrateDF();
+    field.integrateCells();
 
     // Check that the integral was tagged to the mesh.
     std::string tag_name = "HEX_FIELD_INTEGRAL";

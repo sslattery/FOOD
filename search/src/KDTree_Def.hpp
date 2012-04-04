@@ -492,9 +492,9 @@ bool KDTree<DIM>::pointInAdjElements( Point<DIM> p,
     {
 	if ( !return_val )
 	{
-	    return_val = TopologyTools::pointInRefElement( d_mesh,
-							   adj_elements[i],
-							   coords );
+	    return_val = TopologyTools::pointInVolume( d_mesh,
+						       adj_elements[i],
+						       coords );
 	    if ( return_val )
 	    {
 		element = adj_elements[i];

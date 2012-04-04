@@ -224,9 +224,9 @@ bool Octree::findPointInNode( RCP_Node node,
     {
 	while ( i < node_elements_size && !return_val )
 	{
-	    if ( TopologyTools::pointInRefElement( d_mesh,
-						   node_elements[i],
-						   coords ) )
+	    if ( TopologyTools::pointInVolume( d_mesh,
+					       node_elements[i],
+					       coords ) )
 	    {
 		return_val = true;
 		found_in_entity = node_elements[i];
