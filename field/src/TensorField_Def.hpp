@@ -312,11 +312,11 @@ void TensorField<Scalar>::evaluateGradDF( const iBase_EntityHandle entity,
 }
 
 /*!
- * \brief Integrate the degrees of freedom over the domain and apply to the
- * mesh.
+ * \brief Integrate the degrees of freedom over the domain cells and apply to
+ * the mesh.
  */
 template<class Scalar>
-void TensorField<Scalar>::integrateDF()
+void TensorField<Scalar>::integrateCells()
 {
     int error = 0;
 
@@ -346,36 +346,24 @@ void TensorField<Scalar>::integrateDF()
 
     Teuchos::ArrayRCP<Scalar> points;
     Teuchos::ArrayRCP<Scalar> weights;
-
+    quadrature->getQuadratureRule( points, weights );
     int num_quad_points = quadrature->getNumPoints();
-    int point_dof_size = d_dfunckernel->getCardinality() * 
-			 d_tensor_template->getNumComponents();
-    int dof_size = point_dof_size * num_quad_points;
+    double norm_factor = 0.0;
+    for ( int i = 0; i < num_quad_points; ++i )
+    {
+	norm_factor += weights[i];
+    }
 
     Teuchos::ArrayRCP<Scalar> integral( num_cells, 0.0 );
-    Teuchos::ArrayRCP<Scalar> point_values;
-    Teuchos::ArrayRCP<Scalar> cell_integral;
-
     for ( int n = 0; n < num_cells; ++n )
     {
-	Teuchos::ArrayRCP<Scalar> values( dof_size, 0.0 );
-
-	quadrature->getQuadratureRule( points, weights );
-
 	for ( int i = 0; i < num_quad_points; ++i )
 	{
-	    point_values = values.persistingView( point_dof_size*i,
-						  point_dof_size );
+	    Teuchos::ArrayRCP<Scalar> value( 1 );
 	    double coords[3] = { points[3*i], points[3*i+1], points[3*i+2] };
-	    evaluateDF( cells[n], coords, true, point_values );
+	    evaluateDF( cells[n], coords, true, value );
+	    integral[n] += weights[i]*value[0]/norm_factor;
 	}
-
-	cell_integral = integral.persistingView( n, 1 );
-	quadrature->integrate( cell_integral, 
-			       values, 
-			       d_dfunckernel,
-			       d_domain->getMesh(),
-			       cells[n] );
 	std::cout << integral[n] << std::endl;
     }
 

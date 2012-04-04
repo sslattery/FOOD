@@ -110,8 +110,8 @@ int main(int argc, char* argv[])
     field->attachToTagData( tag, error );
     assert( iBase_SUCCESS == error );
 
-    // Integrate the degrees of freedom.
-    field->integrateDF();
+    // Integrate the degrees of freedom over the cells.
+    field->integrateCells();
 
     // Write the mesh to file.
     std::string out_file = "example1_output.vtk";
