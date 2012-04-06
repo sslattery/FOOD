@@ -24,34 +24,11 @@
 #include <iMesh.h>
 
 #include <Teuchos_RCP.hpp>
-#include <Teuchos_ENull.hpp>
-#include <Teuchos_ArrayRCP.hpp>
-#include <Teuchos_DefaultComm.hpp>
-#include <Teuchos_CommHelpers.hpp>
-
-//---------------------------------------------------------------------------//
-template<class Ordinal>
-Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
-{
-#ifdef HAVE_MPI
-    return Teuchos::DefaultComm<Ordinal>::getComm();
-#else
-    return Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
-#endif
-}
 
 //---------------------------------------------------------------------------//
 // Integrate the field applied to a mesh.
 int main(int argc, char* argv[])
 {
-    // Setup communication.
-    Teuchos::GlobalMPISession mpiSession(&argc,&argv);
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = 
-	Teuchos::DefaultComm<int>::getComm();
-
-    if ( getDefaultComm<int>()->getRank() == 0 )
-    {
-
     int error;
 
     // Setup a kernel factory.
@@ -123,8 +100,6 @@ int main(int argc, char* argv[])
 		(int) out_file.size(),
 		0 );
     assert( iBase_SUCCESS == error );
-
-    } // end rank 0
 
     return 0;
 }
