@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
     // = iBase_REGION, arg2 = iMesh_HEXAHEDRON), we want a finite element
     // basis (arg3 = FOOD::FOOD_FEM), we will be operating in the Hilbert
     // space spanned by the gradient operator, a good default if you only care
-    // about field values and not operator values (arg4 = FOOD:FOOD_HGRAD),
+    // about field values and not operator values (arg4 = FOOD::FOOD_HGRAD),
     // and we want a quadratic basis as the mesh in this example consists of
     // quadratic hexahedron elements (arg5 = 2)
     Teuchos::RCP< FOOD::DFuncKernel<double> > dfunckernel = 
@@ -114,11 +114,11 @@ int main(int argc, char* argv[])
 			(int) tag_name.size() );
     assert( iBase_SUCCESS == error );
 
-    // We call attachToTagData to apply the tag data to the field. Here I'm
-    // returning the error code but don't expect this in the future as FOOD's
-    // error handling policy is to throw C++ exceptions. I need to write an
-    // ITAPS execption class that correctly throws itaps error codes as
-    // exceptions. 
+    // We call attachToTagData to apply the discretization to the tag
+    // data. Here I'm returning the error code but don't expect this in the
+    // future as FOOD's error handling policy is to throw C++ exceptions. I
+    // need to write an ITAPS execption class that correctly throws itaps
+    // error codes as exceptions. 
     field->attachToTagData( tag, error );
     assert( iBase_SUCCESS == error );
 
