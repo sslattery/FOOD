@@ -347,27 +347,20 @@ void TensorField<Scalar>::integrateCells()
     assert( iBase_SUCCESS == error );
 
     // Setup the quadrature rule.
-    int kernel_degree = d_dfunckernel->getDegree();
-    int exact_degree = kernel_degree;
-
-    // Loop through the cells and compute the integral.p
     QuadratureFactory<Scalar> quadrature_factory;
     Teuchos::RCP< Quadrature<Scalar> > quadrature = 
 	quadrature_factory.create( d_dfunckernel->getEntityType(),
 				   d_dfunckernel->getEntityTopology(),
 				   nodes_size,
-				   exact_degree );
+				   d_dfunckernel->getDegree() );
 
+    // Loop through the cells and compute the integral.
     Teuchos::ArrayRCP<Scalar> points;
     Teuchos::ArrayRCP<Scalar> weights;
     quadrature->getQuadratureRule( points, weights );
     int num_quad_points = quadrature->getNumPoints();
-    double norm_factor = 0.0;
-    for ( int i = 0; i < num_quad_points; ++i )
-    {
-	norm_factor += weights[i];
-    }
 
+    Scalar jacobian_det = 0.0;
     Teuchos::ArrayRCP<Scalar> integral( num_cells, 0.0 );
     for ( int n = 0; n < num_cells; ++n )
     {
@@ -375,8 +368,12 @@ void TensorField<Scalar>::integrateCells()
 	{
 	    Teuchos::ArrayRCP<Scalar> value( 1 );
 	    double coords[3] = { points[3*i], points[3*i+1], points[3*i+2] };
+	    d_dfunckernel->jacobianDet( jacobian_det,
+					coords,
+					d_domain->getMesh(),
+					cells[n] );
 	    evaluateDF( cells[n], coords, true, value );
-	    integral[n] += weights[i]*value[0]/norm_factor;
+	    integral[n] += weights[i]*value[0]*jacobian_det;
 	}
     }
 

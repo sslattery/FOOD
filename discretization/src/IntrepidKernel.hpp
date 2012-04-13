@@ -100,6 +100,13 @@ class IntrepidKernel : public DFuncKernel<Scalar>
     void evaluate( Teuchos::ArrayRCP<Scalar> &function_values,
 		   const Teuchos::ArrayRCP<Scalar> &coeffs,
 		   const Teuchos::ArrayRCP<Scalar> &dfunc_values );
+
+    // For a given point in the physical frame of a cell, compute the
+    // determinant of the Jacobian. 
+    void jacobianDet( Scalar &determinant,
+		      const double param_coords[3],
+		      const iMesh_Instance mesh,
+		      const iBase_EntityHandle physical_cell );
 };
 
 } // end namespace FOOD

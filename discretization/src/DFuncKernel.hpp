@@ -134,6 +134,15 @@ class DFuncKernel
 			   const Teuchos::ArrayRCP<Scalar> &coeffs,
 			   const Teuchos::ArrayRCP<Scalar> &dfunc_values ) = 0;
 
+    /*!
+     * \brief For a given point in the physical frame of a cell, compute the
+     * determinant of the Jacobian.
+     */
+    virtual void jacobianDet( Scalar &determinant,
+			      const double param_coords[3],
+			      const iMesh_Instance mesh,
+			      const iBase_EntityHandle physical_cell ) = 0;
+
     //! Get the distribution function kernel cardinality.
     virtual int getCardinality() const
     { return b_cardinality; }

@@ -511,6 +511,75 @@ void IntrepidKernel<Scalar>::evaluate(
 						    basis_eval );
 }
 
+/*!
+ * \brief For a given point in the physical frame of a cell, compute the
+ * determinant of the Jacobian.
+ */
+template<class Scalar>
+void IntrepidKernel<Scalar>::jacobianDet( 
+    Scalar &determinant,
+    const double param_coords[3],
+    const iMesh_Instance mesh,
+    const iBase_EntityHandle physical_cell )
+{
+    int error = 0;
+
+    iBase_EntityHandle *element_nodes = 0;
+    int element_nodes_allocated = 0;
+    int element_nodes_size = 0;
+    iMesh_getEntAdj( mesh,
+		     physical_cell,
+		     iBase_VERTEX,
+		     &element_nodes,
+		     &element_nodes_allocated,
+		     &element_nodes_size,
+		     &error );
+    assert( iBase_SUCCESS == error );
+
+    TopologyTools::MBCN2Shards( element_nodes, 
+				element_nodes_size,
+				this->b_topology );
+
+    int coords_allocated = 0;
+    int coords_size = 0;
+    double *coord_array = 0;
+    iMesh_getVtxArrCoords( mesh,
+			   element_nodes,
+			   element_nodes_size,
+			   iBase_INTERLEAVED,
+			   &coord_array,
+			   &coords_allocated,
+			   &coords_size,
+			   &error );
+    assert( iBase_SUCCESS == error );
+
+    Teuchos::Tuple<int,3> cell_node_dimensions;
+    cell_node_dimensions[0] = 1;
+    cell_node_dimensions[1] = element_nodes_size;
+    cell_node_dimensions[2] = 3;
+    MDArray cell_nodes( Teuchos::Array<int>(cell_node_dimensions), 
+			coord_array );
+
+    MDArray reference_coords( 1, 3 );
+    reference_coords(0,0) = param_coords[0];
+    reference_coords(0,1) = param_coords[1];
+    reference_coords(0,2) = param_coords[2];
+
+    MDArray jacobian( 1, 1, 3, 3 );
+    Intrepid::CellTools<double>::setJacobian( 
+	jacobian, 
+	reference_coords,
+	cell_nodes,
+	d_intrepid_basis->getBaseCellTopology() );
+
+    MDArray jacobian_det( 1, 1 );
+    Intrepid::CellTools<double>::setJacobianDet( jacobian_det, jacobian );
+    determinant = jacobian_det(0,0);
+
+    free( element_nodes );
+    free( coord_array );
+}
+
 } // end namespace FOOD
 
 #endif // end FOOD_INTREPIDKERNEL_DEF_HPP
