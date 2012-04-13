@@ -37,6 +37,7 @@ class QuadratureFactory
     Teuchos::RCP< Quadrature<Scalar> > 
     create( const int entity_type,
 	    const int entity_topology,
+	    const int num_entity_nodes,
 	    const int degree );
 };
 

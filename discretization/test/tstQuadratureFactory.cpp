@@ -52,6 +52,7 @@ TEUCHOS_UNIT_TEST( QuadratureFactory, factory_test )
     Teuchos::RCP< FOOD::Quadrature<double> > quadrature = 
 	quadrature_factory.create( iBase_REGION,
 				   iMesh_TETRAHEDRON,
+				   10,
 				   2 );
 
     TEST_ASSERT( quadrature->getNumPoints() == 4 );

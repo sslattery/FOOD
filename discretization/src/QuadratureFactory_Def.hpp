@@ -52,6 +52,7 @@ template<class Scalar>
 Teuchos::RCP< Quadrature<Scalar> > 
 QuadratureFactory<Scalar>::create( const int entity_type,
 				   const int entity_topology,
+				   const int num_entity_nodes,
 				   const int degree )
 {
     Teuchos::RCP< Quadrature<Scalar> > new_quadrature;
@@ -69,7 +70,7 @@ QuadratureFactory<Scalar>::create( const int entity_type,
 	    Teuchos::RCP<shards::CellTopology> shards_topo = 
 		cell_topo_factory.create( 
 		    entity_topology,
-		    TopologyTools::numLinearNodes( entity_topology ) );
+		    num_entity_nodes );
 
 	    Intrepid::DefaultCubatureFactory<Scalar> cub_factory;
 	    Teuchos::RCP< Intrepid::Cubature<Scalar> > intrepid_cub =

@@ -320,17 +320,7 @@ void TensorField<Scalar>::integrateCells()
 {
     int error = 0;
 
-    // Setup the quadrature rule.
-    int kernel_degree = d_dfunckernel->getDegree();
-    int exact_degree = kernel_degree;
-
-    QuadratureFactory<Scalar> quadrature_factory;
-    Teuchos::RCP< Quadrature<Scalar> > quadrature = 
-	quadrature_factory.create( d_dfunckernel->getEntityType(),
-				   d_dfunckernel->getEntityTopology(),
-				   exact_degree );
-
-    // Loop through the cells and compute the integral.
+    // Get the cells.
     iBase_EntityHandle *cells = 0;
     int cells_allocated = 0;
     int num_cells = 0;
@@ -343,6 +333,30 @@ void TensorField<Scalar>::integrateCells()
 		       &num_cells,
 		       &error );
     assert( iBase_SUCCESS == error );
+
+    iBase_EntityHandle *nodes = 0;
+    int nodes_allocated = 0;
+    int nodes_size = 0;
+    iMesh_getEntAdj( d_domain->getMesh(),
+		     cells[0],
+		     iMesh_POINT,
+		     &nodes,
+		     &nodes_allocated,
+		     &nodes_size,
+		     &error );
+    assert( iBase_SUCCESS == error );
+
+    // Setup the quadrature rule.
+    int kernel_degree = d_dfunckernel->getDegree();
+    int exact_degree = kernel_degree;
+
+    // Loop through the cells and compute the integral.p
+    QuadratureFactory<Scalar> quadrature_factory;
+    Teuchos::RCP< Quadrature<Scalar> > quadrature = 
+	quadrature_factory.create( d_dfunckernel->getEntityType(),
+				   d_dfunckernel->getEntityTopology(),
+				   nodes_size,
+				   exact_degree );
 
     Teuchos::ArrayRCP<Scalar> points;
     Teuchos::ArrayRCP<Scalar> weights;
@@ -389,6 +403,7 @@ void TensorField<Scalar>::integrateCells()
     assert( iBase_SUCCESS == error );
 
     // Clean up.
+    free( nodes );
     free( cells );
 }
 
