@@ -322,7 +322,7 @@ void TensorField<Scalar>::integrateCells()
 
     // Setup the quadrature rule.
     int kernel_degree = d_dfunckernel->getDegree();
-    int exact_degree = 2*kernel_degree;
+    int exact_degree = kernel_degree;
 
     QuadratureFactory<Scalar> quadrature_factory;
     Teuchos::RCP< Quadrature<Scalar> > quadrature = 

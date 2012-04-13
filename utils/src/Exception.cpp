@@ -12,7 +12,6 @@
 //---------------------------------------------------------------------------//
 
 #include <iostream>
-#include <cassert>
 
 #include "Exception.hpp"
 
